@@ -17,8 +17,10 @@ import {
   Activity,
   ArrowRight,
   SlidersHorizontal,
-  Flame
-, FileText } from 'lucide-react';
+  Flame,
+  FileText,
+  MoreHorizontal
+} from 'lucide-react';
 import { WorkoutTemplate, Student, WorkoutRoutine } from '../../types';
 import { useApp } from '../../context/AppContext';
 import { TemplateEditorModal } from './TemplateEditorModal';
