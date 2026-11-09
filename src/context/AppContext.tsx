@@ -937,6 +937,19 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         }
       } catch (err: any) {
         console.error('[recordSet Supabase Sync Error]:', err);
+        // A falha de rede também precisa ser apresentada como falha de sincronização.
+        // A série continua preservada no IndexedDB e pode ser reenviada manualmente.
+        saveStatus = 'error';
+        saveError = 'Não foi possível confirmar a sincronização. A série permanece salva neste dispositivo.';
+        retryAction = async () => {
+          try {
+            const retryRes = await persistLiveWorkoutStateToSupabase(nextState);
+            return retryRes.success;
+          } catch (retryErr) {
+            console.error('[recordSet Supabase Retry Error]:', retryErr);
+            return false;
+          }
+        };
       }
     }
 
