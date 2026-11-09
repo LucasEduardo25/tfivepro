@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { Activity, BrainCircuit, Check, ChevronRight, CircleAlert, Dumbbell, Gauge, Lightbulb, MessageSquareText, Plus, Save, Sparkles, TrendingUp, UserRound, WandSparkles } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
+import { supabase } from '../../services/supabaseClient';
 import { Exercise, RoutineExercise, RoutineWorkout, WorkoutRoutine } from '../../types';
 
 type Frequency = '3' | '4' | '5';
@@ -65,6 +66,7 @@ export const IntelligenceView: React.FC = () => {
   const [savedMessage, setSavedMessage] = useState('');
   const [question, setQuestion] = useState('');
   const [answer, setAnswer] = useState('');
+  const [aiLoading, setAiLoading] = useState(false);
   const [selectedTab, setSelectedTab] = useState<'planner'|'evolution'|'assistant'>('planner');
 
   const selectedStudent = activeStudents.find(s => s.id === studentId);
@@ -144,13 +146,26 @@ export const IntelligenceView: React.FC = () => {
     }).slice(0,12);
   }, [studentSessions]);
 
-  const answerQuestion = () => {
-    const q=question.trim().toLowerCase();
-    if(!q) return;
-    if(/carga|peso|aument/.test(q)) setAnswer('Use a progressão dupla: mantenha a carga até alcançar o topo da faixa de repetições com técnica consistente e esforço controlado. Só então teste um incremento pequeno. Compare sessões equivalentes e não use um único registro como evidência suficiente.');
-    else if(/volume|série|series/.test(q)) setAnswer('Analise o volume por grupo muscular ao longo da semana, a qualidade das séries, a recuperação e a evolução do desempenho. Aumente o volume apenas quando houver boa tolerância e estagnação consistente; evite mudanças simultâneas de volume e intensidade.');
-    else if(/idos|queda|equilíbrio|equilibrio|dor|lesão|lesao/.test(q)) setAnswer('Priorize avaliação individual, segurança, capacidade funcional, histórico e sintomas. Não use esta ferramenta para diagnosticar ou prescrever reabilitação. Em caso de dor nova, piora funcional ou condição clínica relevante, interrompa a progressão automática e encaminhe para avaliação profissional apropriada.');
-    else setAnswer('Comece pelo objetivo mensurável, frequência realista, histórico de treino, exercícios tolerados e resposta às sessões anteriores. Defina uma variável principal para acompanhar (repetições, carga, tempo ou qualidade de movimento) e reavalie após um período consistente.');
+  const answerQuestion = async () => {
+    const q = question.trim();
+    if (!q || aiLoading) return;
+    setAiLoading(true);
+    setAnswer('');
+    try {
+      const { data, error } = await supabase.functions.invoke('tfive-ai-assistant', { body: { question: q } });
+      if (error) {
+        const details = typeof data?.error === 'string' ? data.error : error.message;
+        throw new Error(details || 'Não foi possível consultar a IA.');
+      }
+      if (data?.error) throw new Error(data.error);
+      if (typeof data?.answer !== 'string' || !data.answer.trim()) throw new Error('A IA retornou uma resposta vazia. Tente novamente.');
+      setAnswer(data.answer.trim());
+    } catch (error) {
+      console.error('TFIVE Intelligence AI error:', error);
+      setAnswer(error instanceof Error ? error.message : 'Falha ao consultar a IA. Verifique a conexão e tente novamente.');
+    } finally {
+      setAiLoading(false);
+    }
   };
 
   const tabs=[{id:'planner',label:'Gerar rotina',icon:WandSparkles},{id:'evolution',label:'Evolução',icon:TrendingUp},{id:'assistant',label:'Assistente',icon:MessageSquareText}] as const;
@@ -221,10 +236,10 @@ export const IntelligenceView: React.FC = () => {
 
     {selectedTab==='assistant' && <section className="bg-white border border-[#E4E4E7] rounded-2xl p-5 sm:p-6 max-w-3xl space-y-5">
       <div className="flex items-center gap-2"><MessageSquareText className="w-5 h-5 text-[#52525B]"/><h3 className="text-lg font-semibold text-[#202124]">Assistente do treinador</h3></div>
-      <p className="text-sm text-[#71717A]">Faça uma pergunta sobre progressão, organização do treino ou leitura de desempenho. Esta versão utiliza orientações locais predefinidas; não envia dados dos alunos a um modelo externo.</p>
+      <p className="text-sm text-[#71717A]">Faça perguntas sobre treinamento, progressão, volume, recuperação e acompanhamento. A pergunta é processada pela IA da OpenAI por uma conexão segura no Supabase; dados pessoais dos alunos não são enviados automaticamente.</p>
       <div className="flex flex-wrap gap-2">{['Como decidir quando aumentar a carga?','Como controlar o volume semanal?','Como agir diante de dor ou risco de queda?'].map(q=><button key={q} onClick={()=>setQuestion(q)} className="text-xs px-3 py-2 rounded-full border border-[#E4E4E7] text-[#52525B] hover:bg-[#F4F4F5]">{q}</button>)}</div>
       <textarea value={question} onChange={e=>setQuestion(e.target.value)} rows={3} placeholder="Digite sua pergunta..." className="w-full rounded-xl border border-[#D4D4D8] px-3 py-3 text-sm text-[#202124] outline-none focus:ring-2 focus:ring-zinc-300"/>
-      <button onClick={answerQuestion} className="inline-flex items-center gap-2 rounded-xl bg-[#27272A] text-white px-4 py-2.5 text-sm font-semibold"><MessageSquareText className="w-4 h-4"/>Consultar assistente</button>
+      <button onClick={answerQuestion} disabled={aiLoading || !question.trim()} className="inline-flex items-center gap-2 rounded-xl bg-[#27272A] text-white px-4 py-2.5 text-sm font-semibold disabled:opacity-50"><MessageSquareText className="w-4 h-4"/>{aiLoading ? 'Consultando IA...' : 'Consultar assistente'}</button>
       {answer&&<div className="bg-[#F4F4F5] rounded-xl p-4"><div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#52525B]"><Lightbulb className="w-4 h-4"/>Orientação</div><p className="text-sm text-[#3F3F46] leading-relaxed mt-2">{answer}</p></div>}
     </section>}
   </div>;
