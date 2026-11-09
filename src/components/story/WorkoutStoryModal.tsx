@@ -79,6 +79,7 @@ export const WorkoutStoryModal: React.FC<WorkoutStoryModalProps> = ({
   const [previewBg, setPreviewBg] = useState<'photo' | 'transparent'>('photo');
   const [photoBackground, setPhotoBackground] = useState<string | null>(null);
   const [exportSuccessMsg, setExportSuccessMsg] = useState<string | null>(null);
+  const [exportErrorMsg, setExportErrorMsg] = useState<string | null>(null);
 
   const rendererRef = useRef<StoryDOMRendererRef>(null);
   const photoInputRef = useRef<HTMLInputElement>(null);
@@ -107,6 +108,7 @@ export const WorkoutStoryModal: React.FC<WorkoutStoryModalProps> = ({
     try {
       setIsExporting(true);
       setExportSuccessMsg(null);
+      setExportErrorMsg(null);
 
       const blob = await rendererRef.current.exportToBlob();
 
@@ -123,12 +125,31 @@ export const WorkoutStoryModal: React.FC<WorkoutStoryModalProps> = ({
           text: `Treino concluído: ${effectiveSession.routineName || 'TFIVE PRO'}`
         });
       } else {
-        downloadBlob(blob, filename);
-        setExportSuccessMsg(`PNG 1080×1920 baixado com sucesso!`);
-        setTimeout(() => setExportSuccessMsg(null), 4000);
+        // iOS Safari/PWA nem sempre respeita o atributo download em URLs Blob.
+        // Nesses dispositivos, abrir a folha nativa de compartilhamento permite Salvar em Fotos/Arquivos.
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+          (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+        if (isIOS) {
+          const result = await shareOrDownloadFile({
+            blob,
+            filename,
+            title: `TFIVE PRO - ${currentTemplate.name}`,
+            text: `Mapa e resumo do treino: ${effectiveSession.routineName || 'TFIVE PRO'}`
+          });
+          if (result.method === 'web_share') {
+            setExportSuccessMsg('PNG pronto. Na tela de compartilhamento, escolha Salvar em Arquivos ou Salvar Imagem.');
+          } else {
+            setExportSuccessMsg('PNG enviado para download. Verifique Arquivos/Downloads.');
+          }
+        } else {
+          downloadBlob(blob, filename);
+          setExportSuccessMsg('PNG 1080×1920 enviado para download.');
+        }
+        setTimeout(() => setExportSuccessMsg(null), 6000);
       }
     } catch (err) {
-      console.error('[STORY EXPORT ERROR]', err instanceof Error ? err.message : err);
+      console.error('[STORY EXPORT ERROR]', err);
+      setExportErrorMsg(err instanceof Error ? `Falha ao gerar PNG: ${err.message}` : 'Falha ao gerar o PNG. Tente novamente.');
     } finally {
       setIsExporting(false);
     }
