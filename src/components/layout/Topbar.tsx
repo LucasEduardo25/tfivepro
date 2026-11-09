@@ -35,7 +35,7 @@ export const Topbar: React.FC<TopbarProps> = ({
   onSelectTab,
   onOpenNewStudent
 }) => {
-  const { syncStatus, pendingSyncCount, syncNow } = useApp();
+  const { activeWorkouts, syncStatus, pendingSyncCount, syncNow } = useApp();
 
   const [isManualSyncing, setIsManualSyncing] = React.useState(false);
   const [theme, setTheme] = React.useState<'light' | 'dark'>(() => {
@@ -62,6 +62,7 @@ export const Topbar: React.FC<TopbarProps> = ({
   };
 
   const currentInfo = TAB_TITLES[currentTab] || { title: 'TFIVE PRO', subtitle: 'Gestão e performance' };
+  const hasActiveWorkouts = activeWorkouts.length > 0;
 
   return (
     <header className="h-14 px-3 sm:px-6 bg-white border-b border-[#E5E7EB] flex items-center justify-between gap-2 sm:gap-4 shrink-0 z-20 min-w-0 max-w-full">
@@ -84,6 +85,19 @@ export const Topbar: React.FC<TopbarProps> = ({
       </div>
 
       <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
+        {hasActiveWorkouts && (
+          <button
+            type="button"
+            onClick={() => onSelectTab('treino')}
+            className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold hover:bg-emerald-100 transition-colors shrink-0"
+            aria-label={`Abrir treino ao vivo. ${activeWorkouts.length} treino(s) em andamento`}
+          >
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            <span className="hidden sm:inline">Ao vivo ({activeWorkouts.length})</span>
+            <span className="sm:hidden font-mono-nums font-bold">{activeWorkouts.length}</span>
+          </button>
+        )}
+
         {onOpenNewStudent && (
           <button
             type="button"
