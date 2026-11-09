@@ -77,6 +77,7 @@ export const WorkoutStoryModal: React.FC<WorkoutStoryModalProps> = ({
 
   const [viewMode, setViewMode] = useState<ModalViewMode>('preview');
   const [selectedTemplate, setSelectedTemplate] = useState<DOMStoryTemplateId>('clean_card');
+  const [bodyMapSex, setBodyMapSex] = useState<'MALE' | 'FEMALE'>('MALE');
   const [isExporting, setIsExporting] = useState<boolean>(false);
   const [previewBg, setPreviewBg] = useState<'photo' | 'transparent'>('photo');
   const [photoBackground, setPhotoBackground] = useState<string | null>(null);
@@ -265,6 +266,7 @@ export const WorkoutStoryModal: React.FC<WorkoutStoryModalProps> = ({
                         <WorkoutStoryDOMRenderer 
                           session={effectiveSession}
                           templateId={tmpl.id}
+                          bodyMapSex={bodyMapSex}
                           studentName={studentName}
                           exercises={exercises} backgroundImageUrl={photoBackground}
                         />
@@ -316,6 +318,7 @@ export const WorkoutStoryModal: React.FC<WorkoutStoryModalProps> = ({
                 ref={rendererRef}
                 session={effectiveSession}
                 templateId={selectedTemplate}
+                bodyMapSex={bodyMapSex}
                 studentName={studentName}
                 exercises={exercises}
               />
@@ -350,6 +353,26 @@ export const WorkoutStoryModal: React.FC<WorkoutStoryModalProps> = ({
 
               {/* Área do Preview com Toggle de Fundo */}
               <div className="flex-none flex flex-col items-center justify-start gap-2 px-2 py-2 sm:p-4">
+                {selectedTemplate === 'body_map' && (
+                  <div className="flex items-center gap-1 rounded-xl border border-zinc-800 bg-zinc-950 p-1">
+                    <button
+                      type="button"
+                      onClick={() => setBodyMapSex('MALE')}
+                      aria-pressed={bodyMapSex === 'MALE'}
+                      className={`rounded-lg px-3 py-1.5 text-[10px] font-bold uppercase tracking-wide transition-colors ${bodyMapSex === 'MALE' ? 'bg-white text-zinc-950' : 'text-zinc-400 hover:text-white'}`}
+                    >
+                      Masculino
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setBodyMapSex('FEMALE')}
+                      aria-pressed={bodyMapSex === 'FEMALE'}
+                      className={`rounded-lg px-3 py-1.5 text-[10px] font-bold uppercase tracking-wide transition-colors ${bodyMapSex === 'FEMALE' ? 'bg-white text-zinc-950' : 'text-zinc-400 hover:text-white'}`}
+                    >
+                      Feminino
+                    </button>
+                  </div>
+                )}
                 <div className="flex items-center justify-center gap-2">
                   <input ref={photoInputRef} type="file" accept="image/*" onChange={handlePhotoSelection} className="hidden" />
                   <button onClick={() => photoInputRef.current?.click()} className="px-3 py-2 rounded-lg bg-white text-zinc-900 text-[10px] font-bold tracking-wide">ESCOLHER FOTO</button>
