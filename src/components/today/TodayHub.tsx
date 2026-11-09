@@ -127,6 +127,7 @@ export const TodayHub: React.FC<TodayHubProps> = ({
 
   return (
     <div className="space-y-6 pb-12">
+      {!embedded && (
       {/* MASTER OPERATIONAL HEADER */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white border border-[#E4E4E7] rounded-2xl p-5 shadow-lg">
         <div>
@@ -191,6 +192,8 @@ export const TodayHub: React.FC<TodayHubProps> = ({
           </div>
         </div>
       </div>
+
+      )}
 
       {/* ACTIVE WORKOUTS QUICK BAR (If active sessions exist) */}
       {activeWorkouts.length > 0 && (
