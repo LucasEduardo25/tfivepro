@@ -295,43 +295,19 @@ export const WorkoutTemplatesView: React.FC<WorkoutTemplatesViewProps> = ({
                     </div>
 
                     {/* Actions Menu */}
-                    <div className="flex items-center gap-1.5 shrink-0">
-                      <button
-                        onClick={() => setSelectedTemplateForPDF(template)}
-                        className="p-2 rounded-xl bg-[#18181B] hover:bg-[#D90429] text-[#4B5563] hover:text-white border border-[#27272A] transition-all"
-                        title="Gerar PDF"
-                      >
-                        <FileText className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => handleDuplicate(template)}
-                        className="p-2 rounded-xl bg-[#18181B] hover:bg-[#27272A] text-[#4B5563] hover:text-white border border-[#27272A] transition-all"
-                        title="Duplicar modelo"
-                      >
-                        <Copy className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => setEditingTemplate(template)}
-                        className="p-2 rounded-xl bg-[#18181B] hover:bg-[#27272A] text-[#4B5563] hover:text-white border border-[#27272A] transition-all"
-                        title="Editar modelo"
-                      >
-                        <Edit className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => handleArchive(template)}
-                        className="p-2 rounded-xl bg-[#18181B] hover:bg-[#F3F4F6] text-[#4B5563] hover:text-[#1F2937] border border-[#27272A] transition-all"
-                        title="Arquivar modelo"
-                      >
-                        <Archive className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(template)}
-                        className="p-2 rounded-xl bg-[#18181B] hover:bg-red-50 text-[#4B5563] hover:text-red-600 border border-[#27272A] transition-all"
-                        title="Excluir modelo permanentemente"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
+                    <details className="relative shrink-0">
+                      <summary className="list-none cursor-pointer p-2 rounded-xl bg-[#18181B] hover:bg-[#27272A] text-[#A1A1AA] border border-[#27272A] transition-all text-xs font-semibold">
+                        <span className="sr-only">Ações do modelo</span>
+                        <MoreHorizontal className="w-4 h-4" />
+                      </summary>
+                      <div className="absolute right-0 top-full mt-2 z-20 min-w-44 rounded-xl border border-[#3F3F46] bg-[#18181B] p-1.5 shadow-xl space-y-1">
+                        <button onClick={() => setSelectedTemplateForPDF(template)} className="w-full text-left px-3 py-2 rounded-lg hover:bg-[#27272A] text-xs text-white flex items-center gap-2" title="Gerar PDF"><FileText className="w-4 h-4" />Gerar PDF</button>
+                        <button onClick={() => handleDuplicate(template)} className="w-full text-left px-3 py-2 rounded-lg hover:bg-[#27272A] text-xs text-white flex items-center gap-2" title="Duplicar modelo"><Copy className="w-4 h-4" />Duplicar</button>
+                        <button onClick={() => setEditingTemplate(template)} className="w-full text-left px-3 py-2 rounded-lg hover:bg-[#27272A] text-xs text-white flex items-center gap-2" title="Editar modelo"><Edit className="w-4 h-4" />Editar</button>
+                        <button onClick={() => handleArchive(template)} className="w-full text-left px-3 py-2 rounded-lg hover:bg-[#27272A] text-xs text-white flex items-center gap-2" title="Arquivar modelo"><Archive className="w-4 h-4" />Arquivar</button>
+                        <button onClick={() => handleDelete(template)} className="w-full text-left px-3 py-2 rounded-lg hover:bg-red-950/50 text-xs text-red-300 flex items-center gap-2" title="Excluir modelo permanentemente"><Trash2 className="w-4 h-4" />Excluir permanentemente</button>
+                      </div>
+                    </details>
                   </div>
 
                   {/* Description */}
