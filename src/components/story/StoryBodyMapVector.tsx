@@ -72,7 +72,7 @@ export const StoryBodyMapVector: React.FC<StoryBodyMapVectorProps> = ({
       const groups = REGION_TO_GROUPS[region] || [];
       groups.forEach(group => {
         if (intensity === 'primary') result[group] = { score: 100 };
-        if (intensity === 'secondary') result[group] = { score: 58 };
+        if (intensity === 'secondary') result[group] = { score: 45 };
       });
     });
     return result;
@@ -107,8 +107,8 @@ export const StoryBodyMapVector: React.FC<StoryBodyMapVectorProps> = ({
         view={selectedView}
         sex="MALE"
         colorModel="LOAD"
-        monochromeColor="#3185E8"
-        monochromeBaseColor="#D7DCE3"
+        monochromeColor="#3F3F46"
+        monochromeBaseColor="#E5E5E5"
         backgroundImageFront={maleFront}
         backgroundImageBack={maleBack}
         backgroundGrayscale
