@@ -16,7 +16,8 @@ import {
   Cloud,
   Dumbbell,
   Play,
-  FileText
+  FileText,
+  BrainCircuit
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { TFiveLogo } from '../common/TFiveLogo';
@@ -69,6 +70,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     { id: 'agenda', label: 'Agenda', icon: Calendar, badge: null },
     { id: 'modelos', label: 'Modelos', icon: Layers, badge: workoutTemplates.length > 0 ? workoutTemplates.length : null },
     { id: 'exercicios', label: 'Exercícios', icon: BookOpen, badge: null },
+    { id: 'intelligence', label: 'TFIVE Intelligence', icon: BrainCircuit, badge: null },
     { id: 'financeiro', label: 'Financeiro', icon: DollarSign, badge: null },
     { id: 'propostas', label: 'Propostas', icon: FileText, badge: null },
     { id: 'configuracoes', label: 'Ajustes', icon: Settings, badge: null }
