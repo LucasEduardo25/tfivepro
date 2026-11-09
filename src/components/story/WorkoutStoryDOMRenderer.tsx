@@ -905,118 +905,84 @@ export const WorkoutStoryDOMRenderer = forwardRef<StoryDOMRendererRef, StoryDOMR
         // ====================================================================
         case 'body_map':
           return (
-            <div  className="w-[1080px] h-[1920px] bg-[#F5F4F0] text-zinc-950 relative overflow-hidden flex flex-col justify-between p-14 pb-16 select-none" style={backgroundImageUrl ? { backgroundImage: 'url(' + backgroundImageUrl + ')', backgroundSize: 'cover', backgroundPosition: 'center' } : undefined}>
-              {/* Header Superior Minimalista com Alpha = 0 no centro para fotografia */}
-              <div className="w-full flex justify-between items-center">
-                <div className="bg-black/60 backdrop-blur-md px-6 py-3 rounded-full border border-white/20 flex items-center gap-3 shadow-xl">
-                  <span className="w-2.5 h-2.5 rounded-full bg-white shadow-xs" />
-                  <span className="font-display font-black tracking-[0.2em] text-lg text-white">
-                    TFIVE PRO.
+            <div
+              className="w-[1080px] h-[1920px] relative overflow-hidden flex flex-col px-16 py-16 text-white select-none"
+              style={{
+                background: 'linear-gradient(180deg, #15191F 0%, #0B0E12 100%)'
+              }}
+            >
+              {/* Identidade discreta no topo */}
+              <div className="w-full flex items-center justify-between shrink-0">
+                <div className="flex items-center gap-4">
+                  <span className="w-3 h-3 rounded-full bg-[#3185E8]" />
+                  <span className="font-display font-black tracking-[0.24em] text-2xl text-white">
+                    TFIVE PRO
                   </span>
                 </div>
-                <div className="bg-black/60 backdrop-blur-md px-6 py-3 rounded-full border border-white/20 font-mono-nums font-bold text-sm tracking-widest text-zinc-300 shadow-xl">
-                  BODY MAP
-                </div>
+                <span className="font-mono-nums text-sm font-bold tracking-[0.3em] text-zinc-400 uppercase">
+                  MAPA ANATÔMICO
+                </span>
               </div>
 
-              {/* Área Central: Amplamente Transparente para a Foto da Sessão (Alpha = 0) */}
+              {/* Título e identificação da sessão */}
+              <div className="mt-16 text-center shrink-0">
+                <span className="font-mono-nums text-sm font-bold tracking-[0.35em] text-[#78AEEB] uppercase">
+                  GRUPAMENTOS MUSCULARES
+                </span>
+                <h2 className="mt-4 text-5xl font-black tracking-tight text-white uppercase">
+                  {workoutName}
+                </h2>
+                <p className="mt-3 text-xl font-semibold tracking-[0.18em] text-zinc-400 uppercase">
+                  {firstName} • {dateStr}
+                </p>
+              </div>
 
-              {/* Painel Translúcido Editorial do Body Map */}
-              <div className="w-full bg-white/96 backdrop-blur-2xl text-zinc-950 border border-white/90 rounded-[44px] p-10 shadow-[0_30px_100px_rgba(0,0,0,0.85)] flex flex-col">
-                {/* Header Superior do Card */}
-                <div className="flex justify-between items-end pb-5 mb-5 border-b border-zinc-200">
-                  <div>
-                    <span className="font-display font-black tracking-[0.2em] text-3xl text-zinc-950 block">
-                      TFIVE PRO
-                    </span>
-                    <span className="text-xs font-mono-nums font-bold tracking-[0.35em] text-zinc-500 uppercase mt-1 block">
-                      MAPA MUSCULAR • BODY MAP
-                    </span>
-                  </div>
-                  <div className="text-right">
-                    <span className="text-xs font-mono-nums font-bold tracking-[0.25em] text-zinc-500 uppercase block">
-                      TREINO
-                    </span>
-                    <span className="text-2xl font-black font-mono-nums text-zinc-950 block leading-tight">
-                      CONCLUÍDO
-                    </span>
-                  </div>
-                </div>
-
-                {/* Silhuetas Anatômicas Grandes Frente e Costas */}
-                <div className="w-full flex items-center justify-center py-2">
+              {/* Anatomia em destaque, sem cartão ou moldura branca */}
+              <div className="flex-1 min-h-0 w-full flex items-center justify-center py-10">
+                <div className="w-full max-w-[920px] mx-auto flex items-center justify-center">
                   <StoryBodyMapVector
                     intensities={muscleAnalysis.intensities}
                     sex={bodyMapSex}
-                    theme="light"
+                    theme="transparent-dark"
                     className="w-full"
                   />
                 </div>
+              </div>
 
-                {/* Legenda Compacta e Elegante (Substitui botões soltos) */}
-                <div className="mt-4 pt-5 border-t border-zinc-200 flex flex-col gap-3">
-                  {/* Linha de Indicadores de Cor */}
-                  <div className="flex items-center justify-between text-xs font-mono-nums">
-                    <div className="flex items-center gap-6">
-                      <div className="flex items-center gap-2">
-                        <span className="w-3.5 h-3.5 rounded-xs bg-[#3185E8] border border-[#2563C7] inline-block shadow-xs" />
-                        <span className="font-bold text-zinc-900 uppercase tracking-wider">Músculo Primário</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span className="w-3.5 h-3.5 rounded-xs bg-[#89B1E1] border border-[#6D9FD8] inline-block shadow-xs" />
-                        <span className="font-bold text-zinc-700 uppercase tracking-wider">Secundário</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span className="w-3.5 h-3.5 rounded-xs bg-[#D1D5DB] border border-[#9CA3AF] inline-block" />
-                        <span className="font-bold text-zinc-400 uppercase tracking-wider">Em Repouso</span>
-                      </div>
-                    </div>
-                    <span className="text-[11px] font-bold text-zinc-400 tracking-widest uppercase hidden sm:inline-block">
-                      BIOMETRIA DO TREINO
-                    </span>
+              {/* Legenda simples, sem bloco branco */}
+              <div className="w-full shrink-0 border-t border-white/15 pt-8">
+                <div className="flex items-center justify-center gap-12 text-sm font-mono-nums font-bold tracking-[0.12em] uppercase">
+                  <div className="flex items-center gap-3">
+                    <span className="w-4 h-4 rounded-full bg-[#3185E8]" />
+                    <span className="text-zinc-200">Primário</span>
                   </div>
-
-                  {/* Faixa Editorial com Nomes dos Músculos Trabalhados */}
-                  <div className="bg-zinc-100/90 border border-zinc-200/90 rounded-2xl px-5 py-3.5 flex items-center justify-between gap-4">
-                    <div className="flex items-center gap-3 overflow-hidden">
-                      <span className="text-[11px] font-mono-nums font-black uppercase tracking-[0.2em] text-zinc-500 shrink-0">
-                        FOCO:
-                      </span>
-                      <span className="text-xs font-mono-nums font-black uppercase tracking-wider text-zinc-950 truncate">
-                        {primaryMusclesFormatted.length > 0
-                          ? primaryMusclesFormatted.join(' • ')
-                          : 'TREINO GERAL'}
-                      </span>
-                    </div>
-                    {secondaryMusclesFormatted.length > 0 && (
-                      <div className="flex items-center gap-2 shrink-0 border-l border-zinc-300 pl-4">
-                        <span className="text-[11px] font-mono-nums font-bold uppercase tracking-wider text-zinc-400">
-                          SINERGISTAS:
-                        </span>
-                        <span className="text-xs font-mono-nums font-bold uppercase tracking-wider text-zinc-700">
-                          {secondaryMusclesFormatted.slice(0, 3).join(' • ')}
-                        </span>
-                      </div>
-                    )}
+                  <div className="flex items-center gap-3">
+                    <span className="w-4 h-4 rounded-full bg-[#89B1E1]" />
+                    <span className="text-zinc-300">Secundário</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="w-4 h-4 rounded-full bg-[#D1D5DB]" />
+                    <span className="text-zinc-400">Em repouso</span>
                   </div>
                 </div>
 
-                {/* Rodapé com Assinatura e Telemetria Real */}
-                <div className="flex items-center justify-between pt-5 mt-4 border-t border-zinc-200 text-xs font-mono-nums">
+                <div className="mt-8 flex items-end justify-between border-t border-white/10 pt-6">
                   <div>
-                    <span className="font-bold text-zinc-500 tracking-[0.2em] uppercase block">
-                      {workoutName} • {firstName}
+                    <span className="block text-xs font-mono-nums font-bold tracking-[0.25em] text-zinc-500 uppercase">
+                      RESUMO DA SESSÃO
                     </span>
-                    <span className="font-black text-zinc-950 text-base mt-0.5 block">
-                      {duration} • {volume} • {setsCount} SÉRIES • {exercisesCount} EXERCÍCIOS
+                    <span className="mt-2 block text-xl font-black text-white">
+                      {duration} • {volume}
+                    </span>
+                    <span className="mt-1 block text-sm font-mono-nums font-semibold tracking-wider text-zinc-400 uppercase">
+                      {setsCount} SÉRIES • {exercisesCount} EXERCÍCIOS
                     </span>
                   </div>
-
                   <div className="text-right">
-                    <span className="font-display font-black tracking-[0.2em] text-lg text-zinc-950 block">
+                    <span className="block font-display text-xl font-black tracking-[0.2em] text-white">
                       TFIVE PRO
                     </span>
-                    <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider block">
+                    <span className="mt-1 block text-[11px] font-bold tracking-[0.2em] text-zinc-500 uppercase">
                       PERSONAL TRAINER
                     </span>
                   </div>
