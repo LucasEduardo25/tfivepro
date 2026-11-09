@@ -40,6 +40,7 @@ export interface StoryDOMRendererProps {
   exercises?: Exercise[];
   isExporting?: boolean;
   backgroundImageUrl?: string | null;
+  bodyMapSex?: 'MALE' | 'FEMALE';
 }
 
 export interface StoryDOMRendererRef {
@@ -47,7 +48,7 @@ export interface StoryDOMRendererRef {
 }
 
 export const WorkoutStoryDOMRenderer = forwardRef<StoryDOMRendererRef, StoryDOMRendererProps>(
-  ({ session, templateId, studentName, exercises = [], backgroundImageUrl }, ref) => {
+  ({ session, templateId, studentName, exercises = [], backgroundImageUrl, bodyMapSex = 'MALE' }, ref) => {
     const containerRef = useRef<HTMLDivElement>(null);
 
     // Map any legacy ID to one of the 7 canonical models
@@ -946,6 +947,7 @@ export const WorkoutStoryDOMRenderer = forwardRef<StoryDOMRendererRef, StoryDOMR
                 <div className="w-full flex items-center justify-center py-2">
                   <StoryBodyMapVector
                     intensities={muscleAnalysis.intensities}
+                    sex={bodyMapSex}
                     theme="light"
                     className="w-full"
                   />
