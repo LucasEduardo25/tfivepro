@@ -340,16 +340,17 @@ export const StudentMetricsSummaryTab: React.FC<StudentMetricsSummaryTabProps> =
                     <svg viewBox="0 0 600 214" role="img" aria-label="Gráfico em linha da evolução semanal" className="relative h-full w-full overflow-visible">
                       <defs>
                         <linearGradient id="tfive-summary-line" x1="0" y1="0" x2="1" y2="0">
-                          <stop offset="0%" stopColor="#9CA3AF" />
-                          <stop offset="100%" stopColor="#F3F4F6" />
+                          <stop offset="0%" stopColor="#6B7280" />
+                          <stop offset="100%" stopColor="#E5E7EB" />
                         </linearGradient>
                         <linearGradient id="tfive-summary-area" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="0%" stopColor="#D1D5DB" stopOpacity=".16" />
-                          <stop offset="100%" stopColor="#D1D5DB" stopOpacity="0" />
+                          <stop offset="0%" stopColor="#6B7280" stopOpacity=".30" />
+                          <stop offset="100%" stopColor="#6B7280" stopOpacity="0" />
                         </linearGradient>
+                        <filter id="tfive-summary-glow"><feGaussianBlur stdDeviation="3.5" result="blur" /><feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge></filter>
                       </defs>
                       <path d={areaPath} fill="url(#tfive-summary-area)" />
-                      <path d={linePath} fill="none" stroke="url(#tfive-summary-line)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+                      <path d={linePath} fill="none" stroke="url(#tfive-summary-line)" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" filter="url(#tfive-summary-glow)" />
                       {points.map((point, idx) => {
                         const active = hoveredWeeklyIndex === idx;
                         const label = mainChartMetric === 'volume' ? formatWeight(point.value) : String(point.value);
@@ -506,16 +507,17 @@ export const StudentMetricsSummaryTab: React.FC<StudentMetricsSummaryTabProps> =
                         <svg viewBox="0 0 600 190" role="img" aria-label="Gráfico em linha da progressão do exercício" className="relative h-full w-full overflow-visible">
                           <defs>
                             <linearGradient id="tfive-exercise-line" x1="0" y1="0" x2="1" y2="0">
-                              <stop offset="0%" stopColor="#9CA3AF" />
-                              <stop offset="100%" stopColor="#F3F4F6" />
+                              <stop offset="0%" stopColor="#6B7280" />
+                              <stop offset="100%" stopColor="#E5E7EB" />
                             </linearGradient>
                             <linearGradient id="tfive-exercise-area" x1="0" y1="0" x2="0" y2="1">
-                              <stop offset="0%" stopColor="#D1D5DB" stopOpacity=".14" />
-                              <stop offset="100%" stopColor="#D1D5DB" stopOpacity="0" />
+                              <stop offset="0%" stopColor="#6B7280" stopOpacity=".28" />
+                              <stop offset="100%" stopColor="#6B7280" stopOpacity="0" />
                             </linearGradient>
+                            <filter id="tfive-exercise-glow"><feGaussianBlur stdDeviation="3.5" result="blur" /><feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge></filter>
                           </defs>
                           <path d={areaPath} fill="url(#tfive-exercise-area)" />
-                          <path d={linePath} fill="none" stroke="url(#tfive-exercise-line)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+                          <path d={linePath} fill="none" stroke="url(#tfive-exercise-line)" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" filter="url(#tfive-exercise-glow)" />
                           {points.map((point, idx) => {
                             const active = hoveredPointIndex === idx;
                             return (
