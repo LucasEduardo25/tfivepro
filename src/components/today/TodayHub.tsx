@@ -208,7 +208,7 @@ export const TodayHub: React.FC<TodayHubProps> = ({
           <button
             type="button"
             onClick={onOpenLiveWorkout}
-            className="px-4 py-2 rounded-xl bg-[#27272A] hover:bg-[#3F3F46] text-xs font-bold text-[#202124] flex items-center gap-2 transition-colors min-h-[44px] shrink-0"
+            className="px-4 py-2 rounded-xl bg-[#27272A] hover:bg-[#3F3F46] text-xs font-bold text-white flex items-center gap-2 transition-colors min-h-[44px] shrink-0"
           >
             <RotateCcw className="w-4 h-4 fill-white" />
             <span>Acessar Treino ao Vivo</span>
@@ -391,7 +391,7 @@ export const TodayHub: React.FC<TodayHubProps> = ({
                 type="button"
                 onClick={handleStartUnscheduled}
                 disabled={!unscheduledStudent}
-                className="px-5 py-2 rounded-xl bg-[#27272A] hover:bg-[#3F3F46] disabled:opacity-50 text-xs font-bold text-[#202124] flex items-center gap-1.5 transition-colors"
+                className="px-5 py-2 rounded-xl bg-[#27272A] hover:bg-[#3F3F46] disabled:opacity-50 text-xs font-bold text-white flex items-center gap-1.5 transition-colors"
               >
                 <Play className="w-3.5 h-3.5 fill-white" />
                 <span>Iniciar Sessão</span>
