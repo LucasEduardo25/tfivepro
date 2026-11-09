@@ -18,3 +18,7 @@ View your app in AI Studio: https://ai.studio/apps/6b628080-c922-4251-acba-a26a7
 2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
 3. Run the app:
    `npm run dev`
+
+## Deploy na Netlify
+
+O deploy de produção utiliza a branch `main`, com o comando `npm run build` e diretório publicado `dist`, conforme definido em `netlify.toml`.
