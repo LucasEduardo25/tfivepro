@@ -309,84 +309,72 @@ export const StudentMetricsSummaryTab: React.FC<StudentMetricsSummaryTabProps> =
         {metrics.weeklyBuckets.length > 0 && metrics.hasEnoughData ? (
           <div className="space-y-3">
             
-            {/* Chart Canvas Area */}
-            <div className="h-56 sm:h-64 pt-6 pb-2 px-2 flex items-end gap-2 sm:gap-4 border-b border-[#27272A] relative">
-              
-              {/* Max value calculation */}
+            {/* Line chart: evolução semanal */}
+            <div className="relative h-56 sm:h-64 px-1 pt-5">
               {(() => {
-                const values = metrics.weeklyBuckets.map(b => {
-                  if (mainChartMetric === 'volume') return b.totalVolume;
-                  if (mainChartMetric === 'sets') return b.totalSets;
-                  return b.sessionsCount;
-                });
+                const values = metrics.weeklyBuckets.map((bucket) =>
+                  mainChartMetric === 'volume' ? bucket.totalVolume :
+                  mainChartMetric === 'sets' ? bucket.totalSets : bucket.sessionsCount
+                );
                 const maxVal = Math.max(...values, 1);
-
-                return metrics.weeklyBuckets.map((bucket, idx) => {
-                  let val = bucket.sessionsCount;
-                  let suffix = ' treinos';
-                  if (mainChartMetric === 'volume') {
-                    val = bucket.totalVolume;
-                    suffix = ' kg';
-                  } else if (mainChartMetric === 'sets') {
-                    val = bucket.totalSets;
-                    suffix = ' séries';
-                  }
-
-                  const heightPercent = val > 0 ? Math.max(15, Math.round((val / maxVal) * 100)) : 4;
-                  const isHovered = hoveredWeeklyIndex === idx;
-
-                  return (
-                    <div
-                      key={bucket.weekKey}
-                      className="flex-1 flex flex-col items-center h-full justify-end group relative cursor-pointer"
-                      onMouseEnter={() => setHoveredWeeklyIndex(idx)}
-                      onMouseLeave={() => setHoveredWeeklyIndex(null)}
-                      onClick={() => setHoveredWeeklyIndex(isHovered ? null : idx)}
-                    >
-                      {/* Value label on top */}
-                      <span className={`text-[10px] sm:text-xs font-mono-nums font-bold mb-1 transition-all ${
-                        isHovered ? 'text-blue-700 font-black scale-110' : 'text-slate-400 group-hover:text-blue-600'
-                      }`}>
-                        {val > 0 ? (mainChartMetric === 'volume' ? formatWeight(val) : val) : '—'}
-                      </span>
-
-                      {/* Bar */}
-                      <div
-                        style={{ height: `${heightPercent}%` }}
-                        className={`w-full max-w-[48px] rounded-t-lg transition-all ${
-                          val > 0
-                            ? isHovered
-                              ? 'bg-gradient-to-t from-blue-700 to-sky-400 shadow-lg shadow-blue-500/20'
-                              : 'bg-gradient-to-t from-blue-600 to-sky-400 group-hover:from-blue-700 group-hover:to-sky-500'
-                            : 'bg-[#27272A]/40 border-dashed border-t border-zinc-700'
-                        }`}
-                      />
-
-                      {/* Tooltip Card (touch / hover) */}
-                      {isHovered && (
-                        <div className="absolute bottom-full mb-8 z-30 bg-white border border-blue-100 rounded-xl p-3 shadow-xl shadow-slate-900/10 min-w-[170px] pointer-events-none text-left animate-in fade-in zoom-in-95">
-                          <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block border-b border-slate-100 pb-1 mb-1.5">
-                            Semana: {bucket.weekLabel}
-                          </span>
-                          <div className="space-y-1 text-xs font-mono-nums">
-                            <div className="flex items-center justify-between gap-2">
-                              <span className="text-slate-500">Treinos:</span>
-                              <strong className="text-slate-800">{bucket.sessionsCount}</strong>
-                            </div>
-                            <div className="flex items-center justify-between gap-2">
-                              <span className="text-slate-500">Séries Válidas:</span>
-                              <strong className="text-slate-800">{bucket.totalSets}</strong>
-                            </div>
-                            <div className="flex items-center justify-between gap-2">
-                              <span className="text-slate-500">Volume Total:</span>
-                              <strong className="text-blue-700">{formatWeight(bucket.totalVolume)}</strong>
-                            </div>
-                          </div>
-                        </div>
-                      )}
+                const points = metrics.weeklyBuckets.map((bucket, idx) => ({
+                  bucket,
+                  value: values[idx],
+                  x: 28 + (idx * 544) / Math.max(1, values.length - 1),
+                  y: 166 - (values[idx] / maxVal) * 126,
+                }));
+                const linePath = points.reduce((path, point, idx) => {
+                  if (idx === 0) return `M ${point.x} ${point.y}`;
+                  const previous = points[idx - 1];
+                  const middleX = (previous.x + point.x) / 2;
+                  return `${path} Q ${middleX} ${previous.y} ${point.x} ${point.y}`;
+                }, '');
+                const areaPath = points.length
+                  ? `${linePath} L ${points[points.length - 1].x} 184 L ${points[0].x} 184 Z`
+                  : '';
+                return (
+                  <>
+                    <div className="absolute inset-x-2 top-5 bottom-8 flex flex-col justify-between pointer-events-none">
+                      {[0, 1, 2, 3].map((line) => <div key={line} className="border-t border-dashed border-[#303036]" />)}
                     </div>
-                  );
-                });
+                    <svg viewBox="0 0 600 214" role="img" aria-label="Gráfico em linha da evolução semanal" className="relative h-full w-full overflow-visible">
+                      <defs>
+                        <linearGradient id="tfive-summary-line" x1="0" y1="0" x2="1" y2="0">
+                          <stop offset="0%" stopColor="#9CA3AF" />
+                          <stop offset="100%" stopColor="#F3F4F6" />
+                        </linearGradient>
+                        <linearGradient id="tfive-summary-area" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stopColor="#D1D5DB" stopOpacity=".16" />
+                          <stop offset="100%" stopColor="#D1D5DB" stopOpacity="0" />
+                        </linearGradient>
+                      </defs>
+                      <path d={areaPath} fill="url(#tfive-summary-area)" />
+                      <path d={linePath} fill="none" stroke="url(#tfive-summary-line)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+                      {points.map((point, idx) => {
+                        const active = hoveredWeeklyIndex === idx;
+                        const label = mainChartMetric === 'volume' ? formatWeight(point.value) : String(point.value);
+                        return (
+                          <g key={point.bucket.weekKey}
+                            className="cursor-pointer"
+                            onMouseEnter={() => setHoveredWeeklyIndex(idx)}
+                            onMouseLeave={() => setHoveredWeeklyIndex(null)}
+                            onClick={() => setHoveredWeeklyIndex(active ? null : idx)}>
+                            <circle cx={point.x} cy={point.y} r={active ? 11 : 8} fill="#D1D5DB" opacity=".10" />
+                            <circle cx={point.x} cy={point.y} r={active ? 5 : 4} fill="#F9FAFB" stroke="#9CA3AF" strokeWidth="2" />
+                            <text x={point.x} y={Math.max(16, point.y - 13)} textAnchor="middle" fill="#E5E7EB" fontSize="11" fontWeight="700">{label}</text>
+                            <text x={point.x} y="207" textAnchor="middle" fill="#71717A" fontSize="10">{point.bucket.weekLabel.split(' a ')[0]}</text>
+                          </g>
+                        );
+                      })}
+                    </svg>
+                    {hoveredWeeklyIndex !== null && metrics.weeklyBuckets[hoveredWeeklyIndex] && (
+                      <div className="absolute left-3 top-1 z-20 rounded-lg border border-[#3F3F46] bg-[#18181B] px-3 py-2 text-[11px] text-[#E5E7EB] shadow-xl pointer-events-none">
+                        <strong className="block text-white">{metrics.weeklyBuckets[hoveredWeeklyIndex].weekLabel}</strong>
+                        <span>{metrics.weeklyBuckets[hoveredWeeklyIndex].sessionsCount} treinos · {metrics.weeklyBuckets[hoveredWeeklyIndex].totalSets} séries · {formatWeight(metrics.weeklyBuckets[hoveredWeeklyIndex].totalVolume)}</span>
+                      </div>
+                    )}
+                  </>
+                );
               })()}
             </div>
 
@@ -485,81 +473,73 @@ export const StudentMetricsSummaryTab: React.FC<StudentMetricsSummaryTabProps> =
             {exerciseProgression && exerciseProgression.points.length > 0 ? (
               <div className="space-y-4 pt-3">
                 
-                {/* Exercise Chart Canvas */}
-                <div className="h-44 sm:h-48 pt-6 pb-2 px-2 flex items-end gap-2 sm:gap-3 border-b border-[#27272A] relative">
+                {/* Line chart: progressão por exercício */}
+                <div className="relative h-44 sm:h-48 px-1 pt-4">
                   {(() => {
-                    const values = exerciseProgression.points.map(pt => {
-                      if (exerciseMetric === 'volume') return pt.volume;
-                      if (exerciseMetric === 'reps') return pt.reps;
-                      return pt.weight;
-                    });
-                    const maxVal = Math.max(...values, 1);
-
-                    return exerciseProgression.points.map((pt, idx) => {
-                      let displayVal = pt.weight;
-                      let suffix = ' kg';
-                      if (exerciseMetric === 'volume') {
-                        displayVal = pt.volume;
-                        suffix = ' kg';
-                      } else if (exerciseMetric === 'reps') {
-                        displayVal = pt.reps;
-                        suffix = ' reps';
-                      }
-
-                      const heightPercent = displayVal > 0 ? Math.max(18, Math.round((displayVal / maxVal) * 100)) : 10;
-                      const isHovered = hoveredPointIndex === idx;
-
-                      return (
-                        <div
-                          key={pt.sessionId + '_' + idx}
-                          className="flex-1 flex flex-col items-center h-full justify-end group relative cursor-pointer"
-                          onMouseEnter={() => setHoveredPointIndex(idx)}
-                          onMouseLeave={() => setHoveredPointIndex(null)}
-                          onClick={() => setHoveredPointIndex(isHovered ? null : idx)}
-                        >
-                          <span className={`text-[10px] sm:text-xs font-mono-nums font-bold mb-1 transition-all ${
-                            isHovered ? 'text-blue-700 font-black scale-110' : 'text-slate-400 group-hover:text-blue-600'
-                          }`}>
-                            {displayVal > 0 ? `${displayVal}` : '—'}
-                          </span>
-
-                          <div
-                            style={{ height: `${heightPercent}%` }}
-                            className={`w-full max-w-[36px] rounded-t-lg transition-all ${
-                              isHovered
-                                ? 'bg-gradient-to-t from-blue-700 to-sky-400 shadow-lg shadow-blue-500/20'
-                                : 'bg-gradient-to-t from-blue-600 to-sky-400 group-hover:from-blue-700 group-hover:to-sky-500'
-                            }`}
-                          />
-
-                          <span className="text-[9px] text-slate-400 font-mono-nums mt-1.5 truncate max-w-[36px]">
-                            {pt.date}
-                          </span>
-
-                          {/* Exercise Point Tooltip */}
-                          {isHovered && (
-                            <div className="absolute bottom-full mb-8 z-30 bg-white border border-blue-100 rounded-xl p-2.5 shadow-xl shadow-slate-900/10 min-w-[150px] pointer-events-none text-left animate-in fade-in">
-                              <span className="text-[10px] font-bold text-slate-500 block border-b border-slate-100 pb-1 mb-1 font-mono-nums">
-                                Sessão em {pt.date}
-                              </span>
-                              <div className="space-y-0.5 text-xs font-mono-nums">
-                                <div className="text-slate-800 font-bold">
-                                  Carga: {pt.weight} kg × {pt.reps} reps
-                                </div>
-                                <div className="text-slate-500 text-[11px]">
-                                  Volume: {formatWeight(pt.volume)}
-                                </div>
-                                {pt.estimated1RM > 0 && (
-                                  <div className="text-blue-700 text-[11px] font-bold">
-                                    1RM Est: {pt.estimated1RM} kg
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-                          )}
-                        </div>
+                    const points = exerciseProgression.points.map((pt, idx) => {
+                      const value = exerciseMetric === 'volume' ? pt.volume :
+                        exerciseMetric === 'reps' ? pt.reps : pt.weight;
+                      const values = exerciseProgression.points.map((item) =>
+                        exerciseMetric === 'volume' ? item.volume :
+                        exerciseMetric === 'reps' ? item.reps : item.weight
                       );
+                      const maxVal = Math.max(...values, 1);
+                      return {
+                        pt, value,
+                        x: 24 + (idx * 552) / Math.max(1, exerciseProgression.points.length - 1),
+                        y: 145 - (value / maxVal) * 105,
+                      };
                     });
+                    const linePath = points.reduce((path, point, idx) => {
+                      if (idx === 0) return `M ${point.x} ${point.y}`;
+                      const previous = points[idx - 1];
+                      return `${path} Q ${(previous.x + point.x) / 2} ${previous.y} ${point.x} ${point.y}`;
+                    }, '');
+                    const areaPath = points.length
+                      ? `${linePath} L ${points[points.length - 1].x} 164 L ${points[0].x} 164 Z`
+                      : '';
+                    return (
+                      <>
+                        <div className="absolute inset-x-2 top-4 bottom-7 flex flex-col justify-between pointer-events-none">
+                          {[0, 1, 2].map((line) => <div key={line} className="border-t border-dashed border-[#303036]" />)}
+                        </div>
+                        <svg viewBox="0 0 600 190" role="img" aria-label="Gráfico em linha da progressão do exercício" className="relative h-full w-full overflow-visible">
+                          <defs>
+                            <linearGradient id="tfive-exercise-line" x1="0" y1="0" x2="1" y2="0">
+                              <stop offset="0%" stopColor="#9CA3AF" />
+                              <stop offset="100%" stopColor="#F3F4F6" />
+                            </linearGradient>
+                            <linearGradient id="tfive-exercise-area" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="0%" stopColor="#D1D5DB" stopOpacity=".14" />
+                              <stop offset="100%" stopColor="#D1D5DB" stopOpacity="0" />
+                            </linearGradient>
+                          </defs>
+                          <path d={areaPath} fill="url(#tfive-exercise-area)" />
+                          <path d={linePath} fill="none" stroke="url(#tfive-exercise-line)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+                          {points.map((point, idx) => {
+                            const active = hoveredPointIndex === idx;
+                            return (
+                              <g key={point.pt.sessionId + '_' + idx}
+                                className="cursor-pointer"
+                                onMouseEnter={() => setHoveredPointIndex(idx)}
+                                onMouseLeave={() => setHoveredPointIndex(null)}
+                                onClick={() => setHoveredPointIndex(active ? null : idx)}>
+                                <circle cx={point.x} cy={point.y} r={active ? 10 : 7} fill="#D1D5DB" opacity=".10" />
+                                <circle cx={point.x} cy={point.y} r={active ? 5 : 3.5} fill="#F9FAFB" stroke="#9CA3AF" strokeWidth="2" />
+                                <text x={point.x} y={Math.max(13, point.y - 12)} textAnchor="middle" fill="#E5E7EB" fontSize="10" fontWeight="700">{point.value}</text>
+                                <text x={point.x} y="184" textAnchor="middle" fill="#71717A" fontSize="9">{point.pt.date}</text>
+                              </g>
+                            );
+                          })}
+                        </svg>
+                        {hoveredPointIndex !== null && exerciseProgression.points[hoveredPointIndex] && (
+                          <div className="absolute left-2 top-0 z-20 rounded-lg border border-[#3F3F46] bg-[#18181B] px-3 py-2 text-[11px] text-[#E5E7EB] shadow-xl pointer-events-none">
+                            <strong className="block text-white">Sessão em {exerciseProgression.points[hoveredPointIndex].date}</strong>
+                            <span>{exerciseProgression.points[hoveredPointIndex].weight} kg × {exerciseProgression.points[hoveredPointIndex].reps} reps · Volume {formatWeight(exerciseProgression.points[hoveredPointIndex].volume)}</span>
+                          </div>
+                        )}
+                      </>
+                    );
                   })()}
                 </div>
 
@@ -721,25 +701,39 @@ export const StudentMetricsSummaryTab: React.FC<StudentMetricsSummaryTabProps> =
           </div>
 
           {metrics.muscleDistribution.length > 0 ? (
-            <div className="space-y-3 pt-1">
-              {metrics.muscleDistribution.map((m) => (
-                <div key={m.muscleGroup} className="space-y-1">
-                  <div className="flex items-center justify-between text-xs font-bold">
-                    <span className="text-white">{m.muscleGroup}</span>
-                    <div className="flex items-center gap-2 font-mono-nums text-[11px]">
-                      <span className="text-[#4B5563]">{formatWeight(m.totalVolume)}</span>
-                      <span className="text-blue-600 w-10 text-right">{m.percentage}%</span>
-                    </div>
-                  </div>
-                  {/* Horizontal Bar */}
-                  <div className="w-full h-2 rounded-full bg-slate-100 border border-slate-200 overflow-hidden">
-                    <div
-                      style={{ width: `${Math.max(4, m.percentage)}%` }}
-                      className="h-full bg-gradient-to-r from-blue-600 to-sky-400 rounded-full transition-all duration-500"
-                    />
-                  </div>
-                </div>
-              ))}
+            <div className="space-y-2 pt-1">
+              <svg viewBox={`0 0 ${Math.max(320, metrics.muscleDistribution.length * 76)} 190`} role="img" aria-label="Gráfico em linha da distribuição por grupo muscular" className="h-48 w-full overflow-visible">
+                {(() => {
+                  const items = metrics.muscleDistribution;
+                  const width = Math.max(320, items.length * 76);
+                  const max = Math.max(1, ...items.map((item) => item.percentage));
+                  const pts = items.map((item, idx) => ({
+                    item,
+                    x: 28 + idx * ((width - 56) / Math.max(1, items.length - 1)),
+                    y: 142 - (item.percentage / max) * 105,
+                  }));
+                  const path = pts.reduce((d, point, idx) => {
+                    if (idx === 0) return `M ${point.x} ${point.y}`;
+                    const prev = pts[idx - 1];
+                    return `${d} Q ${(prev.x + point.x) / 2} ${prev.y} ${point.x} ${point.y}`;
+                  }, '');
+                  return (
+                    <>
+                      {[0, 1, 2].map((line) => <line key={line} x1="10" x2={width - 10} y1={38 + line * 48} y2={38 + line * 48} stroke="#303036" strokeDasharray="4 5" />)}
+                      <path d={path} fill="none" stroke="#D1D5DB" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+                      {pts.map((point) => (
+                        <g key={point.item.muscleGroup}>
+                          <circle cx={point.x} cy={point.y} r="4" fill="#F9FAFB" stroke="#9CA3AF" strokeWidth="2" />
+                          <text x={point.x} y={point.y - 12} textAnchor="middle" fill="#E5E7EB" fontSize="10" fontWeight="700">{point.item.percentage}%</text>
+                          <text x={point.x} y="166" textAnchor="middle" fill="#A1A1AA" fontSize="9">{point.item.muscleGroup.slice(0, 10)}</text>
+                        </g>
+                      ))}
+                    </>
+                  );
+                })()}
+              </svg>
+              <p className="text-[10px] text-[#71717A] text-center">Participação percentual do volume por grupo muscular</p>
+            </div>
             </div>
           ) : (
             <div className="py-8 text-center text-xs text-[#71717A] bg-[#18181B] rounded-xl border border-[#27272A]">
