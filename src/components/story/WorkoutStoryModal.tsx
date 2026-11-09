@@ -428,6 +428,7 @@ export const WorkoutStoryModal: React.FC<WorkoutStoryModalProps> = ({
                     <WorkoutStoryDOMRenderer 
                       session={effectiveSession}
                       templateId={selectedTemplate}
+                      bodyMapSex={bodyMapSex}
                       studentName={studentName}
                       exercises={exercises}
                     />
