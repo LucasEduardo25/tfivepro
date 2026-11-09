@@ -235,6 +235,15 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         </button>
       </div>
 
+      {/* Sessões ativas: mantém os controles completos, inclusive finalizar atendimento. */}
+      {activeWorkouts.length > 0 && (
+        <ActiveWorkoutsSection
+          activeWorkouts={activeWorkouts}
+          onOpenLiveWorkout={onOpenLiveWorkout}
+          onFinishWorkout={handleFinishActiveWorkout}
+        />
+      )}
+
       {/* 4. GRID OPERACIONAL PRINCIPAL (2 COLUNAS) */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
