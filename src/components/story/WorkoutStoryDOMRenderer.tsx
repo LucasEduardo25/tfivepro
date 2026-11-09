@@ -120,7 +120,9 @@ export const WorkoutStoryDOMRenderer = forwardRef<StoryDOMRendererRef, StoryDOMR
             canvasWidth: 1080,
             canvasHeight: 1920,
             pixelRatio: 1,
-            cacheBust: true,
+            // Reutiliza imagens já carregadas (incluindo as silhuetas anatômicas locais).
+            // cacheBust=true força novas requisições e pode atrasar a captura em redes móveis.
+            cacheBust: false,
             skipAutoScale: true,
             skipFonts: true,
             fontEmbedCSS: '',
@@ -132,8 +134,8 @@ export const WorkoutStoryDOMRenderer = forwardRef<StoryDOMRendererRef, StoryDOMR
               background: 'transparent'
             }
             }),
-            25000,
-            'A geração do PNG excedeu 25 segundos. Reduza a complexidade da imagem e tente novamente.'
+            45000,
+            'A geração do PNG demorou mais que 45 segundos. Verifique a conexão e tente novamente.'
           );
 
           if (!blob) {
