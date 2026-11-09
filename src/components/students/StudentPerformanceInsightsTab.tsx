@@ -18,7 +18,7 @@ const PERIODS: { value: Period; label: string; days: number | null }[] = [
   { value: "all", label: "Todo período", days: null },
 ];
 
-const validDate = (value: string | Date) => {
+const validDate = (value: string) => {
   const date = new Date(value);
   return Number.isNaN(date.getTime()) ? null : date;
 };
@@ -52,8 +52,7 @@ export const StudentPerformanceInsightsTab: React.FC<Props> = ({ student, sessio
   const exerciseRecords = useMemo(() => {
     const map = new Map<string, {
       key: string; name: string; maxLoad: number; maxReps: number;
-      best1RM: number; lastLoad: number; firstLoad: number; sessions: number;
-      lastDate: Date;
+      best1RM: number; sessions: number; lastDate: Date;
     }>();
     for (const { session, date } of completedSessions) {
       const seenInSession = new Set<string>();
@@ -68,18 +67,14 @@ export const StudentPerformanceInsightsTab: React.FC<Props> = ({ student, sessio
         if (!current) {
           map.set(key, {
             key, name: set.exerciseName || "Exercício", maxLoad: load, maxReps: reps,
-            best1RM: oneRM, lastLoad: load, firstLoad: load, sessions: 1, lastDate: date,
+            best1RM: oneRM, sessions: 1, lastDate: date,
           });
         } else {
           current.maxLoad = Math.max(current.maxLoad, load);
           current.maxReps = Math.max(current.maxReps, reps);
           current.best1RM = Math.max(current.best1RM, oneRM);
           if (!seenInSession.has(key)) current.sessions += 1;
-          if (date.getTime() >= current.lastDate.getTime()) {
-            current.lastLoad = load;
-            current.lastDate = date;
-          }
-          if (date.getTime() < current.lastDate.getTime()) current.firstLoad = load;
+          if (date.getTime() > current.lastDate.getTime()) current.lastDate = date;
         }
         seenInSession.add(key);
       }
@@ -89,18 +84,25 @@ export const StudentPerformanceInsightsTab: React.FC<Props> = ({ student, sessio
 
   const filteredExerciseProgress = useMemo(() => {
     const map = new Map<string, { name: string; first: number; latest: number; best: number; points: number }>();
-    for (const { session, date } of filteredSessions) {
+    for (const { session } of filteredSessions) {
+      const sessionBestLoads = new Map<string, { name: string; load: number }>();
       for (const set of session.sets || []) {
         if (!set || set.status === "skipped") continue;
         const load = Number(set.weightKg) || 0;
         const reps = Number(set.actualReps) || 0;
         if (load <= 0 || reps <= 0) continue;
         const key = set.exerciseId || (set.exerciseName || "Exercício").trim().toLocaleLowerCase("pt-BR");
+        const previous = sessionBestLoads.get(key);
+        if (!previous || load > previous.load) {
+          sessionBestLoads.set(key, { name: set.exerciseName || "Exercício", load });
+        }
+      }
+      for (const [key, current] of sessionBestLoads) {
         const item = map.get(key);
-        if (!item) map.set(key, { name: set.exerciseName || "Exercício", first: load, latest: load, best: load, points: 1 });
+        if (!item) map.set(key, { name: current.name, first: current.load, latest: current.load, best: current.load, points: 1 });
         else {
-          item.latest = load;
-          item.best = Math.max(item.best, load);
+          item.latest = current.load;
+          item.best = Math.max(item.best, current.load);
           item.points += 1;
         }
       }
@@ -123,8 +125,11 @@ export const StudentPerformanceInsightsTab: React.FC<Props> = ({ student, sessio
 
   const weeklyBars = useMemo(() => {
     const weeks: { label: string; count: number; volume: number }[] = [];
-    const first = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7 * 7 + 1);
-    first.setHours(0, 0, 0, 0);
+    const currentWeekStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    currentWeekStart.setHours(0, 0, 0, 0);
+    currentWeekStart.setDate(currentWeekStart.getDate() - ((currentWeekStart.getDay() + 6) % 7));
+    const first = new Date(currentWeekStart);
+    first.setDate(first.getDate() - 7 * 7);
     for (let i = 0; i < 8; i++) {
       const from = new Date(first);
       from.setDate(first.getDate() + i * 7);
