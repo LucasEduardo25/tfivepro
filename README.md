@@ -22,3 +22,6 @@ View your app in AI Studio: https://ai.studio/apps/6b628080-c922-4251-acba-a26a7
 ## Deploy na Netlify
 
 O deploy de produção utiliza a branch `main`, com o comando `npm run build` e diretório publicado `dist`, conforme definido em `netlify.toml`.
+
+
+Configuração Supabase: a variável pública `VITE_SUPABASE_ANON_KEY` deve receber a chave publishable ativa do projeto no Netlify.
