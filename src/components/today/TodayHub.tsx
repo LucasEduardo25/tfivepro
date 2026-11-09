@@ -198,7 +198,7 @@ export const TodayHub: React.FC<TodayHubProps> = ({
       )}
 
       {/* ACTIVE WORKOUTS QUICK BAR (If active sessions exist) */}
-      {activeWorkouts.length > 0 && (
+      {!embedded && activeWorkouts.length > 0 && (
         <div className="p-4 rounded-xl bg-white border border-emerald-200 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3 min-w-0">
             <div className="w-3 h-3 rounded-full bg-emerald-400 animate-ping shrink-0" />
