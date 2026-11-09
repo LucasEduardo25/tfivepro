@@ -1,5 +1,5 @@
 import React, { useRef, useImperativeHandle, forwardRef, useMemo } from 'react';
-import { toPng } from 'html-to-image';
+import { toBlob } from 'html-to-image';
 import { WorkoutSession, Exercise } from '../../types';
 import { formatTonnesOrKg, formatWorkoutDuration } from '../../utils/calculations';
 import { analyzeTrainedMuscles } from '../common/BodyMap/bodyMapTypes';
@@ -100,7 +100,9 @@ export const WorkoutStoryDOMRenderer = forwardRef<StoryDOMRendererRef, StoryDOMR
             await document.fonts.ready;
           }
 
-          const dataUrl = await toPng(containerRef.current, {
+          // Gera o Blob diretamente. Evita criar uma Data URL Base64 gigante,
+          // que duplica o consumo de memória e falha com mais frequência em celulares.
+          const blob = await toBlob(containerRef.current, {
             width: 1080,
             height: 1920,
             canvasWidth: 1080,
@@ -119,28 +121,12 @@ export const WorkoutStoryDOMRenderer = forwardRef<StoryDOMRendererRef, StoryDOMR
             }
           });
 
-          // Convert DataURL to physical PNG Blob
-          const parts = dataUrl.split(',');
-          const header = parts[0];
-          const base64 = parts[1];
-
-          if (!base64) {
-            throw new Error('Erro ao gerar PNG: Data URL vazia');
+          if (!blob) {
+            throw new Error('O navegador não conseguiu gerar o arquivo PNG. Tente novamente.');
           }
-
-          const mime = header.match(/:(.*?);/)?.[1] || 'image/png';
-          const binary = atob(base64);
-          const len = binary.length;
-          const u8arr = new Uint8Array(len);
-
-          for (let i = 0; i < len; i++) {
-            u8arr[i] = binary.charCodeAt(i);
-          }
-
-          const blob = new Blob([u8arr], { type: mime });
 
           if (blob.size === 0) {
-            throw new Error('Blob gerado está vazio (tamanho 0)');
+            throw new Error('O PNG gerado está vazio (tamanho 0).');
           }
 
           return blob;
