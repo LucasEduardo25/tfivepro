@@ -170,8 +170,8 @@ export const StudentMetricsSummaryTab: React.FC<StudentMetricsSummaryTabProps> =
               onClick={() => setSelectedPeriod(p)}
               className={`px-3 py-1.5 rounded-lg text-xs font-bold font-mono-nums tracking-wider uppercase transition-all ${
                 selectedPeriod === p
-                  ? 'bg-blue-600 text-white shadow-sm font-black'
-                  : 'text-slate-500 hover:text-blue-700 hover:bg-[#27272A]/60'
+                  ? 'bg-[#374151] text-white shadow-sm font-black'
+                  : 'text-[#4B5563] hover:text-white hover:bg-[#27272A]/60'
               }`}
             >
               {periodLabels[p]}
@@ -296,7 +296,7 @@ export const StudentMetricsSummaryTab: React.FC<StudentMetricsSummaryTabProps> =
                 className={`px-3 py-1.5 rounded-lg text-xs font-bold tracking-wider transition-all ${
                   mainChartMetric === m.id
                     ? 'bg-white text-black font-black shadow-sm'
-                    : 'text-slate-500 hover:text-blue-700 hover:bg-[#27272A]/60'
+                    : 'text-[#4B5563] hover:text-white hover:bg-[#27272A]/60'
                 }`}
               >
                 {m.label}
@@ -448,8 +448,8 @@ export const StudentMetricsSummaryTab: React.FC<StudentMetricsSummaryTabProps> =
                     onClick={() => setExerciseMetric(m.id as any)}
                     className={`px-2.5 py-1 rounded-lg text-[11px] font-bold tracking-wider transition-all ${
                       exerciseMetric === m.id
-                        ? 'bg-blue-600 text-white font-black shadow-sm'
-                        : 'text-slate-500 hover:text-blue-700 hover:bg-[#27272A]/60'
+                        ? 'bg-[#374151] text-white font-black shadow-sm'
+                        : 'text-[#4B5563] hover:text-white hover:bg-[#27272A]/60'
                     }`}
                   >
                     {m.label}
@@ -468,7 +468,7 @@ export const StudentMetricsSummaryTab: React.FC<StudentMetricsSummaryTabProps> =
                   <select
                     value={selectedExerciseId}
                     onChange={(e) => setSelectedExerciseId(e.target.value)}
-                    className="w-full bg-[#F1F5F9] border border-[#E2E8F0] hover:border-zinc-600 rounded-xl px-3.5 py-2.5 text-xs text-[#172B4D] font-bold appearance-none pr-10 focus:outline-none focus:border-[#BFDBFE] transition-all cursor-pointer"
+                    className="w-full bg-[#18181B] border border-[#27272A] hover:border-zinc-600 rounded-xl px-3.5 py-2.5 text-xs text-white font-bold appearance-none pr-10 focus:outline-none focus:border-[#374151] transition-all cursor-pointer"
                   >
                     {metrics.availableExercises.map(ex => (
                       <option key={ex.id} value={ex.id} className="bg-[#F1F5F9] text-[#172B4D]">
