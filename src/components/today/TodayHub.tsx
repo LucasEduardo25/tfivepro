@@ -32,13 +32,15 @@ interface TodayHubProps {
   onOpenLiveWorkout: () => void;
   onSelectStudent: (student: Student) => void;
   onOpenSchedule: () => void;
+  embedded?: boolean;
 }
 
 export const TodayHub: React.FC<TodayHubProps> = ({
   onStartWorkout,
   onOpenLiveWorkout,
   onSelectStudent,
-  onOpenSchedule
+  onOpenSchedule,
+  embedded = false
 }) => {
   const {
     students,
@@ -125,6 +127,8 @@ export const TodayHub: React.FC<TodayHubProps> = ({
 
   return (
     <div className="space-y-6 pb-12">
+      {!embedded && (
+        <>
       {/* MASTER OPERATIONAL HEADER */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white border border-[#E4E4E7] rounded-2xl p-5 shadow-lg">
         <div>
@@ -190,8 +194,11 @@ export const TodayHub: React.FC<TodayHubProps> = ({
         </div>
       </div>
 
+        </>
+      )}
+
       {/* ACTIVE WORKOUTS QUICK BAR (If active sessions exist) */}
-      {activeWorkouts.length > 0 && (
+      {!embedded && activeWorkouts.length > 0 && (
         <div className="p-4 rounded-xl bg-white border border-emerald-200 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3 min-w-0">
             <div className="w-3 h-3 rounded-full bg-emerald-400 animate-ping shrink-0" />

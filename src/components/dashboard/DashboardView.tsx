@@ -37,10 +37,11 @@ import { ExternalWorkoutStoryModal } from '../story/ExternalWorkoutStoryModal';
 import { DailySummaryStoryModal } from '../story/DailySummaryStoryModal';
 import { SessionSummaryViewModal } from '../workout/SessionSummaryViewModal';
 import { ReportPDFModal } from '../reports/ReportPDFModal';
+import { TodayHub } from '../today/TodayHub';
 
 interface DashboardViewProps {
   onSelectStudent: (student: Student, initialTab?: string) => void;
-  onStartWorkoutFromSchedule: (student: Student, routine?: WorkoutRoutine) => void;
+  onStartWorkoutFromSchedule: (student: Student, routine?: WorkoutRoutine, workout?: import('../../types').RoutineWorkout) => void;
   onOpenLiveWorkout: () => void;
 }
 
@@ -73,7 +74,13 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   const [viewingSession, setViewingSession] = useState<WorkoutSession | null>(null);
   const [reportStudentSession, setReportStudentSession] = useState<{ student: Student; session: WorkoutSession } | null>(null);
 
-  const todayStr = useMemo(() => new Date().toISOString().split('T')[0], []);
+  const todayStr = useMemo(() => {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }, []);
   const greetingText = useMemo(() => getGreeting(trainerProfile.name), [trainerProfile.name]);
   const formattedDate = useMemo(() => getFormattedDeviceDate(), []);
 
@@ -168,14 +175,14 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           </p>
         </div>
 
-        {/* Primary Action */}
+
         <div className="flex items-center gap-2.5 flex-wrap">
           <button
             onClick={() => setShowQuickStartModal(true)}
             className="px-5 py-2.5 rounded-xl bg-[#374151] hover:bg-[#1F2937] text-white text-xs font-semibold tracking-wide transition-colors flex items-center justify-center gap-2 shadow-xs"
           >
             <Play className="w-3.5 h-3.5 fill-white" />
-            <span>{activeWorkouts.length === 1 ? 'Adicionar 2º Aluno' : 'Iniciar Treino'}</span>
+            <span>{activeWorkouts.length === 1 ? 'Adicionar 2º Aluno' : 'Treino Avulso'}</span>
           </button>
         </div>
       </header>
@@ -192,19 +199,6 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           <div className="min-w-0">
             <span className="text-xs font-semibold text-[#1F2937] block truncate">+ Aluno</span>
             <span className="text-[11px] text-[#4B5563] block truncate">Cadastrar ficha</span>
-          </div>
-        </button>
-
-        <button
-          onClick={() => setShowQuickStartModal(true)}
-          className="p-3.5 rounded-xl bg-white border border-[#E5E7EB] hover:border-[#D1D5DB] hover:bg-[#F9FAFB] transition-colors flex items-center gap-3 text-left shadow-xs group"
-        >
-          <div className="w-9 h-9 rounded-lg bg-[#F3F4F6] text-[#374151] flex items-center justify-center shrink-0 group-hover:bg-[#E5E7EB] transition-colors">
-            <Play className="w-4 h-4 fill-current" />
-          </div>
-          <div className="min-w-0">
-            <span className="text-xs font-semibold text-[#1F2937] block truncate">+ Treino</span>
-            <span className="text-[11px] text-[#4B5563] block truncate">Começar sessão</span>
           </div>
         </button>
 
@@ -241,11 +235,11 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         </button>
       </div>
 
-      {/* 3. TREINOS ATIVOS (Se houver) */}
+      {/* Sessões ativas: mantém os controles completos, inclusive finalizar atendimento. */}
       {activeWorkouts.length > 0 && (
         <ActiveWorkoutsSection
           activeWorkouts={activeWorkouts}
-          onOpenLiveWorkout={() => onOpenLiveWorkout()}
+          onOpenLiveWorkout={onOpenLiveWorkout}
           onFinishWorkout={handleFinishActiveWorkout}
         />
       )}
@@ -256,124 +250,13 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         {/* COLUNA ESQUERDA (MAIOR): AGENDA DE HOJE + ATIVIDADE RECENTE */}
         <div className="lg:col-span-2 space-y-6">
           
-          {/* B. AGENDA DE HOJE (GRANDE DESTAQUE) */}
-          <div className="bg-white border border-[#E5E7EB] rounded-2xl p-5 shadow-xs space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-[#ECEEF1]">
-              <div className="flex items-center gap-2">
-                <div className="w-7 h-7 rounded-lg bg-[#F3F4F6] text-[#374151] flex items-center justify-center font-bold">
-                  <Calendar className="w-3.5 h-3.5" />
-                </div>
-                <h2 className="text-sm font-bold text-[#1F2937] tracking-tight">
-                  Agenda de Hoje ({todayAppointments.length})
-                </h2>
-              </div>
-
-              <button
-                onClick={() => setCurrentTab('agenda')}
-                className="text-xs font-medium text-[#4B5563] hover:text-[#1F2937] flex items-center gap-1 transition-colors"
-              >
-                <span>Ver agenda completa</span>
-                <ChevronRight className="w-3.5 h-3.5" />
-              </button>
-            </div>
-
-            {todayAppointments.length === 0 ? (
-              <div className="py-8 px-4 text-center rounded-xl bg-[#F8F9FA] border border-[#E5E7EB] space-y-3">
-                <p className="text-xs font-medium text-[#4B5563]">
-                  Nenhum atendimento agendado para o dia de hoje.
-                </p>
-                <div className="flex items-center justify-center gap-3">
-                  <button
-                    onClick={() => setCurrentTab('agenda')}
-                    className="px-3 py-1.5 rounded-lg bg-white border border-[#D1D5DB] text-xs font-semibold text-[#374151] hover:bg-[#F3F4F6] transition-colors"
-                  >
-                    Agendar Horário
-                  </button>
-                  <button
-                    onClick={() => setShowQuickStartModal(true)}
-                    className="px-3 py-1.5 rounded-lg bg-[#374151] text-xs font-semibold text-white hover:bg-[#1F2937] transition-colors"
-                  >
-                    Iniciar Treino Avulso
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <div className="space-y-2.5">
-                {todayAppointments.map(app => {
-                  const student = studentsMap.get(app.studentId);
-                  const isScheduled = app.status === 'scheduled';
-                  const isCompleted = app.status === 'completed';
-
-                  return (
-                    <div
-                      key={app.id}
-                      className="p-3.5 rounded-xl bg-[#F8F9FA] border border-[#E5E7EB] flex items-center justify-between gap-3 hover:border-[#D1D5DB] transition-colors"
-                    >
-                      {/* Horário e Aluno */}
-                      <div className="flex items-center gap-3 min-w-0">
-                        <div className="w-14 shrink-0 text-left">
-                          <span className="font-mono text-xs font-bold text-[#1F2937] block">
-                            {app.time}
-                          </span>
-                          <span className="text-[11px] text-[#4B5563] block">
-                            {app.durationMinutes || 60} min
-                          </span>
-                        </div>
-
-                        {student ? (
-                          <div 
-                            onClick={() => onSelectStudent(student)}
-                            className="flex items-center gap-2.5 min-w-0 cursor-pointer group"
-                          >
-                            <StudentAvatar student={student} size="sm" />
-                            <div className="min-w-0">
-                              <p className="text-xs font-bold text-[#1F2937] group-hover:text-[#374151] truncate">
-                                {student.name}
-                              </p>
-                              <p className="text-[11px] text-[#4B5563] truncate">
-                                {app.routineTitle || student.goal || 'Treino Personalizado'}
-                              </p>
-                            </div>
-                          </div>
-                        ) : (
-                          <div className="min-w-0">
-                            <p className="text-xs font-bold text-[#1F2937] truncate">{app.studentName}</p>
-                            <p className="text-[11px] text-[#4B5563] truncate">{app.routineTitle || 'Treino'}</p>
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Status & Ação Rápida */}
-                      <div className="flex items-center gap-2 shrink-0">
-                        {isCompleted ? (
-                          <span className="px-2.5 py-1 rounded-md text-[11px] font-medium bg-emerald-50 text-emerald-800 border border-emerald-200 flex items-center gap-1">
-                            <CheckCircle2 className="w-3 h-3 text-emerald-600" />
-                            <span>Concluído</span>
-                          </span>
-                        ) : (
-                          <span className="px-2.5 py-1 rounded-md text-[11px] font-medium bg-[#ECEEF1] text-[#374151] flex items-center gap-1">
-                            <span className="w-1.5 h-1.5 rounded-full bg-[#6B7280]" />
-                            <span>Agendado</span>
-                          </span>
-                        )}
-
-                        {isScheduled && student && (
-                          <button
-                            onClick={() => handleStartWorkout(student)}
-                            className="px-3 py-1.5 rounded-lg bg-[#374151] hover:bg-[#1F2937] text-white text-xs font-semibold transition-colors flex items-center gap-1.5"
-                            title="Iniciar Treino Imediato"
-                          >
-                            <Play className="w-3 h-3 fill-white" />
-                            <span className="hidden sm:inline">Iniciar</span>
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </div>
+          <TodayHub
+            embedded
+            onStartWorkout={(student, routine, workout) => onStartWorkoutFromSchedule(student, routine, workout)}
+            onOpenLiveWorkout={onOpenLiveWorkout}
+            onSelectStudent={student => onSelectStudent(student)}
+            onOpenSchedule={() => setCurrentTab('agenda')}
+          />
 
           {/* F. ATIVIDADE RECENTE (VISUAL LEVE E CRONOLÓGICO) */}
           <div className="bg-white border border-[#E5E7EB] rounded-2xl p-5 shadow-xs space-y-4">
