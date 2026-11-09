@@ -734,7 +734,6 @@ export const StudentMetricsSummaryTab: React.FC<StudentMetricsSummaryTabProps> =
               </svg>
               <p className="text-[10px] text-[#71717A] text-center">Participação percentual do volume por grupo muscular</p>
             </div>
-            </div>
           ) : (
             <div className="py-8 text-center text-xs text-[#71717A] bg-[#18181B] rounded-xl border border-[#27272A]">
               SEM DADOS NO PERÍODO
@@ -792,8 +791,8 @@ export const StudentMetricsSummaryTab: React.FC<StudentMetricsSummaryTabProps> =
                     key={bucket.weekKey}
                     className={`p-2.5 rounded-xl border text-left flex items-center justify-between transition-all ${
                       bucket.hasWorkout
-                        ? 'bg-blue-50 border-blue-200 text-blue-800'
-                        : 'bg-slate-50 border-slate-200 text-slate-400'
+                        ? 'bg-[#27272A] border-[#3F3F46] text-[#E5E7EB]'
+                        : 'bg-[#18181B] border-[#27272A] text-[#71717A]'
                     }`}
                   >
                     <div className="min-w-0 pr-1">
@@ -801,7 +800,7 @@ export const StudentMetricsSummaryTab: React.FC<StudentMetricsSummaryTabProps> =
                         {bucket.weekLabel}
                       </span>
                       <span className={`text-xs font-bold font-mono-nums ${
-                        bucket.hasWorkout ? 'text-blue-800' : 'text-slate-500'
+                        bucket.hasWorkout ? 'text-[#E5E7EB]' : 'text-[#71717A]'
                       }`}>
                         {bucket.sessionsCount} {bucket.sessionsCount === 1 ? 'treino' : 'treinos'}
                       </span>
@@ -811,7 +810,7 @@ export const StudentMetricsSummaryTab: React.FC<StudentMetricsSummaryTabProps> =
                       {bucket.hasWorkout ? (
                         <div className="flex gap-0.5">
                           {Array.from({ length: Math.min(bucket.sessionsCount, 5) }).map((_, dotIdx) => (
-                            <span key={dotIdx} className="w-2 h-2 rounded-full bg-blue-500" />
+                            <span key={dotIdx} className="w-2 h-2 rounded-full bg-[#D1D5DB]" />
                           ))}
                         </div>
                       ) : (
