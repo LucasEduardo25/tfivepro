@@ -152,7 +152,7 @@ export const EvolutionReportsTab: React.FC<EvolutionReportsTabProps> = ({ studen
                 disabled={selectedForCompare.length !== 2}
                 className={`px-4 py-2.5 rounded-xl text-xs font-bold font-display uppercase tracking-wider flex items-center gap-2 transition-all ${
                   selectedForCompare.length === 2
-                    ? 'bg-[#E2E8F0] text-white hover:bg-[#F1F5F9] border border-[#E2E8F0] shadow-sm'
+                    ? 'bg-blue-600 text-white hover:bg-blue-700 border border-blue-600 shadow-sm'
                     : 'bg-[#F8F9FA]/50 text-slate-500 border border-[#E5E7EB]/50 cursor-not-allowed'
                 }`}
                 title={selectedForCompare.length === 2 ? 'Comparar 2 relatórios selecionados' : 'Selecione 2 relatórios abaixo para comparar'}
@@ -164,7 +164,7 @@ export const EvolutionReportsTab: React.FC<EvolutionReportsTabProps> = ({ studen
 
             <button
               onClick={handleCreateNew}
-              className="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-[#1F2937] text-white text-xs font-black font-display uppercase tracking-wider transition-all shadow-md shadow-xs flex items-center gap-2"
+              className="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-black font-display uppercase tracking-wider transition-all shadow-md shadow-xs flex items-center gap-2"
             >
               <Plus className="w-4 h-4" />
               <span>Novo Relatório</span>
@@ -187,7 +187,7 @@ export const EvolutionReportsTab: React.FC<EvolutionReportsTabProps> = ({ studen
           </p>
           <button
             onClick={handleCreateNew}
-            className="px-6 py-3 rounded-xl bg-blue-600 hover:bg-[#1F2937] text-white text-xs font-black font-display uppercase tracking-wider transition-all shadow-md shadow-xs inline-flex items-center gap-2"
+            className="px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-black font-display uppercase tracking-wider transition-all shadow-md shadow-xs inline-flex items-center gap-2"
           >
             <Plus className="w-4 h-4" />
             <span>Criar Relatório de Evolução</span>
@@ -300,7 +300,7 @@ export const EvolutionReportsTab: React.FC<EvolutionReportsTabProps> = ({ studen
                   <div className="flex items-center gap-1.5">
                     <button
                       onClick={() => setViewingReport(report)}
-                      className="px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-[#1F2937] text-white text-xs font-bold font-display uppercase tracking-wider transition-all flex items-center gap-1.5"
+                      className="px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold font-display uppercase tracking-wider transition-all flex items-center gap-1.5"
                     >
                       <Eye className="w-3.5 h-3.5" />
                       <span>Visualizar</span>
@@ -308,26 +308,26 @@ export const EvolutionReportsTab: React.FC<EvolutionReportsTabProps> = ({ studen
 
                     <button
                       onClick={() => setPdfReport(report)}
-                      className="p-2 rounded-xl bg-[#F8F9FA] hover:bg-[#E2E8F0] text-blue-600 hover:text-white border border-[#E5E7EB] transition-all"
+                      className="p-2 rounded-xl bg-[#F8F9FA] hover:bg-blue-50 text-blue-600 hover:text-blue-700 border border-[#E5E7EB] transition-all"
                       title="Gerar PDF / Imprimir"
                     >
-                      <Printer className="w-4 h-4 text-slate-500 hover:text-white" />
+                      <Printer className="w-4 h-4 text-slate-500 hover:text-blue-700" />
                     </button>
 
                     <button
                       onClick={() => handleEdit(report)}
-                      className="p-2 rounded-xl bg-[#F8F9FA] hover:bg-[#E2E8F0] text-blue-600 hover:text-white border border-[#E5E7EB] transition-all"
+                      className="p-2 rounded-xl bg-[#F8F9FA] hover:bg-blue-50 text-blue-600 hover:text-blue-700 border border-[#E5E7EB] transition-all"
                       title="Editar dados e parecer"
                     >
-                      <Edit className="w-4 h-4 text-slate-500 hover:text-white" />
+                      <Edit className="w-4 h-4 text-slate-500 hover:text-blue-700" />
                     </button>
 
                     <button
                       onClick={() => handleDuplicate(report)}
-                      className="p-2 rounded-xl bg-[#F8F9FA] hover:bg-[#E2E8F0] text-blue-600 hover:text-white border border-[#E5E7EB] transition-all"
+                      className="p-2 rounded-xl bg-[#F8F9FA] hover:bg-blue-50 text-blue-600 hover:text-blue-700 border border-[#E5E7EB] transition-all"
                       title="Duplicar relatório"
                     >
-                      <Copy className="w-4 h-4 text-slate-500 hover:text-white" />
+                      <Copy className="w-4 h-4 text-slate-500 hover:text-blue-700" />
                     </button>
                   </div>
 
@@ -341,7 +341,7 @@ export const EvolutionReportsTab: React.FC<EvolutionReportsTabProps> = ({ studen
                       </button>
                       <button
                         onClick={() => setDeleteConfirmId(null)}
-                        className="px-2 py-1.5 rounded-lg bg-[#E2E8F0] text-white text-[11px] font-bold uppercase transition-all"
+                        className="px-2 py-1.5 rounded-lg bg-slate-100 text-slate-700 text-[11px] font-bold uppercase transition-all"
                       >
                         Não
                       </button>
