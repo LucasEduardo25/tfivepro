@@ -222,21 +222,21 @@ export const StudentPerformanceInsightsTab: React.FC<Props> = ({ student, sessio
               </div>
               <svg viewBox="0 0 600 170" role="img" aria-label="Gráfico de frequência semanal" className="relative h-40 w-full overflow-visible">
                 <defs>
-                  <linearGradient id="tfive-frequency-fill" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#2563EB" stopOpacity=".34" /><stop offset="100%" stopColor="#2563EB" stopOpacity="0" /></linearGradient>
-                  <linearGradient id="tfive-frequency-line"><stop offset="0%" stopColor="#2563EB" /><stop offset="100%" stopColor="#93C5FD" /></linearGradient>
+                  <linearGradient id="tfive-frequency-fill" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#6B7280" stopOpacity=".34" /><stop offset="100%" stopColor="#6B7280" stopOpacity="0" /></linearGradient>
+                  <linearGradient id="tfive-frequency-line"><stop offset="0%" stopColor="#6B7280" /><stop offset="100%" stopColor="#E5E7EB" /></linearGradient>
                   <filter id="tfive-frequency-glow"><feGaussianBlur stdDeviation="4" result="blur" /><feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge></filter>
                 </defs>
                 <path d={frequencyArea} fill="url(#tfive-frequency-fill)" />
                 <path d={frequencyLine} fill="none" stroke="url(#tfive-frequency-line)" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" filter="url(#tfive-frequency-glow)" />
                 {chartPoints.map((point, index) => <g key={weeklyBars[index].label}>
-                  <circle cx={point.x} cy={point.y} r="7" fill="#2563EB" opacity=".16" />
-                  <circle cx={point.x} cy={point.y} r="3.5" fill="#FFFFFF" stroke="#2563EB" strokeWidth="2" />
-                  <text x={point.x} y="164" textAnchor="middle" fill="#8190a5" fontSize="10">{weeklyBars[index].label}</text>
-                  <text x={point.x} y={Math.max(12, point.y - 13)} textAnchor="middle" fill="#1D4ED8" fontSize="11" fontWeight="700">{weeklyBars[index].count}</text>
+                  <circle cx={point.x} cy={point.y} r="7" fill="#6B7280" opacity=".16" />
+                  <circle cx={point.x} cy={point.y} r="3.5" fill="#FFFFFF" stroke="#6B7280" strokeWidth="2" />
+                  <text x={point.x} y="164" textAnchor="middle" fill="#9CA3AF" fontSize="10">{weeklyBars[index].label}</text>
+                  <text x={point.x} y={Math.max(12, point.y - 13)} textAnchor="middle" fill="#374151" fontSize="11" fontWeight="700">{weeklyBars[index].count}</text>
                 </g>)}
               </svg>
             </div>
-            <p className="mt-2 flex items-center gap-2 text-[10px] text-slate-500 print-muted"><span className="h-2 w-2 rounded-full bg-blue-500 shadow-[0_0_8px_#f87171]" /> Sessões concluídas por semana</p>
+            <p className="mt-2 flex items-center gap-2 text-[10px] text-slate-500 print-muted"><span className="h-2 w-2 rounded-full bg-[#9CA3AF] shadow-[0_0_8px_rgba(229,231,235,.35)]" /> Sessões concluídas por semana</p>
           </section>
 
           <section className="print-card rounded-2xl border border-[#E5E7EB] bg-white p-5 shadow-sm">
@@ -253,10 +253,15 @@ export const StudentPerformanceInsightsTab: React.FC<Props> = ({ student, sessio
                   <div key={item.name} className="space-y-2">
                     <div className="flex items-center justify-between gap-2">
                       <span className="truncate text-xs font-semibold text-slate-700">{item.name}</span>
-                      <span className={`shrink-0 rounded-full px-2 py-1 text-[10px] font-bold ${item.delta >= 0 ? "border border-blue-500/20 bg-blue-500/10 text-blue-600" : "border border-blue-500/20 bg-blue-500/10 text-blue-600"}`}>{item.delta >= 0 ? "+" : ""}{formatNumber(item.delta)}%</span>
+                      <span className={`shrink-0 rounded-full px-2 py-1 text-[10px] font-bold ${item.delta >= 0 ? "border border-[#D1D5DB] bg-[#F3F4F6] text-[#4B5563]" : "border border-[#D1D5DB] bg-[#F3F4F6] text-[#4B5563]"}`}>{item.delta >= 0 ? "+" : ""}{formatNumber(item.delta)}%</span>
                     </div>
-                    <div className="h-2.5 overflow-hidden rounded-full border border-slate-200 bg-slate-100">
-                      <div className="h-full rounded-full bg-gradient-to-r from-blue-600 via-blue-500 to-blue-400 shadow-[0_2px_10px_rgba(37,99,235,.18)] transition-all duration-700" style={{ width: `${Math.max(3, (item.latest / maxExerciseLoad) * 100)}%` }} />
+                    <div className="relative h-12 px-2">
+                      <svg viewBox="0 0 320 48" role="img" aria-label={`Linha de evolução de carga de ${item.name}`} className="h-full w-full overflow-visible">
+                        <line x1="8" y1="38" x2="312" y2="38" stroke="#E5E7EB" strokeWidth="1" />
+                        <path d={`M 12 34 Q 160 34 308 ${Math.max(7, 34 - Math.min(25, Math.max(-25, item.delta) * .35))}`} fill="none" stroke="#6B7280" strokeWidth="2.5" strokeLinecap="round" />
+                        <circle cx="12" cy="34" r="3.5" fill="#FFFFFF" stroke="#9CA3AF" strokeWidth="2" />
+                        <circle cx="308" cy={Math.max(7, 34 - Math.min(25, Math.max(-25, item.delta) * .35))} r="4" fill="#374151" stroke="#FFFFFF" strokeWidth="1.5" />
+                      </svg>
                     </div>
                     <div className="flex justify-between text-[10px] text-slate-500 print-muted"><span>Início: <strong className="text-slate-700">{formatNumber(item.first)} kg</strong></span><span>Atual: <strong className="text-slate-700">{formatNumber(item.latest)} kg</strong></span></div>
                   </div>
