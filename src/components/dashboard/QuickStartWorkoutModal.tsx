@@ -115,7 +115,7 @@ export const QuickStartWorkoutModal: React.FC<QuickStartWorkoutModalProps> = ({
               </div>
 
               {/* Quick Actions Row */}
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 gap-2">
                 <button
                   type="button"
                   onClick={() => {
