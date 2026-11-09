@@ -146,6 +146,7 @@ export const StudentPerformanceInsightsTab: React.FC<Props> = ({ student, sessio
   }, [completedSessions]);
 
   const maxWeeklyCount = Math.max(1, ...weeklyBars.map((week) => week.count));
+  const maxExerciseLoad = Math.max(1, ...filteredExerciseProgress.map((item) => Math.max(item.first, item.latest)));
   const bestRecords = exerciseRecords.slice(0, 8);
 
   return (
@@ -202,42 +203,53 @@ export const StudentPerformanceInsightsTab: React.FC<Props> = ({ student, sessio
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <section className="print-card rounded-2xl border border-[#E5E7EB] bg-white p-4">
-            <div className="mb-4 flex items-center gap-2">
-              <CalendarDays className="h-4 w-4 text-[#374151]" />
-              <h4 className="text-sm font-bold text-[#1F2937]">Frequência — últimas 8 semanas</h4>
+          <section className="print-card rounded-2xl border border-[#E5E7EB] bg-white p-5 shadow-sm">
+            <div className="mb-5 flex items-start justify-between gap-3">
+              <div className="flex items-center gap-2">
+                <div className="rounded-xl bg-red-50 p-2"><CalendarDays className="h-4 w-4 text-red-600" /></div>
+                <div><h4 className="text-sm font-bold text-[#111827]">Frequência semanal</h4><p className="text-[10px] text-gray-500">Últimas 8 semanas</p></div>
+              </div>
+              <span className="rounded-full bg-red-50 px-2.5 py-1 text-[10px] font-bold text-red-700">TREINOS</span>
             </div>
-            <div className="flex h-36 items-end gap-2">
-              {weeklyBars.map((week) => (
-                <div key={week.label} className="flex h-full min-w-0 flex-1 flex-col items-center justify-end gap-1">
-                  <span className="text-[10px] font-bold text-[#374151]">{week.count}</span>
-                  <div className="flex w-full items-end rounded-t-md bg-[#E5E7EB]" style={{ height: "78%" }}>
-                    <div className="w-full rounded-t-md bg-[#374151]" style={{ height: `${(week.count / maxWeeklyCount) * 100}%` }} />
+            <div className="relative h-36">
+              <div className="pointer-events-none absolute inset-x-0 top-2 flex h-[calc(100%-24px)] flex-col justify-between">
+                {[3, 2, 1, 0].map((line) => <div key={line} className="border-t border-dashed border-gray-200" />)}
+              </div>
+              <div className="relative flex h-full items-end gap-2 px-1">
+                {weeklyBars.map((week, index) => (
+                  <div key={week.label} className="flex h-full min-w-0 flex-1 flex-col items-center justify-end gap-2" title={`${week.count} treino(s) na semana iniciada em ${week.label}`}>
+                    <span className={`rounded-md px-1.5 py-0.5 text-[10px] font-bold ${week.count ? "bg-red-50 text-red-700" : "text-gray-400"}`}>{week.count}</span>
+                    <div className="flex h-[76%] w-full items-end overflow-hidden rounded-t-lg bg-gray-100">
+                      <div className="w-full rounded-t-lg bg-gradient-to-t from-red-700 to-red-500 shadow-sm transition-all duration-500" style={{ height: `${week.count ? Math.max(8, (week.count / maxWeeklyCount) * 100) : 0}%`, opacity: week.count ? 1 : 0.25 }} />
+                    </div>
+                    <span className="text-[9px] font-medium text-gray-500">{week.label}</span>
                   </div>
-                  <span className="text-[9px] text-[#6B7280]">{week.label}</span>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-            <p className="mt-3 text-[10px] text-[#6B7280] print-muted">Barras representam o número de sessões concluídas em cada semana.</p>
+            <p className="mt-3 flex items-center gap-2 text-[10px] text-gray-500 print-muted"><span className="h-2 w-2 rounded-full bg-red-600" /> Cada coluna representa uma semana; o número acima indica os treinos concluídos.</p>
           </section>
 
-          <section className="print-card rounded-2xl border border-[#E5E7EB] bg-white p-4">
-            <div className="mb-3 flex items-center gap-2">
-              <TrendingUp className="h-4 w-4 text-[#374151]" />
-              <h4 className="text-sm font-bold text-[#1F2937]">Evolução por exercício</h4>
+          <section className="print-card rounded-2xl border border-[#E5E7EB] bg-white p-5 shadow-sm">
+            <div className="mb-5 flex items-start justify-between gap-3">
+              <div className="flex items-center gap-2">
+                <div className="rounded-xl bg-blue-50 p-2"><TrendingUp className="h-4 w-4 text-blue-700" /></div>
+                <div><h4 className="text-sm font-bold text-[#111827]">Evolução por exercício</h4><p className="text-[10px] text-gray-500">Primeira carga × carga recente</p></div>
+              </div>
+              <span className="rounded-full bg-blue-50 px-2.5 py-1 text-[10px] font-bold text-blue-700">CARGAS</span>
             </div>
             {filteredExerciseProgress.length ? (
-              <div className="space-y-3">
+              <div className="space-y-4">
                 {filteredExerciseProgress.slice(0, 6).map((item) => (
-                  <div key={item.name} className="space-y-1">
-                    <div className="flex justify-between gap-2 text-xs">
-                      <span className="truncate font-semibold text-[#1F2937]">{item.name}</span>
-                      <strong className={item.delta >= 0 ? "text-emerald-700" : "text-red-700"}>{item.delta >= 0 ? "+" : ""}{formatNumber(item.delta)}%</strong>
+                  <div key={item.name} className="space-y-2">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="truncate text-xs font-semibold text-gray-800">{item.name}</span>
+                      <span className={`shrink-0 rounded-full px-2 py-1 text-[10px] font-bold ${item.delta >= 0 ? "bg-emerald-50 text-emerald-700" : "bg-red-50 text-red-700"}`}>{item.delta >= 0 ? "+" : ""}{formatNumber(item.delta)}%</span>
                     </div>
-                    <div className="h-2 overflow-hidden rounded-full bg-[#E5E7EB]">
-                      <div className="h-full rounded-full bg-[#374151]" style={{ width: `${Math.min(100, Math.max(2, item.delta + 50))}%` }} />
+                    <div className="h-2.5 overflow-hidden rounded-full bg-gray-100">
+                      <div className="h-full rounded-full bg-gradient-to-r from-blue-700 to-sky-500 transition-all duration-500" style={{ width: `${Math.max(3, (item.latest / maxExerciseLoad) * 100)}%` }} />
                     </div>
-                    <p className="text-[10px] text-[#6B7280] print-muted">{formatNumber(item.first)} kg → {formatNumber(item.latest)} kg</p>
+                    <div className="flex justify-between text-[10px] text-gray-500 print-muted"><span>Início: <strong className="text-gray-700">{formatNumber(item.first)} kg</strong></span><span>Atual: <strong className="text-gray-700">{formatNumber(item.latest)} kg</strong></span></div>
                   </div>
                 ))}
               </div>
