@@ -152,7 +152,15 @@ export const IntelligenceView: React.FC = () => {
     setAiLoading(true);
     setAnswer('');
     try {
-      const { data, error } = await supabase.functions.invoke('tfive-ai-assistant', { body: { question: q } });
+      const controller = new AbortController();
+      const timeoutId = window.setTimeout(() => controller.abort(), 25_000);
+      let data: any;
+      let error: any;
+      try {
+        ({ data, error } = await supabase.functions.invoke('tfive-ai-assistant', { body: { question: q }, signal: controller.signal }));
+      } finally {
+        window.clearTimeout(timeoutId);
+      }
       if (error) {
         let details = typeof data?.error === 'string' ? data.error : '';
         const responseContext = (error as Error & { context?: Response }).context;
@@ -171,7 +179,7 @@ export const IntelligenceView: React.FC = () => {
       setAnswer(data.answer.trim());
     } catch (error) {
       console.error('TFIVE Intelligence AI error:', error);
-      setAnswer(error instanceof Error ? error.message : 'Falha ao consultar a IA. Verifique a conexão e tente novamente.');
+      setAnswer(error instanceof Error && error.name === 'AbortError' ? 'A consulta demorou mais que o esperado e foi interrompida. Tente novamente em alguns instantes.' : error instanceof Error ? error.message : 'Falha ao consultar a IA. Verifique a conexão e tente novamente.');
     } finally {
       setAiLoading(false);
     }
