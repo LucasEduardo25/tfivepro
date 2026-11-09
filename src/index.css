@@ -153,3 +153,223 @@ html[data-theme="dark"] [class*="hover\\:bg-[#F"]:hover { background-color: #303
 @media (prefers-reduced-motion: reduce) {
   body { transition: none; }
 }
+
+
+/* -------------------------------------------------------
+   TFIVE PRO — sistema visual unificado
+   Superfícies, componentes e contraste em todas as telas
+-------------------------------------------------------- */
+:root {
+  --app-bg: #f5f5f4;
+  --app-surface: #ffffff;
+  --app-surface-raised: #ffffff;
+  --app-surface-muted: #f7f7f6;
+  --app-surface-subtle: #f1f1f0;
+  --app-border: #e5e5e5;
+  --app-border-strong: #d4d4d4;
+  --app-text: #202124;
+  --app-text-secondary: #52525b;
+  --app-text-muted: #71717a;
+  --app-accent: #27272a;
+  --app-accent-hover: #18181b;
+  --app-shadow: 0 1px 2px rgb(0 0 0 / 0.04), 0 8px 24px rgb(0 0 0 / 0.035);
+  color-scheme: light;
+}
+
+html[data-theme="dark"] {
+  --app-bg: #111113;
+  --app-surface: #1b1b1f;
+  --app-surface-raised: #202024;
+  --app-surface-muted: #242428;
+  --app-surface-subtle: #2b2b30;
+  --app-border: #34343a;
+  --app-border-strong: #45454d;
+  --app-text: #f4f4f5;
+  --app-text-secondary: #c4c4cc;
+  --app-text-muted: #a1a1aa;
+  --app-accent: #e4e4e7;
+  --app-accent-hover: #ffffff;
+  --app-shadow: 0 1px 2px rgb(0 0 0 / 0.2), 0 10px 28px rgb(0 0 0 / 0.16);
+  color-scheme: dark;
+}
+
+html, body, #root {
+  min-height: 100%;
+}
+body {
+  background: var(--app-bg);
+  color: var(--app-text);
+  transition: background-color .18s ease, color .18s ease;
+}
+::selection {
+  background: #d4d4d8;
+  color: #18181b;
+}
+
+/* Painéis escuros antigos passam a usar a mesma superfície clara/grafite. */
+:root:not([data-theme="dark"]) :is(
+  [class*="bg-[#050505]"],
+  [class*="bg-[#0E0E11]"],
+  [class*="bg-[#0e0e11]"],
+  [class*="bg-[#121212]"],
+  [class*="bg-[#121214]"]
+) {
+  background-color: var(--app-surface) !important;
+  border-color: var(--app-border) !important;
+  box-shadow: var(--app-shadow);
+}
+:root:not([data-theme="dark"]) [class*="bg-[#18181B]"] {
+  background-color: var(--app-surface-muted) !important;
+}
+:root:not([data-theme="dark"]) :is(
+  [class*="bg-[#050505]"],
+  [class*="bg-[#0E0E11]"],
+  [class*="bg-[#0e0e11]"],
+  [class*="bg-[#121212]"],
+  [class*="bg-[#121214]"],
+  [class*="bg-[#18181B]"]
+) [class~="text-white"] {
+  color: var(--app-text) !important;
+}
+:root:not([data-theme="dark"]) :is(
+  [class*="bg-[#050505]"],
+  [class*="bg-[#0E0E11]"],
+  [class*="bg-[#0e0e11]"],
+  [class*="bg-[#121212]"],
+  [class*="bg-[#121214]"],
+  [class*="bg-[#18181B]"]
+) button[class*="bg-[#374151]"],
+:root:not([data-theme="dark"]) :is(
+  [class*="bg-[#050505]"],
+  [class*="bg-[#0E0E11]"],
+  [class*="bg-[#0e0e11]"],
+  [class*="bg-[#121212]"],
+  [class*="bg-[#121214]"],
+  [class*="bg-[#18181B]"]
+) button[class*="bg-[#1F2937]"] {
+  color: #ffffff !important;
+}
+:root:not([data-theme="dark"]) :is(
+  [class*="bg-[#050505]"],
+  [class*="bg-[#0E0E11]"],
+  [class*="bg-[#0e0e11]"],
+  [class*="bg-[#121212]"],
+  [class*="bg-[#121214]"],
+  [class*="bg-[#18181B]"]
+) button[class*="bg-[#374151]"] *,
+:root:not([data-theme="dark"]) :is(
+  [class*="bg-[#050505]"],
+  [class*="bg-[#0E0E11]"],
+  [class*="bg-[#0e0e11]"],
+  [class*="bg-[#121212]"],
+  [class*="bg-[#121214]"],
+  [class*="bg-[#18181B]"]
+) button[class*="bg-[#1F2937]"] * {
+  color: #ffffff !important;
+}
+
+/* Grafite consistente para ações primárias, sem introduzir vermelho/azul. */
+[class*="bg-[#374151]"] {
+  background-color: #303036 !important;
+}
+[class*="bg-[#374151]"]:hover,
+[class*="hover\:bg-[#1F2937]"]:hover {
+  background-color: #202024 !important;
+}
+html[data-theme="dark"] [class*="bg-[#374151]"] {
+  background-color: #3f3f46 !important;
+}
+html[data-theme="dark"] [class*="bg-[#374151]"]:hover {
+  background-color: #52525b !important;
+}
+
+/* Tema escuro: converter superfícies claras e textos escuros existentes. */
+html[data-theme="dark"] :is(
+  [class*="bg-white"],
+  [class*="bg-[#F"],
+  [class*="bg-[#E"],
+  [class*="bg-neutral-50"],
+  [class*="bg-neutral-100"],
+  [class*="bg-gray-50"],
+  [class*="bg-gray-100"]
+) {
+  background-color: var(--app-surface) !important;
+}
+html[data-theme="dark"] :is(
+  [class*="bg-[#F3F4F6]"],
+  [class*="bg-[#F8F9FA]"],
+  [class*="bg-[#F9FAFB]"],
+  [class*="bg-[#F1F1F0]"]
+) {
+  background-color: var(--app-surface-muted) !important;
+}
+html[data-theme="dark"] :is(
+  [class*="bg-[#050505]"],
+  [class*="bg-[#0E0E11]"],
+  [class*="bg-[#0e0e11]"],
+  [class*="bg-[#121212]"],
+  [class*="bg-[#121214]"],
+  [class*="bg-[#18181B]"]
+) {
+  background-color: var(--app-surface) !important;
+  border-color: var(--app-border) !important;
+}
+html[data-theme="dark"] :is(
+  [class*="border-[#E"],
+  [class*="border-[#D"],
+  [class*="border-[#C"],
+  [class*="border-gray-"],
+  [class*="border-neutral-"]
+) {
+  border-color: var(--app-border) !important;
+}
+html[data-theme="dark"] :is(
+  [class*="text-[#1F2937"],
+  [class*="text-[#262626"],
+  [class*="text-[#374151"],
+  [class*="text-[#404040"],
+  [class*="text-[#4B5563"],
+  [class*="text-gray-700"],
+  [class*="text-gray-800"],
+  [class*="text-neutral-700"],
+  [class*="text-neutral-800"],
+  [class*="text-zinc-700"],
+  [class*="text-zinc-800"]
+) {
+  color: var(--app-text-secondary) !important;
+}
+html[data-theme="dark"] :is(input, textarea, select) {
+  background-color: var(--app-surface-muted);
+  color: var(--app-text);
+  border-color: var(--app-border-strong);
+}
+html[data-theme="dark"] input::placeholder,
+html[data-theme="dark"] textarea::placeholder {
+  color: var(--app-text-muted);
+}
+
+/* Elementos de navegação, cartões e controles com acabamento consistente. */
+button, [role="button"] {
+  -webkit-tap-highlight-color: transparent;
+}
+button:focus-visible, [role="button"]:focus-visible, input:focus-visible,
+textarea:focus-visible, select:focus-visible {
+  outline: 2px solid #a1a1aa;
+  outline-offset: 2px;
+}
+input, textarea, select {
+  border-radius: 0.625rem;
+}
+@media (max-width: 767px) {
+  body {
+    overscroll-behavior-y: contain;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
