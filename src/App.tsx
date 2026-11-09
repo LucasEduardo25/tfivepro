@@ -30,6 +30,7 @@ import { DATA_BACKEND } from './utils/constants';
 import { OfflineConnectivityBanner } from './components/common/OfflineConnectivityBanner';
 import { PWAUpdateNotification } from './components/pwa/PWAUpdateNotification';
 import { StudentAppShell } from './components/student/StudentAppShell';
+import { IntelligenceView } from './components/intelligence/IntelligenceView';
 
 const MainContent: React.FC = () => {
   const { 
@@ -188,6 +189,9 @@ const MainContent: React.FC = () => {
             onExit={() => setCurrentTab('dashboard')}
           />
         )}
+
+        {/* TAB: TFIVE INTELLIGENCE */}
+        {currentTab === 'intelligence' && <IntelligenceView />}
 
         {/* TAB: BANCO DE EXERCÍCIOS */}
         {currentTab === 'exercicios' && (
