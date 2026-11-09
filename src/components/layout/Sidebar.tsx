@@ -76,12 +76,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
   return (
     <aside 
-      className={`hidden md:flex flex-col bg-[#1F2937] border-r border-[#374151] transition-all duration-200 select-none z-30 shrink-0 ${
+      className={`hidden md:flex flex-col bg-white border-r border-[#E4E4E7] transition-all duration-200 select-none z-30 shrink-0 ${
         isCollapsed ? 'w-[70px]' : 'w-60'
       }`}
     >
       {/* Brand Header */}
-      <div className="h-16 px-4 flex items-center justify-between border-b border-[#374151] bg-[#111827]/40">
+      <div className="h-16 px-4 flex items-center justify-between border-b border-[#E4E4E7] bg-white">
         <div 
           onClick={() => onSelectTab('dashboard')} 
           className="flex items-center gap-2 cursor-pointer overflow-hidden group"
@@ -92,7 +92,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
         <button
           onClick={onToggleCollapse}
-          className="p-1.5 rounded-lg text-[#4B5563] hover:text-white hover:bg-[#374151] transition-colors"
+          className="p-1.5 rounded-lg text-[#52525B] hover:text-[#18181B] hover:bg-[#F4F4F5] transition-colors"
           title={isCollapsed ? 'Expandir Menu' : 'Recolher Menu'}
         >
           {isCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
@@ -111,8 +111,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
               title={isCollapsed ? item.label : undefined}
               className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold tracking-wide transition-colors group relative ${
                 isActive
-                  ? 'bg-[#374151] text-white shadow-sm'
-                  : 'text-[#4B5563] hover:text-white hover:bg-[#283344]'
+                  ? 'bg-[#27272A] text-white shadow-sm'
+                  : 'text-[#52525B] hover:text-[#18181B] hover:bg-[#F4F4F5]'
               }`}
             >
               <div className="relative shrink-0">
@@ -132,10 +132,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   {item.badge !== null && item.badge !== undefined && (
                     <span className={`px-2 py-0.5 rounded-md text-[11px] font-mono-nums font-medium ${
                       isActive 
-                        ? 'bg-[#1F2937] text-white' 
+                        ? 'bg-[#27272A] text-white' 
                         : item.isLive 
                           ? 'bg-emerald-950 text-emerald-300 border border-emerald-800'
-                          : 'bg-[#374151] text-[#4B5563]'
+                          : 'bg-[#F4F4F5] text-[#52525B]'
                     }`}>
                       {item.badge}
                     </span>
@@ -154,7 +154,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
       {/* Active Workout Quick Banner */}
       {activeWorkouts.length > 0 && (
-        <div className="p-3 border-t border-[#374151] bg-[#111827]/40">
+        <div className="p-3 border-t border-[#E4E4E7] bg-white">
           <button
             onClick={() => onSelectTab('treino')}
             className={`w-full rounded-xl bg-emerald-950/60 border border-emerald-700/60 p-2.5 text-left hover:bg-emerald-950 transition-all ${
@@ -173,7 +173,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   </span>
                   <Play className="w-3 h-3 fill-emerald-400 text-emerald-400" />
                 </div>
-                <div className="text-xs font-semibold text-white truncate">
+                <div className="text-xs font-semibold text-[#202124] truncate">
                   {activeWorkouts.map(w => w.studentName.split(' ')[0]).join(' & ')}
                 </div>
               </div>
@@ -183,11 +183,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
       )}
 
       {/* Footer Sync Status */}
-      <div className="p-3 border-t border-[#374151] bg-[#111827]/40">
+      <div className="p-3 border-t border-[#E4E4E7] bg-white">
         {isCollapsed ? (
           <button
             onClick={handleQuickSync}
-            className="w-full flex justify-center py-2 text-[#4B5563] hover:text-white rounded-lg hover:bg-[#374151] transition-all"
+            className="w-full flex justify-center py-2 text-[#52525B] hover:text-[#18181B] rounded-lg hover:bg-[#F4F4F5] transition-all"
             title="Sincronizar dados"
           >
             {syncStatus === 'syncing' || isManualSyncing ? (
@@ -203,7 +203,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         ) : (
           <button
             onClick={handleQuickSync}
-            className="w-full flex items-center justify-between px-3 py-2 rounded-xl bg-[#283344] border border-[#374151] hover:bg-[#374151] transition-all text-left"
+            className="w-full flex items-center justify-between px-3 py-2 rounded-xl bg-[#F4F4F5] border border-[#E4E4E7] hover:bg-[#E4E4E7] transition-all text-left"
           >
             <div className="flex items-center gap-2.5 min-w-0">
               {syncStatus === 'syncing' || isManualSyncing ? (
@@ -217,7 +217,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               )}
 
               <div className="min-w-0">
-                <p className="text-[11px] font-semibold text-white truncate">
+                <p className="text-[11px] font-semibold text-[#202124] truncate">
                   {syncStatus === 'syncing' || isManualSyncing
                     ? 'Sincronizando'
                     : syncStatus === 'offline'
@@ -228,10 +228,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     ? `${pendingSyncCount} pendentes`
                     : 'Sincronizado'}
                 </p>
-                <p className="text-[10px] text-[#4B5563] truncate">Nuvem Supabase</p>
+                <p className="text-[10px] text-[#71717A] truncate">Nuvem Supabase</p>
               </div>
             </div>
-            <RefreshCw className="w-3 h-3 text-[#4B5563] hover:text-white transition-all shrink-0" />
+            <RefreshCw className="w-3 h-3 text-[#71717A] hover:text-[#27272A] transition-all shrink-0" />
           </button>
         )}
       </div>
