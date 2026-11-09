@@ -153,7 +153,7 @@ export const IntelligenceView: React.FC = () => {
     setAnswer('');
     try {
       const controller = new AbortController();
-      const timeoutId = window.setTimeout(() => controller.abort(), 25_000);
+      const timeoutId = window.setTimeout(() => controller.abort(), 60_000);
       let data: any;
       let error: any;
       try {
