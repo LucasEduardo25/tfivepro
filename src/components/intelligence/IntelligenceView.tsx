@@ -157,7 +157,7 @@ export const IntelligenceView: React.FC = () => {
       let data: any;
       let error: any;
       try {
-        ({ data, error } = await supabase.functions.invoke('tfive-ai-assistant', { body: { question: q, studentId: studentId || null, weeks: 8 }, signal: controller.signal }));
+        ({ data, error } = await supabase.functions.invoke('tfive-ai-assistant', { body: { question: q, studentId: (activeStudents.find(student => student.id === studentId)?.uuid || studentId) || null, weeks: 8 }, signal: controller.signal }));
       } finally {
         window.clearTimeout(timeoutId);
       }
