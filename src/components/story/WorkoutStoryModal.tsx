@@ -347,7 +347,7 @@ export const WorkoutStoryModal: React.FC<WorkoutStoryModalProps> = ({
               </div>
 
               {/* Área do Preview com Toggle de Fundo */}
-              <div className="flex-1 flex flex-col items-center justify-center p-4 sm:p-8">
+              <div className="flex-1 flex flex-col items-center justify-start p-3 sm:p-8">
                 <div className="mb-4 flex items-center gap-3">
                   <input ref={photoInputRef} type="file" accept="image/*" onChange={handlePhotoSelection} className="hidden" />
                   <button onClick={() => photoInputRef.current?.click()} className="px-4 py-2.5 rounded-xl bg-white text-zinc-900 text-xs font-semibold tracking-wide">ESCOLHER FOTO</button>
@@ -381,7 +381,7 @@ export const WorkoutStoryModal: React.FC<WorkoutStoryModalProps> = ({
 
                 {/* Canvas do Story na proporção 9:16 */}
                 <div 
-                  className="relative shadow-[0_20px_60px_rgba(0,0,0,0.8)] rounded-2xl overflow-hidden shrink-0 transition-all h-[min(48dvh,560px)] w-auto aspect-[9/16] max-w-full border border-white/10" 
+                  className="relative shadow-[0_20px_60px_rgba(0,0,0,0.8)] rounded-2xl overflow-hidden shrink-0 transition-all w-[min(52vw,260px)] h-auto aspect-[9/16] max-w-full border border-white/10" 
                   style={{ 
                     containerType: 'inline-size',
                     backgroundImage: previewBg === 'photo' && photoBackground ? 'url(' + photoBackground + ')' : 'repeating-conic-gradient(#27272A 0% 25%, transparent 0% 50%)',
