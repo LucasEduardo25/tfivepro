@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { Activity, BrainCircuit, Check, ChevronRight, CircleAlert, Dumbbell, Gauge, Lightbulb, MessageSquareText, Plus, Save, Sparkles, TrendingUp, UserRound, WandSparkles } from 'lucide-react';
+import { Activity, AlertTriangle, Bell, BrainCircuit, CalendarClock, Check, CheckCircle2, ChevronRight, CircleAlert, ClipboardList, Dumbbell, Gauge, Lightbulb, MessageSquareText, Plus, Save, Sparkles, TrendingUp, UserRound, WandSparkles } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { supabase } from '../../services/supabaseClient';
 import { Exercise, RoutineExercise, RoutineWorkout, WorkoutRoutine } from '../../types';
@@ -67,7 +67,7 @@ export const IntelligenceView: React.FC = () => {
   const [question, setQuestion] = useState('');
   const [answer, setAnswer] = useState('');
   const [aiLoading, setAiLoading] = useState(false);
-  const [selectedTab, setSelectedTab] = useState<'planner'|'evolution'|'assistant'>('planner');
+  const [selectedTab, setSelectedTab] = useState<'planner'|'evolution'|'alerts'|'assistant'>('alerts');
 
   const selectedStudent = activeStudents.find(s => s.id === studentId);
   const completedSessions = useMemo(() => sessions.filter(s => s.status === 'completed'), [sessions]);
@@ -121,6 +121,98 @@ export const IntelligenceView: React.FC = () => {
       setSavedMessage('Não foi possível salvar. Verifique a conexão e tente novamente.');
     } finally { setSaving(false); }
   };
+
+  const intelligentAlerts = useMemo(() => {
+    const now = Date.now();
+    const dayMs = 24 * 60 * 60 * 1000;
+    const alerts: { id: string; studentId: string; studentName: string; severity: 'high'|'medium'|'info'; title: string; evidence: string; action: string; kind: string }[] = [];
+
+    activeStudents.forEach(student => {
+      const completed = completedSessions
+        .filter(session => session.studentId === student.id && session.status === 'completed')
+        .sort((a,b) => new Date(b.endTime || b.startTime).getTime() - new Date(a.endTime || a.startTime).getTime());
+      const latest = completed[0];
+      const enrollment = new Date(student.startDate || student.createdAt).getTime();
+      const enrolledDays = Number.isFinite(enrollment) ? Math.floor((now - enrollment) / dayMs) : 0;
+
+      if (!latest) {
+        if (enrolledDays >= 14) alerts.push({
+          id: student.id + '-no-history', studentId: student.id, studentName: student.name, severity: 'medium',
+          title: 'Nenhum treino concluído registrado', evidence: 'Não há sessões concluídas no histórico disponível.',
+          action: 'Confira se os treinos estão sendo registrados no TFIVE. Ausência de registro não comprova ausência de treino.',
+          kind: 'Frequência'
+        });
+        return;
+      }
+
+      const daysSince = Math.floor((now - new Date(latest.endTime || latest.startTime).getTime()) / dayMs);
+      if (daysSince >= 14) alerts.push({
+        id: student.id + '-inactive-' + latest.id, studentId: student.id, studentName: student.name, severity: daysSince >= 28 ? 'high' : 'medium',
+        title: 'Sem treino registrado há ' + daysSince + ' dias',
+        evidence: 'Última sessão concluída: ' + new Date(latest.endTime || latest.startTime).toLocaleDateString('pt-BR') + '.',
+        action: 'Verifique com o aluno se houve pausa, mudança de agenda ou falha no registro antes de classificar como falta.',
+        kind: 'Frequência'
+      });
+
+      const last28 = completed.filter(session => now - new Date(session.endTime || session.startTime).getTime() <= 28 * dayMs);
+      if (enrolledDays >= 28 && last28.length <= 2) alerts.push({
+        id: student.id + '-low-frequency', studentId: student.id, studentName: student.name, severity: 'medium',
+        title: 'Baixa frequência de registros',
+        evidence: last28.length + ' sessão(ões) concluída(s) nos últimos 28 dias.',
+        action: 'Compare com a frequência planejada e confirme se todos os treinos realizados foram lançados.',
+        kind: 'Frequência'
+      });
+
+      const exerciseHistory = new Map<string, { name: string; sessions: { date: number; score: number }[] }>();
+      completed.forEach(session => {
+        const byExercise = new Map<string, { name: string; score: number }>();
+        session.sets.filter(set => set.status === 'completed' && !('isWarmup' in set && (set as any).isWarmup)).forEach(set => {
+          const reps = Number(set.actualReps || 0);
+          const weight = Number(set.weightKg || 0);
+          if (weight <= 0 || reps <= 0) return;
+          const key = set.exerciseId || set.exerciseName;
+          const score = weight * (1 + reps / 30);
+          const previous = byExercise.get(key);
+          if (!previous || score > previous.score) byExercise.set(key, { name: set.exerciseName, score });
+        });
+        byExercise.forEach((value,key) => {
+          const entry = exerciseHistory.get(key) || { name: value.name, sessions: [] };
+          entry.sessions.push({ date: new Date(session.endTime || session.startTime).getTime(), score: value.score });
+          exerciseHistory.set(key, entry);
+        });
+      });
+      exerciseHistory.forEach((entry,key) => {
+        const recent = entry.sessions.sort((a,b)=>b.date-a.date).slice(0,3);
+        if (recent.length < 3) return;
+        const oldestDays = (now - recent[2].date) / dayMs;
+        const scores = recent.map(item=>item.score);
+        const max = Math.max(...scores), min = Math.min(...scores);
+        if (oldestDays >= 21 && max > 0 && (max - min) / max <= 0.01) alerts.push({
+          id: student.id + '-plateau-' + key, studentId: student.id, studentName: student.name, severity: 'info',
+          title: 'Possível estagnação: ' + entry.name,
+          evidence: 'Desempenho estimado praticamente estável nas 3 sessões mais recentes, distribuídas por pelo menos 21 dias.',
+          action: 'Revise repetições, técnica, amplitude, RPE/RIR, descanso e contexto antes de alterar a prescrição.',
+          kind: 'Progressão'
+        });
+      });
+
+      const recentIncomplete = completed.filter(session => now - new Date(session.endTime || session.startTime).getTime() <= 28 * dayMs)
+        .filter(session => !session.sets.some(set => set.status === 'completed' && (
+          Number(set.actualReps || 0) > 0 || Number(set.weightKg || 0) > 0 ||
+          Number((set as any).actualDurationSeconds || 0) > 0 || Number((set as any).actualDistance || 0) > 0
+        )));
+      if (recentIncomplete.length) alerts.push({
+        id: student.id + '-incomplete-' + recentIncomplete[0].id, studentId: student.id, studentName: student.name, severity: 'info',
+        title: 'Verificar registros de sessão',
+        evidence: recentIncomplete.length + ' sessão(ões) recente(s) sem séries concluídas com métricas reconhecidas.',
+        action: 'Confira se a sessão foi finalizada corretamente ou se o exercício usa um tipo de registro ainda não contemplado.',
+        kind: 'Qualidade dos dados'
+      });
+    });
+
+    const order = { high: 0, medium: 1, info: 2 };
+    return alerts.sort((a,b)=>order[a.severity]-order[b.severity] || a.studentName.localeCompare(b.studentName));
+  }, [activeStudents, completedSessions]);
 
   const progression = useMemo(() => {
     const byExercise = new Map<string, {name:string; rows:{weight:number; reps:number; rpe:number|null; date:string}[]}>();
@@ -185,7 +277,7 @@ export const IntelligenceView: React.FC = () => {
     }
   };
 
-  const tabs=[{id:'planner',label:'Gerar rotina',icon:WandSparkles},{id:'evolution',label:'Evolução',icon:TrendingUp},{id:'assistant',label:'Assistente',icon:MessageSquareText}] as const;
+  const tabs=[{id:'alerts',label:'Alertas',icon:Bell},{id:'planner',label:'Gerar rotina',icon:WandSparkles},{id:'evolution',label:'Evolução',icon:TrendingUp},{id:'assistant',label:'Assistente',icon:MessageSquareText}] as const;
 
   return <div className="space-y-6 pb-16">
     <section className="rounded-3xl bg-[#202124] text-white p-6 sm:p-8 overflow-hidden relative">
@@ -206,6 +298,32 @@ export const IntelligenceView: React.FC = () => {
       {tabs.map(tab=>{const Icon=tab.icon;return <button key={tab.id} onClick={()=>setSelectedTab(tab.id)} className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold whitespace-nowrap border transition-colors ${selectedTab===tab.id?'bg-[#27272A] text-white border-[#27272A]':'bg-white text-[#52525B] border-[#E4E4E7] hover:bg-[#F4F4F5]'}`}><Icon className="w-4 h-4"/>{tab.label}</button>})}
     </div>
 
+    {selectedTab==='alerts' && <section className="space-y-4">
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2">
+        <div><h3 className="text-lg font-semibold text-[#202124]">Central de atenção</h3><p className="text-sm text-[#71717A]">Sinais calculados a partir das sessões concluídas e dos registros disponíveis.</p></div>
+        <div className="text-xs text-[#71717A]">{activeStudents.length} alunos ativos · {intelligentAlerts.length} alertas identificados</div>
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div className="rounded-2xl border border-[#E4E4E7] bg-white p-4"><p className="text-xs text-[#71717A]">Prioridade alta</p><p className="text-2xl font-semibold text-[#202124] mt-1">{intelligentAlerts.filter(a=>a.severity==='high').length}</p></div>
+        <div className="rounded-2xl border border-[#E4E4E7] bg-white p-4"><p className="text-xs text-[#71717A]">Atenção</p><p className="text-2xl font-semibold text-[#202124] mt-1">{intelligentAlerts.filter(a=>a.severity==='medium').length}</p></div>
+        <div className="rounded-2xl border border-[#E4E4E7] bg-white p-4"><p className="text-xs text-[#71717A]">Para revisar</p><p className="text-2xl font-semibold text-[#202124] mt-1">{intelligentAlerts.filter(a=>a.severity==='info').length}</p></div>
+      </div>
+      {intelligentAlerts.length===0 ? <div className="rounded-2xl border border-[#E4E4E7] bg-white p-10 text-center"><CheckCircle2 className="w-8 h-8 mx-auto text-[#71717A]"/><p className="font-semibold text-[#202124] mt-3">Nenhum alerta identificado</p><p className="text-sm text-[#71717A] mt-1">Isso não garante que todos os alunos estejam em dia; significa apenas que os critérios atuais não encontraram sinais nos dados disponíveis.</p></div> :
+        <div className="space-y-3">{intelligentAlerts.map(alert=><article key={alert.id} className="rounded-2xl border border-[#E4E4E7] bg-white p-4 sm:p-5">
+          <div className="flex items-start gap-3">
+            <div className={`rounded-xl p-2 shrink-0 ${alert.severity==='high'?'bg-[#FEE2E2] text-[#991B1B]':alert.severity==='medium'?'bg-[#FEF3C7] text-[#92400E]':'bg-[#F4F4F5] text-[#52525B]'}`}>
+              {alert.severity==='high'?<AlertTriangle className="w-5 h-5"/>:alert.severity==='medium'?<CalendarClock className="w-5 h-5"/>:<ClipboardList className="w-5 h-5"/>}
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-center gap-2"><h4 className="font-semibold text-[#202124]">{alert.title}</h4><span className="text-[11px] rounded-full bg-[#F4F4F5] text-[#52525B] px-2 py-1">{alert.kind}</span></div>
+              <p className="text-sm text-[#52525B] mt-1">{alert.studentName}</p>
+              <p className="text-sm text-[#71717A] mt-3"><strong className="text-[#52525B]">Evidência:</strong> {alert.evidence}</p>
+              <p className="text-sm text-[#71717A] mt-1"><strong className="text-[#52525B]">Ação sugerida:</strong> {alert.action}</p>
+            </div>
+          </div>
+        </article>)}</div>}
+      <div className="rounded-xl bg-[#F4F4F5] p-4 text-xs text-[#71717A] leading-relaxed">Regras iniciais: ausência de registro por 14 dias; até 2 sessões em 28 dias; possível estagnação quando a estimativa de desempenho fica estável em 3 sessões ao longo de pelo menos 21 dias; e sessões sem métricas reconhecidas. Os alertas não classificam faltas, não diagnosticam e devem ser confirmados pelo treinador.</div>
+    </section>}
     {selectedTab==='planner' && <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_340px] gap-5">
       <section className="bg-white border border-[#E4E4E7] rounded-2xl p-5 sm:p-6 space-y-5">
         <div><div className="flex items-center gap-2"><Sparkles className="w-5 h-5 text-[#52525B]"/><h3 className="font-semibold text-lg text-[#202124]">Planejador de rotina</h3></div><p className="text-sm text-[#71717A] mt-1">Monte uma estrutura inicial usando o cadastro de exercícios do TFIVE.</p></div>
