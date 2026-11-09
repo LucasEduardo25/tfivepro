@@ -13,7 +13,8 @@ import {
   XCircle, 
   Dumbbell, 
   SlidersHorizontal, 
-  CalendarDays, 
+  CalendarDays,
+  ChevronDown,
   Filter,
   User
 } from 'lucide-react';
