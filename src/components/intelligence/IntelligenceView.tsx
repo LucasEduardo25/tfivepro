@@ -157,7 +157,7 @@ export const IntelligenceView: React.FC = () => {
       let data: any;
       let error: any;
       try {
-        ({ data, error } = await supabase.functions.invoke('tfive-ai-assistant', { body: { question: q }, signal: controller.signal }));
+        ({ data, error } = await supabase.functions.invoke('tfive-ai-assistant', { body: { question: q, studentId: studentId || null, weeks: 8 }, signal: controller.signal }));
       } finally {
         window.clearTimeout(timeoutId);
       }
@@ -253,7 +253,8 @@ export const IntelligenceView: React.FC = () => {
 
     {selectedTab==='assistant' && <section className="bg-white border border-[#E4E4E7] rounded-2xl p-5 sm:p-6 max-w-3xl space-y-5">
       <div className="flex items-center gap-2"><MessageSquareText className="w-5 h-5 text-[#52525B]"/><h3 className="text-lg font-semibold text-[#202124]">Assistente do treinador</h3></div>
-      <p className="text-sm text-[#71717A]">Faça perguntas sobre treinamento, progressão, volume, recuperação e acompanhamento. A pergunta é processada pelo Google Gemini por uma conexão segura no Supabase; dados pessoais dos alunos não são enviados automaticamente.</p>
+      <p className="text-sm text-[#71717A]">Faça perguntas sobre treinamento, progressão, volume, recuperação e acompanhamento. Selecione um aluno para a IA analisar frequência, cargas, recordes e avaliações. O Gemini recebe apenas um resumo quantitativo anonimizado, sem nome ou dados de contato.</p>
+      <div className="space-y-1.5"><label htmlFor="tfive-ai-student" className="text-xs font-semibold text-[#52525B]">Aluno para análise <span className="font-normal text-[#A1A1AA]">(opcional)</span></label><select id="tfive-ai-student" value={studentId} onChange={e=>setStudentId(e.target.value)} className="w-full rounded-xl border border-[#D4D4D8] bg-white px-3 py-3 text-sm text-[#202124] outline-none focus:ring-2 focus:ring-zinc-300"><option value="">Pergunta geral — sem dados de aluno</option>{activeStudents.map(student=><option key={student.id} value={student.id}>{student.name}</option>)}</select></div>
       <div className="flex flex-wrap gap-2">{['Como decidir quando aumentar a carga?','Como controlar o volume semanal?','Como agir diante de dor ou risco de queda?'].map(q=><button key={q} onClick={()=>setQuestion(q)} className="text-xs px-3 py-2 rounded-full border border-[#E4E4E7] text-[#52525B] hover:bg-[#F4F4F5]">{q}</button>)}</div>
       <textarea value={question} onChange={e=>setQuestion(e.target.value)} rows={3} placeholder="Digite sua pergunta..." className="w-full rounded-xl border border-[#D4D4D8] px-3 py-3 text-sm text-[#202124] outline-none focus:ring-2 focus:ring-zinc-300"/>
       <button onClick={answerQuestion} disabled={aiLoading || !question.trim()} className="inline-flex items-center gap-2 rounded-xl bg-[#27272A] text-white px-4 py-2.5 text-sm font-semibold disabled:opacity-50"><MessageSquareText className="w-4 h-4"/>{aiLoading ? 'Consultando IA...' : 'Consultar assistente'}</button>
