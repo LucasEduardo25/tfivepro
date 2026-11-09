@@ -37,42 +37,8 @@ export interface StoryTemplateItem {
 }
 
 export const STORY_TEMPLATES: StoryTemplateItem[] = [
-  {
-    id: 'clean_card',
-    number: '01',
-    name: 'CLEAN CARD',
-    slug: 'clean-card',
-    subtitle: 'Cartão completo minimalista',
-    description: 'Estética inspirada em apps de treino: fundo escuro, métricas claras e hierarquia visual simples.',
-    tag: 'CARTÃO'
-  },
-  {
-    id: 'stats_card',
-    number: '02',
-    name: 'STATS CARD',
-    slug: 'stats-card',
-    subtitle: 'Cartão completo com destaques',
-    description: 'Inclui exercícios realizados e séries, além das principais métricas da sessão.',
-    tag: 'CARTÃO + DADOS'
-  },
-  {
-    id: 'clean_overlay',
-    number: '03',
-    name: 'PHOTO OVERLAY',
-    slug: 'photo-overlay',
-    subtitle: 'Sobreposição para sua foto',
-    description: 'Foto livre no centro, com identificação e resumo do treino na parte inferior.',
-    tag: 'TRANSPARENTE'
-  },
-  {
-    id: 'stats_overlay',
-    number: '04',
-    name: 'PHOTO STATS',
-    slug: 'photo-stats',
-    subtitle: 'Sobreposição com estatísticas',
-    description: 'Mantém a foto como protagonista e acrescenta métricas e destaques do treino.',
-    tag: 'TRANSPARENTE + DADOS'
-  }
+  { id: 'clean_card', number: '01', name: 'WORKOUT CLEAN', slug: 'workout-clean', subtitle: 'Foto, treino e métricas essenciais', description: 'Fotografia em primeiro plano, tipografia refinada e apenas duração e volume.', tag: 'CLEAN' },
+  { id: 'body_map', number: '02', name: 'MAPA ANATÔMICO', slug: 'mapa-anatomico', subtitle: 'Grupamentos musculares trabalhados', description: 'Vistas anatômicas frontal e posterior com músculos primários e secundários destacados.', tag: 'ANATOMIA' }
 ];
 
 export const WorkoutStoryModal: React.FC<WorkoutStoryModalProps> = ({
@@ -111,9 +77,18 @@ export const WorkoutStoryModal: React.FC<WorkoutStoryModalProps> = ({
   const [selectedTemplate, setSelectedTemplate] = useState<DOMStoryTemplateId>('clean_card');
   const [isExporting, setIsExporting] = useState<boolean>(false);
   const [previewBg, setPreviewBg] = useState<'photo' | 'transparent'>('photo');
+  const [photoBackground, setPhotoBackground] = useState<string | null>(null);
   const [exportSuccessMsg, setExportSuccessMsg] = useState<string | null>(null);
 
   const rendererRef = useRef<StoryDOMRendererRef>(null);
+  const photoInputRef = useRef<HTMLInputElement>(null);
+  const handlePhotoSelection = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file || !file.type.startsWith('image/')) return;
+    const reader = new FileReader();
+    reader.onload = () => { if (typeof reader.result === 'string') setPhotoBackground(reader.result); };
+    reader.readAsDataURL(file);
+  };
 
   const currentTemplate = useMemo(() => {
     return STORY_TEMPLATES.find(t => t.id === selectedTemplate) || STORY_TEMPLATES[0];
@@ -187,7 +162,7 @@ export const WorkoutStoryModal: React.FC<WorkoutStoryModalProps> = ({
                 </span>
                 <span className="w-1 h-1 rounded-full bg-zinc-500" />
                 <span className="text-xs font-mono-nums font-bold text-zinc-400 uppercase">
-                  STORIES • CARTÕES E OVERLAYS
+                  STORIES • CLEAN & ANATÔMICO
                 </span>
               </div>
               <h2 className="text-base sm:text-lg font-black text-white uppercase tracking-wider">
@@ -228,7 +203,7 @@ export const WorkoutStoryModal: React.FC<WorkoutStoryModalProps> = ({
                 </div>
               </div>
               <div className="text-xs font-mono-nums font-bold text-zinc-400 uppercase tracking-widest bg-zinc-800/60 px-3 py-1.5 rounded-full border border-zinc-700">
-                4 MODELOS • 2 FORMATOS (PNG 1080×1920)
+                2 MODELOS • PNG 1080×1920
               </div>
             </div>
 
@@ -268,7 +243,7 @@ export const WorkoutStoryModal: React.FC<WorkoutStoryModalProps> = ({
                           session={effectiveSession}
                           templateId={tmpl.id}
                           studentName={studentName}
-                          exercises={exercises}
+                          exercises={exercises} backgroundImageUrl={photoBackground}
                         />
                       </div>
 
@@ -352,6 +327,11 @@ export const WorkoutStoryModal: React.FC<WorkoutStoryModalProps> = ({
 
               {/* Área do Preview com Toggle de Fundo */}
               <div className="flex-1 flex flex-col items-center justify-center p-4 sm:p-8">
+                <div className="mb-4 flex items-center gap-3">
+                  <input ref={photoInputRef} type="file" accept="image/*" onChange={handlePhotoSelection} className="hidden" />
+                  <button onClick={() => photoInputRef.current?.click()} className="px-4 py-2.5 rounded-xl bg-white text-zinc-900 text-xs font-semibold tracking-wide">ESCOLHER FOTO</button>
+                  {photoBackground && <button onClick={() => setPhotoBackground(null)} className="px-3 py-2.5 rounded-xl border border-zinc-600 text-zinc-300 text-xs">REMOVER FOTO</button>}
+                </div>
                 {/* Controles de Fundo da Prévia */}
                 <div className="mb-6 flex bg-zinc-900 border border-zinc-800 rounded-2xl p-1 shadow-md">
                   <button
@@ -383,16 +363,14 @@ export const WorkoutStoryModal: React.FC<WorkoutStoryModalProps> = ({
                   className="relative shadow-[0_20px_60px_rgba(0,0,0,0.8)] rounded-2xl overflow-hidden shrink-0 transition-all w-[260px] sm:w-[320px] md:w-[360px] aspect-[9/16] border border-white/10" 
                   style={{ 
                     containerType: 'inline-size',
-                    backgroundImage: previewBg === 'photo' 
-                      ? 'url(https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=1080&auto=format&fit=crop)' 
-                      : 'repeating-conic-gradient(#27272A 0% 25%, transparent 0% 50%)',
-                    backgroundSize: previewBg === 'transparent' ? '20px 20px' : 'cover',
+                    backgroundImage: previewBg === 'photo' && photoBackground ? 'url(' + photoBackground + ')' : 'repeating-conic-gradient(#27272A 0% 25%, transparent 0% 50%)',
+                    backgroundSize: previewBg === 'transparent' || !photoBackground ? '20px 20px' : 'cover',
                     backgroundPosition: 'center',
-                    backgroundColor: previewBg === 'transparent' ? '#18181B' : 'transparent'
+                    backgroundColor: previewBg === 'transparent' || !photoBackground ? '#18181B' : 'transparent'
                   } as any}
                 >
                   {/* Foto escurecida levemente para legibilidade ótica */}
-                  {previewBg === 'photo' && (
+                  {previewBg === 'photo' && photoBackground && (
                     <div className="absolute inset-0 bg-black/30 pointer-events-none" />
                   )}
 
@@ -497,8 +475,8 @@ export const WorkoutStoryModal: React.FC<WorkoutStoryModalProps> = ({
                     <span className="text-zinc-300 font-bold">PRESERVADO (0)</span>
                   </div>
                   <div className="flex justify-between">
-                    <span>PALETA TFIVE</span>
-                    <span className="text-zinc-300 font-bold">BRANCO / CINZAS</span>
+                    <span>ESTILO</span>
+                    <span className="text-zinc-300 font-bold">MINIMALISTA</span>
                   </div>
                 </div>
               </div>
