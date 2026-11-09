@@ -908,7 +908,7 @@ export const WorkoutStoryDOMRenderer = forwardRef<StoryDOMRendererRef, StoryDOMR
             <div
               className="w-[1080px] h-[1920px] relative overflow-hidden flex flex-col px-16 py-16 text-white select-none"
               style={{
-                background: 'linear-gradient(180deg, #15191F 0%, #0B0E12 100%)'
+                background: 'transparent'
               }}
             >
               {/* Identidade discreta no topo */}
