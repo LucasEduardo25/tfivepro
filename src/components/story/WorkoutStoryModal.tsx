@@ -455,6 +455,12 @@ export const WorkoutStoryModal: React.FC<WorkoutStoryModalProps> = ({
                     </div>
                   )}
 
+                  {exportErrorMsg && (
+                    <div role="alert" className="p-3 rounded-xl bg-red-950/60 border border-red-800 text-red-100 text-xs font-semibold">
+                      {exportErrorMsg}
+                    </div>
+                  )}
+
                   {/* Botão Primário: BAIXAR PNG */}
                   <button
                     onClick={() => handleExport('download')}
