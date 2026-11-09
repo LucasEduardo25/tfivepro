@@ -38,7 +38,7 @@ export const AppShell: React.FC<AppShellProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-[#F8F9FA] text-[#1F2937] flex flex-row overflow-hidden font-sans selection:bg-[#374151] selection:text-white">
+    <div className="min-h-screen bg-[var(--app-bg)] text-[var(--app-text)] flex flex-row overflow-hidden font-sans selection:bg-[#374151] selection:text-white">
       
       {/* Desktop / Tablet Sidebar Navigation */}
       <Sidebar
@@ -59,7 +59,7 @@ export const AppShell: React.FC<AppShellProps> = ({
         />
 
         {/* Scrollable Main Area (Tablet-first responsive, spacious, clean) */}
-        <main className="flex-1 overflow-y-auto overflow-x-hidden p-3 sm:p-5 md:p-6 lg:p-8 pb-24 md:pb-8 bg-[#F8F9FA]">
+        <main className="flex-1 overflow-y-auto overflow-x-hidden p-3 sm:p-5 md:p-6 lg:p-8 pb-24 md:pb-8 bg-[var(--app-bg)]">
           <div className="w-full max-w-7xl mx-auto min-w-0">
             {children}
           </div>
