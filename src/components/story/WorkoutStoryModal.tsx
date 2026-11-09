@@ -381,7 +381,7 @@ export const WorkoutStoryModal: React.FC<WorkoutStoryModalProps> = ({
 
                 {/* Canvas do Story na proporção 9:16 */}
                 <div 
-                  className="relative shadow-[0_20px_60px_rgba(0,0,0,0.8)] rounded-2xl overflow-hidden shrink-0 transition-all w-[260px] sm:w-[320px] md:w-[360px] aspect-[9/16] border border-white/10" 
+                  className="relative shadow-[0_20px_60px_rgba(0,0,0,0.8)] rounded-2xl overflow-hidden shrink-0 transition-all h-[min(48dvh,560px)] w-auto aspect-[9/16] max-w-full border border-white/10" 
                   style={{ 
                     containerType: 'inline-size',
                     backgroundImage: previewBg === 'photo' && photoBackground ? 'url(' + photoBackground + ')' : 'repeating-conic-gradient(#27272A 0% 25%, transparent 0% 50%)',
