@@ -24,6 +24,7 @@ import { ImportAssessmentPhotoModal } from '../assessments/ImportAssessmentPhoto
 
 import { CycleEditorModal } from '../cycles/CycleEditorModal';
 import { StudentMetricsSummaryTab } from './StudentMetricsSummaryTab';
+import { StudentPerformanceInsightsTab } from './StudentPerformanceInsightsTab';
 import { LongevityTab } from '../longevity/LongevityTab';
 import { EvolutionReportsTab } from '../reports/EvolutionReportsTab';
 import { useApp } from '../../context/AppContext';
@@ -506,6 +507,7 @@ export const StudentProfileView: React.FC<StudentProfileViewProps> = ({
           ] },
           { id: "evolution", label: "Evolução", tabs: [
             { id: "reports", label: `Relatórios (${studentReports.length})` },
+            { id: "insights", label: "Desempenho" },
             { id: "photos", label: "Fotos e bio" },
           ] },
           { id: "management", label: "Gestão", tabs: [
@@ -561,6 +563,7 @@ export const StudentProfileView: React.FC<StudentProfileViewProps> = ({
 
       {/* TAB CONTENT: RELATÓRIOS DE PERFORMANCE E EVOLUÇÃO */}
       {activeTab === "reports" && <EvolutionReportsTab student={student} />}
+      {activeTab === "insights" && <StudentPerformanceInsightsTab student={student} sessions={studentSessions} />}
 
       {/* TAB CONTENT: 1. RESUMO & MÉTRICAS (REDESIGN PROFISSIONAL) */}
       {activeTab === "summary" && (
