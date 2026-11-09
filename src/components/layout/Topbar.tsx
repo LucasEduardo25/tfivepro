@@ -9,7 +9,9 @@ import {
   AlertCircle, 
   Cloud,
   Plus,
-  Calendar
+  Calendar,
+  Sun,
+  Moon
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { TFiveLogo } from '../common/TFiveLogo';
@@ -46,6 +48,18 @@ export const Topbar: React.FC<TopbarProps> = ({
   } = useApp();
 
   const [isManualSyncing, setIsManualSyncing] = React.useState(false);
+  const [theme, setTheme] = React.useState<'light' | 'dark'>(() => {
+    try {
+      return localStorage.getItem('tfive_theme') === 'dark' ? 'dark' : 'light';
+    } catch {
+      return 'light';
+    }
+  });
+
+  React.useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+    try { localStorage.setItem('tfive_theme', theme); } catch {}
+  }, [theme]);
 
   const handleQuickSync = async (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -115,6 +129,17 @@ export const Topbar: React.FC<TopbarProps> = ({
             <span className="hidden sm:inline">Novo Aluno</span>
           </button>
         )}
+
+        {/* Theme Toggle */}
+        <button
+          type="button"
+          onClick={() => setTheme(current => current === 'light' ? 'dark' : 'light')}
+          className="p-2 rounded-lg text-[#4B5563] hover:text-[#1F2937] hover:bg-[#F3F4F6] transition-colors"
+          title={theme === 'light' ? 'Ativar modo escuro' : 'Ativar modo claro'}
+          aria-label={theme === 'light' ? 'Ativar modo escuro' : 'Ativar modo claro'}
+        >
+          {theme === 'light' ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
+        </button>
 
         {/* Sync Status Icon Button */}
         <button
