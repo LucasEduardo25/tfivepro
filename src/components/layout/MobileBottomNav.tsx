@@ -10,7 +10,8 @@ import {
   BookOpen,
   DollarSign,
   FileText,
-  X
+  X,
+  BrainCircuit
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 
@@ -46,6 +47,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
 
   const moreNavItems = [
     { id: 'exercicios', label: 'Exercícios', icon: BookOpen },
+    { id: 'intelligence', label: 'TFIVE IA', icon: BrainCircuit },
     { id: 'financeiro', label: 'Financeiro', icon: DollarSign },
     { id: 'propostas', label: 'Propostas', icon: FileText },
     { id: 'configuracoes', label: 'Ajustes', icon: Settings }
