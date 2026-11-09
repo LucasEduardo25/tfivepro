@@ -160,7 +160,7 @@ const MainContent: React.FC = () => {
         {currentTab === 'dashboard' && (
           <DashboardView
             onSelectStudent={handleSelectStudent}
-            onStartWorkoutFromSchedule={(student, routine) => handleStartWorkout(student, routine)}
+            onStartWorkoutFromSchedule={(student, routine, workout) => handleStartWorkout(student, routine, workout)}
             onOpenLiveWorkout={() => setCurrentTab('treino')}
           />
         )}
