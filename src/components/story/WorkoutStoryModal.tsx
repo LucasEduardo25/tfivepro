@@ -37,69 +37,8 @@ export interface StoryTemplateItem {
 }
 
 export const STORY_TEMPLATES: StoryTemplateItem[] = [
-  {
-    id: 'frame',
-    number: '01',
-    name: 'FRAME',
-    slug: 'frame',
-    subtitle: 'Moldura futurista e assimétrica',
-    description: 'Cantoneiras técnicas, guias com microtipografia e centro 100% transparente.',
-    tag: 'FUTURISTA'
-  },
-  {
-    id: 'performance',
-    number: '02',
-    name: 'PERFORMANCE',
-    slug: 'performance',
-    subtitle: 'Autoridade esportiva limpa',
-    description: 'Painel escuro translúcido na base com métricas de alto impacto e topo aberto.',
-    tag: 'ESPORTIVO'
-  },
-  {
-    id: 'mais_forte',
-    number: '03',
-    name: 'MAIS FORTE',
-    slug: 'mais-forte',
-    subtitle: 'Editorial minimalista',
-    description: 'Tipografia editorial imponente em branco e máxima transparência para a foto.',
-    tag: 'EDITORIAL'
-  },
-  {
-    id: 'resumo_treino',
-    number: '04',
-    name: 'RESUMO',
-    slug: 'resumo',
-    subtitle: 'Lista técnica do treino',
-    description: 'Exercícios, séries e cargas do treino com sofisticação em tons de cinza.',
-    tag: 'TÉCNICO'
-  },
-  {
-    id: 'evolucao',
-    number: '05',
-    name: 'EVOLUÇÃO',
-    slug: 'evolucao',
-    subtitle: 'Telemetria abstrata',
-    description: 'Visualizador atlético de intensidade e esforço com cartões translúcidos.',
-    tag: 'TELEMETRIA'
-  },
-  {
-    id: 'minimal_data',
-    number: '06',
-    name: 'MINIMAL',
-    slug: 'minimal',
-    subtitle: 'Tipografia pura e dados',
-    description: 'Dados em grande escala vertical e micro-linhas. Zero caixas pesadas.',
-    tag: 'MINIMAL'
-  },
-  {
-    id: 'body_map',
-    number: '07',
-    name: 'BODY MAP',
-    slug: 'bodymap',
-    subtitle: 'Anatomia Frente + Costas',
-    description: 'Mapa vetorial minimalista reagindo dinamicamente aos músculos trabalhados.',
-    tag: 'ANATÔMICO'
-  }
+  { id: 'clean_card', number: '01', name: 'WORKOUT CLEAN', slug: 'workout-clean', subtitle: 'Foto, treino e métricas essenciais', description: 'Fotografia em primeiro plano, tipografia refinada e apenas duração e volume.', tag: 'CLEAN' },
+  { id: 'body_map', number: '02', name: 'MAPA ANATÔMICO', slug: 'mapa-anatomico', subtitle: 'Grupamentos musculares trabalhados', description: 'Vistas anatômicas frontal e posterior com músculos primários e secundários destacados.', tag: 'ANATOMIA' }
 ];
 
 export const WorkoutStoryModal: React.FC<WorkoutStoryModalProps> = ({
@@ -135,12 +74,22 @@ export const WorkoutStoryModal: React.FC<WorkoutStoryModalProps> = ({
   }, [session, externalData]);
 
   const [viewMode, setViewMode] = useState<ModalViewMode>('preview');
-  const [selectedTemplate, setSelectedTemplate] = useState<DOMStoryTemplateId>('frame');
+  const [selectedTemplate, setSelectedTemplate] = useState<DOMStoryTemplateId>('clean_card');
   const [isExporting, setIsExporting] = useState<boolean>(false);
   const [previewBg, setPreviewBg] = useState<'photo' | 'transparent'>('photo');
+  const [photoBackground, setPhotoBackground] = useState<string | null>(null);
   const [exportSuccessMsg, setExportSuccessMsg] = useState<string | null>(null);
+  const [exportErrorMsg, setExportErrorMsg] = useState<string | null>(null);
 
   const rendererRef = useRef<StoryDOMRendererRef>(null);
+  const photoInputRef = useRef<HTMLInputElement>(null);
+  const handlePhotoSelection = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file || !file.type.startsWith('image/')) return;
+    const reader = new FileReader();
+    reader.onload = () => { if (typeof reader.result === 'string') setPhotoBackground(reader.result); };
+    reader.readAsDataURL(file);
+  };
 
   const currentTemplate = useMemo(() => {
     return STORY_TEMPLATES.find(t => t.id === selectedTemplate) || STORY_TEMPLATES[0];
@@ -159,6 +108,7 @@ export const WorkoutStoryModal: React.FC<WorkoutStoryModalProps> = ({
     try {
       setIsExporting(true);
       setExportSuccessMsg(null);
+      setExportErrorMsg(null);
 
       const blob = await rendererRef.current.exportToBlob();
 
@@ -175,12 +125,31 @@ export const WorkoutStoryModal: React.FC<WorkoutStoryModalProps> = ({
           text: `Treino concluído: ${effectiveSession.routineName || 'TFIVE PRO'}`
         });
       } else {
-        downloadBlob(blob, filename);
-        setExportSuccessMsg(`PNG 1080×1920 baixado com sucesso!`);
-        setTimeout(() => setExportSuccessMsg(null), 4000);
+        // iOS Safari/PWA nem sempre respeita o atributo download em URLs Blob.
+        // Nesses dispositivos, abrir a folha nativa de compartilhamento permite Salvar em Fotos/Arquivos.
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+          (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+        if (isIOS) {
+          const result = await shareOrDownloadFile({
+            blob,
+            filename,
+            title: `TFIVE PRO - ${currentTemplate.name}`,
+            text: `Mapa e resumo do treino: ${effectiveSession.routineName || 'TFIVE PRO'}`
+          });
+          if (result.method === 'web_share') {
+            setExportSuccessMsg('PNG pronto. Na tela de compartilhamento, escolha Salvar em Arquivos ou Salvar Imagem.');
+          } else {
+            setExportSuccessMsg('PNG enviado para download. Verifique Arquivos/Downloads.');
+          }
+        } else {
+          downloadBlob(blob, filename);
+          setExportSuccessMsg('PNG 1080×1920 enviado para download.');
+        }
+        setTimeout(() => setExportSuccessMsg(null), 6000);
       }
     } catch (err) {
-      console.error('[STORY EXPORT ERROR]', err instanceof Error ? err.message : err);
+      console.error('[STORY EXPORT ERROR]', err);
+      setExportErrorMsg(err instanceof Error ? `Falha ao gerar PNG: ${err.message}` : 'Falha ao gerar o PNG. Tente novamente.');
     } finally {
       setIsExporting(false);
     }
@@ -214,12 +183,12 @@ export const WorkoutStoryModal: React.FC<WorkoutStoryModalProps> = ({
                 </span>
                 <span className="w-1 h-1 rounded-full bg-zinc-500" />
                 <span className="text-xs font-mono-nums font-bold text-zinc-400 uppercase">
-                  OVERLAYS TRANSPARENTES
+                  STORIES • CLEAN & ANATÔMICO
                 </span>
               </div>
               <h2 className="text-base sm:text-lg font-black text-white uppercase tracking-wider">
                 {viewMode === 'gallery'
-                  ? 'Coleção de Stories Pós-Treino'
+                  ? 'Stories de Treino'
                   : `${currentTemplate.number} ${currentTemplate.name} • ${currentTemplate.subtitle}`}
               </h2>
             </div>
@@ -255,7 +224,7 @@ export const WorkoutStoryModal: React.FC<WorkoutStoryModalProps> = ({
                 </div>
               </div>
               <div className="text-xs font-mono-nums font-bold text-zinc-400 uppercase tracking-widest bg-zinc-800/60 px-3 py-1.5 rounded-full border border-zinc-700">
-                7 MODELOS TRANSPARENTES (PNG 1080×1920)
+                2 MODELOS • PNG 1080×1920
               </div>
             </div>
 
@@ -295,7 +264,7 @@ export const WorkoutStoryModal: React.FC<WorkoutStoryModalProps> = ({
                           session={effectiveSession}
                           templateId={tmpl.id}
                           studentName={studentName}
-                          exercises={exercises}
+                          exercises={exercises} backgroundImageUrl={photoBackground}
                         />
                       </div>
 
@@ -379,6 +348,11 @@ export const WorkoutStoryModal: React.FC<WorkoutStoryModalProps> = ({
 
               {/* Área do Preview com Toggle de Fundo */}
               <div className="flex-1 flex flex-col items-center justify-center p-4 sm:p-8">
+                <div className="mb-4 flex items-center gap-3">
+                  <input ref={photoInputRef} type="file" accept="image/*" onChange={handlePhotoSelection} className="hidden" />
+                  <button onClick={() => photoInputRef.current?.click()} className="px-4 py-2.5 rounded-xl bg-white text-zinc-900 text-xs font-semibold tracking-wide">ESCOLHER FOTO</button>
+                  {photoBackground && <button onClick={() => setPhotoBackground(null)} className="px-3 py-2.5 rounded-xl border border-zinc-600 text-zinc-300 text-xs">REMOVER FOTO</button>}
+                </div>
                 {/* Controles de Fundo da Prévia */}
                 <div className="mb-6 flex bg-zinc-900 border border-zinc-800 rounded-2xl p-1 shadow-md">
                   <button
@@ -410,16 +384,14 @@ export const WorkoutStoryModal: React.FC<WorkoutStoryModalProps> = ({
                   className="relative shadow-[0_20px_60px_rgba(0,0,0,0.8)] rounded-2xl overflow-hidden shrink-0 transition-all w-[260px] sm:w-[320px] md:w-[360px] aspect-[9/16] border border-white/10" 
                   style={{ 
                     containerType: 'inline-size',
-                    backgroundImage: previewBg === 'photo' 
-                      ? 'url(https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=1080&auto=format&fit=crop)' 
-                      : 'repeating-conic-gradient(#27272A 0% 25%, transparent 0% 50%)',
-                    backgroundSize: previewBg === 'transparent' ? '20px 20px' : 'cover',
+                    backgroundImage: previewBg === 'photo' && photoBackground ? 'url(' + photoBackground + ')' : 'repeating-conic-gradient(#27272A 0% 25%, transparent 0% 50%)',
+                    backgroundSize: previewBg === 'transparent' || !photoBackground ? '20px 20px' : 'cover',
                     backgroundPosition: 'center',
-                    backgroundColor: previewBg === 'transparent' ? '#18181B' : 'transparent'
+                    backgroundColor: previewBg === 'transparent' || !photoBackground ? '#18181B' : 'transparent'
                   } as any}
                 >
                   {/* Foto escurecida levemente para legibilidade ótica */}
-                  {previewBg === 'photo' && (
+                  {previewBg === 'photo' && photoBackground && (
                     <div className="absolute inset-0 bg-black/30 pointer-events-none" />
                   )}
 
@@ -439,7 +411,7 @@ export const WorkoutStoryModal: React.FC<WorkoutStoryModalProps> = ({
 
                 {/* Legenda Informativa */}
                 <p className="text-[11px] font-mono-nums text-zinc-500 uppercase tracking-widest mt-4 text-center">
-                  1080 × 1920 PX • CANAL ALPHA 0 • PNG PURO
+                  1080 × 1920 PX • PNG • PRONTO PARA COMPARTILHAR
                 </p>
               </div>
             </div>
@@ -480,6 +452,12 @@ export const WorkoutStoryModal: React.FC<WorkoutStoryModalProps> = ({
                     <div className="p-3 rounded-xl bg-zinc-800 border border-zinc-700 text-white text-xs font-bold flex items-center gap-2 animate-fadeIn">
                       <CheckCircle2 className="w-4 h-4 text-white shrink-0" />
                       <span>{exportSuccessMsg}</span>
+                    </div>
+                  )}
+
+                  {exportErrorMsg && (
+                    <div role="alert" className="p-3 rounded-xl bg-red-950/60 border border-red-800 text-red-100 text-xs font-semibold">
+                      {exportErrorMsg}
                     </div>
                   )}
 
@@ -524,8 +502,8 @@ export const WorkoutStoryModal: React.FC<WorkoutStoryModalProps> = ({
                     <span className="text-zinc-300 font-bold">PRESERVADO (0)</span>
                   </div>
                   <div className="flex justify-between">
-                    <span>PALETA TFIVE</span>
-                    <span className="text-zinc-300 font-bold">BRANCO / CINZAS</span>
+                    <span>ESTILO</span>
+                    <span className="text-zinc-300 font-bold">MINIMALISTA</span>
                   </div>
                 </div>
               </div>
