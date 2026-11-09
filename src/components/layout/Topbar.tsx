@@ -29,6 +29,7 @@ const TAB_TITLES: Record<string, { title: string; subtitle: string }> = {
   agenda: { title: 'Agenda', subtitle: 'Horários e atendimentos' },
   modelos: { title: 'Modelos de Treino', subtitle: 'Biblioteca de rotinas base' },
   exercicios: { title: 'Banco de Exercícios', subtitle: 'Catálogo de movimentos' },
+  intelligence: { title: 'TFIVE Intelligence', subtitle: 'Apoio inteligente à prescrição e evolução' },
   financeiro: { title: 'Financeiro', subtitle: 'Planos e mensalidades' },
   propostas: { title: 'Propostas', subtitle: 'Modelos de contratação' },
   configuracoes: { title: 'Ajustes', subtitle: 'Perfil e sincronização' }
