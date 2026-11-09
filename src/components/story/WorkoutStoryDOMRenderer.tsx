@@ -901,7 +901,7 @@ export const WorkoutStoryDOMRenderer = forwardRef<StoryDOMRendererRef, StoryDOMR
         // ====================================================================
         case 'body_map':
           return (
-            <div className="w-[1080px] h-[1920px] bg-transparent text-zinc-950 relative overflow-hidden flex flex-col justify-between p-14 pb-16 select-none">
+            <div ref={containerRef} className="w-[1080px] h-[1920px] bg-[#F5F4F0] text-zinc-950 relative overflow-hidden flex flex-col justify-between p-14 pb-16 select-none" style={backgroundImageUrl ? { backgroundImage: 'url(' + backgroundImageUrl + ')', backgroundSize: 'cover', backgroundPosition: 'center' } : undefined}>
               {/* Header Superior Minimalista com Alpha = 0 no centro para fotografia */}
               <div className="w-full flex justify-between items-center">
                 <div className="bg-black/60 backdrop-blur-md px-6 py-3 rounded-full border border-white/20 flex items-center gap-3 shadow-xl">
