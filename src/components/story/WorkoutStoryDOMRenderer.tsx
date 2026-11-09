@@ -95,14 +95,26 @@ export const WorkoutStoryDOMRenderer = forwardRef<StoryDOMRendererRef, StoryDOMR
         if (!containerRef.current) throw new Error('Container do Story não encontrado');
 
         try {
-          // Wait for fonts to load
-          if (document.fonts) {
-            await document.fonts.ready;
-          }
+          // O renderer usa skipFonts: não é necessário bloquear a exportação
+          // esperando fontes externas. Em dispositivos móveis essa espera pode ficar pendente.
+          const withTimeout = <T,>(promise: Promise<T>, timeoutMs: number, message: string) =>
+            new Promise<T>((resolve, reject) => {
+              const timer = window.setTimeout(() => reject(new Error(message)), timeoutMs);
+              promise.then(
+                (value) => {
+                  window.clearTimeout(timer);
+                  resolve(value);
+                },
+                (error) => {
+                  window.clearTimeout(timer);
+                  reject(error);
+                }
+              );
+            });
 
-          // Gera o Blob diretamente. Evita criar uma Data URL Base64 gigante,
-          // que duplica o consumo de memória e falha com mais frequência em celulares.
-          const blob = await toBlob(containerRef.current, {
+          // Gera o Blob diretamente, com limite para nunca deixar a interface carregando indefinidamente.
+          const blob = await withTimeout(
+            toBlob(containerRef.current, {
             width: 1080,
             height: 1920,
             canvasWidth: 1080,
@@ -119,7 +131,10 @@ export const WorkoutStoryDOMRenderer = forwardRef<StoryDOMRendererRef, StoryDOMR
               margin: '0',
               background: 'transparent'
             }
-          });
+            }),
+            25000,
+            'A geração do PNG excedeu 25 segundos. Reduza a complexidade da imagem e tente novamente.'
+          );
 
           if (!blob) {
             throw new Error('O navegador não conseguiu gerar o arquivo PNG. Tente novamente.');
@@ -257,7 +272,7 @@ export const WorkoutStoryDOMRenderer = forwardRef<StoryDOMRendererRef, StoryDOMR
         case 'clean_card':
         case 'stats_card': {
           return (
-            <div ref={containerRef} className="w-[1080px] h-[1920px] relative overflow-hidden bg-[#F5F4F0] text-[#171717] flex flex-col justify-end p-[88px] select-none" style={backgroundImageUrl ? { backgroundImage: 'url(' + backgroundImageUrl + ')', backgroundSize: 'cover', backgroundPosition: 'center' } : undefined}>
+            <div  className="w-[1080px] h-[1920px] relative overflow-hidden bg-[#F5F4F0] text-[#171717] flex flex-col justify-end p-[88px] select-none" style={backgroundImageUrl ? { backgroundImage: 'url(' + backgroundImageUrl + ')', backgroundSize: 'cover', backgroundPosition: 'center' } : undefined}>
               {backgroundImageUrl ? <div className="absolute inset-0 bg-black/10" /> : <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_30%,#FFFFFF_0%,#F5F4F0_70%)]" />}
               <div className="relative z-10 flex items-center justify-between mb-auto">
                 <span className="text-[30px] font-semibold tracking-[.16em] text-white drop-shadow-[0_2px_12px_rgba(0,0,0,.45)]">TFIVE</span>
@@ -887,7 +902,7 @@ export const WorkoutStoryDOMRenderer = forwardRef<StoryDOMRendererRef, StoryDOMR
         // ====================================================================
         case 'body_map':
           return (
-            <div ref={containerRef} className="w-[1080px] h-[1920px] bg-[#F5F4F0] text-zinc-950 relative overflow-hidden flex flex-col justify-between p-14 pb-16 select-none" style={backgroundImageUrl ? { backgroundImage: 'url(' + backgroundImageUrl + ')', backgroundSize: 'cover', backgroundPosition: 'center' } : undefined}>
+            <div  className="w-[1080px] h-[1920px] bg-[#F5F4F0] text-zinc-950 relative overflow-hidden flex flex-col justify-between p-14 pb-16 select-none" style={backgroundImageUrl ? { backgroundImage: 'url(' + backgroundImageUrl + ')', backgroundSize: 'cover', backgroundPosition: 'center' } : undefined}>
               {/* Header Superior Minimalista com Alpha = 0 no centro para fotografia */}
               <div className="w-full flex justify-between items-center">
                 <div className="bg-black/60 backdrop-blur-md px-6 py-3 rounded-full border border-white/20 flex items-center gap-3 shadow-xl">
