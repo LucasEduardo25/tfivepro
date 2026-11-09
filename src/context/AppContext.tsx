@@ -462,7 +462,30 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       }
 
       setStudents(loadedStudents || []);
-      setExercises(loadedExercises || []);
+
+      // Seed the built-in exercise catalog idempotently. Never overwrite user-created
+      // exercises: only insert standard entries whose legacy IDs are not present.
+      const existingExerciseIds = new Set((loadedExercises || []).map(exercise => exercise.id));
+      const missingDefaultExercises = INITIAL_EXERCISES.filter(
+        exercise => !existingExerciseIds.has(exercise.id)
+      );
+      let availableExercises = loadedExercises || [];
+
+      if (missingDefaultExercises.length > 0) {
+        const exerciseRepository = getExerciseRepository();
+        const seededExercises: Exercise[] = [];
+        const batchSize = 15;
+
+        for (let index = 0; index < missingDefaultExercises.length; index += batchSize) {
+          const batch = missingDefaultExercises.slice(index, index + batchSize);
+          const results = await Promise.all(batch.map(exercise => exerciseRepository.create(exercise)));
+          seededExercises.push(...results);
+        }
+
+        availableExercises = [...availableExercises, ...seededExercises];
+      }
+
+      setExercises(availableExercises);
       setRoutines(loadedRoutines || []);
       setSessions(loadedSessions || []);
       setAssessments(loadedAssessments || []);
