@@ -307,7 +307,7 @@ export const WorkoutStoryModal: React.FC<WorkoutStoryModalProps> = ({
           // =================================================================
           // MODO PREVIEW: Visualização Direta e Seletor dos 7 Modelos
           // =================================================================
-          <div className="flex-1 flex flex-col md:flex-row overflow-hidden bg-zinc-950">
+          <div className="flex-1 min-h-0 flex flex-col md:flex-row overflow-y-auto md:overflow-hidden bg-zinc-950">
             {/* Hidden DOM Renderer para exportação em tamanho físico de 1080x1920 */}
             <div className="fixed top-0 left-0 -z-50 opacity-0 pointer-events-none" aria-hidden="true">
               <WorkoutStoryDOMRenderer 
@@ -320,7 +320,7 @@ export const WorkoutStoryModal: React.FC<WorkoutStoryModalProps> = ({
             </div>
 
             {/* Painel Central de Preview */}
-            <div className="flex-1 flex flex-col bg-zinc-900/60 relative overflow-y-auto">
+            <div className="flex-none md:flex-1 min-w-0 min-h-0 flex flex-col bg-zinc-900/60 relative overflow-visible md:overflow-y-auto">
               {/* Seletor Visual Rápido dos 7 Modelos no Topo do Preview */}
               <div className="p-3 sm:p-4 border-b border-zinc-800 bg-zinc-950/80 backdrop-blur-md sticky top-0 z-20">
                 <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide pb-1">
@@ -347,7 +347,7 @@ export const WorkoutStoryModal: React.FC<WorkoutStoryModalProps> = ({
               </div>
 
               {/* Área do Preview com Toggle de Fundo */}
-              <div className="flex-1 flex flex-col items-center justify-start p-3 sm:p-8">
+              <div className="flex-none flex flex-col items-center justify-start p-3 sm:p-8">
                 <div className="mb-4 flex items-center gap-3">
                   <input ref={photoInputRef} type="file" accept="image/*" onChange={handlePhotoSelection} className="hidden" />
                   <button onClick={() => photoInputRef.current?.click()} className="px-4 py-2.5 rounded-xl bg-white text-zinc-900 text-xs font-semibold tracking-wide">ESCOLHER FOTO</button>
@@ -417,7 +417,7 @@ export const WorkoutStoryModal: React.FC<WorkoutStoryModalProps> = ({
             </div>
 
             {/* Sidebar Lateral de Ações e Exportação */}
-            <div className="w-full md:w-80 bg-zinc-900 border-t md:border-t-0 md:border-l border-zinc-800 flex flex-col shrink-0 overflow-y-auto z-10">
+            <div className="w-full md:w-80 bg-zinc-900 border-t md:border-t-0 md:border-l border-zinc-800 flex flex-col shrink-0 overflow-visible md:overflow-y-auto z-10">
               <div className="p-6 border-b border-zinc-800 bg-zinc-950/40">
                 <div className="flex items-center gap-2 mb-2">
                   <span className="font-mono-nums text-xs font-black text-zinc-400 bg-zinc-800 px-2 py-0.5 rounded border border-zinc-700">
