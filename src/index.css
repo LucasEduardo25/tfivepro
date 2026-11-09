@@ -1,32 +1,32 @@
 @import "tailwindcss";
 
 @theme {
-  --color-bg-main: #F7F7F7;
+  --color-bg-main: #F4F7FB;
   --color-surface-card: #FFFFFF;
-  --color-surface-sec: #F1F1F1;
-  --color-surface-strong: #E5E5E5;
+  --color-surface-sec: #EEF3F8;
+  --color-surface-strong: #E2EAF3;
   
-  --color-border-main: #D4D4D4;
-  --color-border-subtle: #E5E5E5;
+  --color-border-main: #D9E2EC;
+  --color-border-subtle: #E8EEF5;
 
-  --color-text-main: #262626;
-  --color-text-sec: #404040;
-  --color-text-aux: #525252;
-  --color-text-muted: #737373;
+  --color-text-main: #172B4D;
+  --color-text-sec: #334155;
+  --color-text-aux: #52647A;
+  --color-text-muted: #718096;
 
-  --color-graphite-main: #3F3F46;
-  --color-graphite-dark: #27272A;
-  --color-black-soft: #18181B;
+  --color-graphite-main: #315B91;
+  --color-graphite-dark: #244A78;
+  --color-black-soft: #172B4D;
 
-  --color-btn-pri-bg: #27272A;
+  --color-btn-pri-bg: #315B91;
   --color-btn-pri-text: #FFFFFF;
   
   --color-btn-sec-bg: #FFFFFF;
-  --color-btn-sec-text: #27272A;
-  --color-btn-sec-border: #D4D4D4;
+  --color-btn-sec-text: #315B91;
+  --color-btn-sec-border: #D9E2EC;
   
-  --color-btn-disabled-bg: #E5E5E5;
-  --color-btn-disabled-text: #737373;
+  --color-btn-disabled-bg: #E8EEF5;
+  --color-btn-disabled-text: #718096;
 }
 
 @layer base {
@@ -111,12 +111,12 @@
 /* TFIVE PRO — identidade branco e grafite */
 :root {
   color-scheme: light;
-  --app-bg: #f5f5f4;
+  --app-bg: #F4F7FB;
   --app-surface: #ffffff;
-  --app-surface-muted: #f1f1f0;
-  --app-border: #e4e4e7;
-  --app-text: #202124;
-  --app-text-secondary: #52525b;
+  --app-surface-muted: #F1F5FA;
+  --app-border: #D9E2EC;
+  --app-text: #172B4D;
+  --app-text-secondary: #52647A;
 }
 html[data-theme="dark"] {
   color-scheme: dark;
@@ -169,10 +169,10 @@ html[data-theme="dark"] [class*="hover\\:bg-[#F"]:hover { background-color: #303
   --app-border-strong: #d4d4d4;
   --app-text: #202124;
   --app-text-secondary: #52525b;
-  --app-text-muted: #71717a;
-  --app-accent: #27272a;
-  --app-accent-hover: #18181b;
-  --app-shadow: 0 1px 2px rgb(0 0 0 / 0.04), 0 8px 24px rgb(0 0 0 / 0.035);
+  --app-text-muted: #718096;
+  --app-accent: #315B91;
+  --app-accent-hover: #244A78;
+  --app-shadow: 0 2px 8px rgb(38 67 103 / 0.035), 0 12px 32px rgb(38 67 103 / 0.055);
   color-scheme: light;
 }
 
@@ -372,4 +372,85 @@ input, textarea, select {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
   }
+}
+
+
+/* TFIVE PRO — identidade clean azul, cinza e branco aplicada ao produto */
+:root:not([data-theme="dark"]) {
+  --app-bg: #F4F7FB;
+  --app-surface: #FFFFFF;
+  --app-surface-raised: #FFFFFF;
+  --app-surface-muted: #F1F5FA;
+  --app-surface-subtle: #EAF0F7;
+  --app-border: #D9E2EC;
+  --app-border-strong: #C7D4E3;
+  --app-text: #172B4D;
+  --app-text-secondary: #52647A;
+  --app-text-muted: #718096;
+  --app-accent: #315B91;
+  --app-accent-hover: #244A78;
+  --app-shadow: 0 2px 8px rgb(38 67 103 / .035), 0 12px 32px rgb(38 67 103 / .055);
+  color-scheme: light;
+}
+:root:not([data-theme="dark"]) body {
+  background: radial-gradient(ellipse at 80% 0%, rgb(219 232 247 / .34), transparent 36%), var(--app-bg);
+  color: var(--app-text);
+}
+:root:not([data-theme="dark"]) ::selection { background: #D7E6F7; color: #17365D; }
+:root:not([data-theme="dark"]) :is(button, [role="button"], input, select, textarea) {
+  accent-color: #315B91;
+}
+:root:not([data-theme="dark"]) :is(input, select, textarea) {
+  border-color: #D9E2EC;
+}
+:root:not([data-theme="dark"]) :is(button, [role="button"]):focus-visible,
+:root:not([data-theme="dark"]) :is(input, select, textarea):focus-visible {
+  outline-color: #6F9BCB;
+}
+:root:not([data-theme="dark"]) :is(
+  [class*="bg-[#050505]"], [class*="bg-[#0E0E11]"], [class*="bg-[#0e0e11]"],
+  [class*="bg-[#121212]"], [class*="bg-[#121214]"], [class*="bg-[#18181B]"],
+  [class*="bg-black"], [class*="bg-zinc-950"], [class*="bg-slate-950"]
+) {
+  background: linear-gradient(145deg, #FFFFFF, #F3F7FC) !important;
+  border-color: #D9E2EC !important;
+  color: #172B4D !important;
+  box-shadow: var(--app-shadow);
+}
+:root:not([data-theme="dark"]) :is(
+  [class*="bg-[#050505]"], [class*="bg-[#0E0E11]"], [class*="bg-[#0e0e11]"],
+  [class*="bg-[#121212]"], [class*="bg-[#121214]"], [class*="bg-[#18181B]"],
+  [class*="bg-black"], [class*="bg-zinc-950"], [class*="bg-slate-950"]
+) :is(h1,h2,h3,h4,p,span,label,small,strong) {
+  color: inherit;
+}
+:root:not([data-theme="dark"]) [class*="text-white"] { color: #172B4D; }
+:root:not([data-theme="dark"]) :is(
+  [class*="bg-[#374151]"], [class*="bg-[#1F2937]"], [class*="bg-[#27272A]"],
+  [class*="bg-zinc-800"], [class*="bg-slate-800"]
+) {
+  background: #315B91 !important;
+  color: #FFFFFF !important;
+}
+:root:not([data-theme="dark"]) :is(
+  [class*="bg-[#374151]"], [class*="bg-[#1F2937]"], [class*="bg-[#27272A]"],
+  [class*="bg-zinc-800"], [class*="bg-slate-800"]
+) * { color: #FFFFFF !important; }
+:root:not([data-theme="dark"]) :is(
+  [class*="border-[#E"], [class*="border-[#D"], [class*="border-gray-"],
+  [class*="border-neutral-"], [class*="border-zinc-"]
+) { border-color: #D9E2EC !important; }
+:root:not([data-theme="dark"]) :is(
+  [class*="text-[#1F2937"], [class*="text-[#262626"], [class*="text-[#374151"],
+  [class*="text-[#404040"], [class*="text-[#4B5563"], [class*="text-gray-700"],
+  [class*="text-gray-800"], [class*="text-neutral-800"], [class*="text-zinc-800"]
+) { color: #263F5F !important; }
+:root:not([data-theme="dark"]) :is(
+  [class*="shadow-2xl"], [class*="shadow-xl"], [class*="shadow-lg"]
+) { --tw-shadow-color: rgb(38 67 103 / .07); }
+:root:not([data-theme="dark"]) .print-card {
+  border-color: #D9E2EC !important;
+}
+@media print {
+  :root:not([data-theme="dark"]) body { background: #FFFFFF !important; }
 }
