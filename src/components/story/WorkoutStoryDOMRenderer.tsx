@@ -39,6 +39,7 @@ export interface StoryDOMRendererProps {
   studentName?: string;
   exercises?: Exercise[];
   isExporting?: boolean;
+  backgroundImageUrl?: string | null;
 }
 
 export interface StoryDOMRendererRef {
@@ -46,7 +47,7 @@ export interface StoryDOMRendererRef {
 }
 
 export const WorkoutStoryDOMRenderer = forwardRef<StoryDOMRendererRef, StoryDOMRendererProps>(
-  ({ session, templateId, studentName, exercises = [] }, ref) => {
+  ({ session, templateId, studentName, exercises = [], backgroundImageUrl }, ref) => {
     const containerRef = useRef<HTMLDivElement>(null);
 
     // Map any legacy ID to one of the 7 canonical models
@@ -269,59 +270,21 @@ export const WorkoutStoryDOMRenderer = forwardRef<StoryDOMRendererRef, StoryDOMR
       switch (activeModelId) {
         case 'clean_card':
         case 'stats_card': {
-          const isStats = activeModelId === 'stats_card';
           return (
-            <div className="w-[1080px] h-[1920px] relative overflow-hidden bg-[#101113] text-white flex flex-col justify-between p-[76px] select-none">
-              <div className="absolute top-0 left-0 right-0 h-[14px] bg-[#E11D2E]" />
-              <div className="flex items-center justify-between pt-8">
-                <div className="flex items-center gap-5">
-                  <div className="w-[74px] h-[74px] rounded-[22px] bg-[#E11D2E] flex items-center justify-center text-[38px] font-black">T</div>
-                  <div>
-                    <div className="text-[32px] font-black tracking-[.12em]">TFIVE PRO</div>
-                    <div className="text-[19px] text-zinc-400 tracking-[.2em] font-semibold">TREINO CONCLUÍDO</div>
-                  </div>
+            <div ref={containerRef} className="w-[1080px] h-[1920px] relative overflow-hidden bg-[#F5F4F0] text-[#171717] flex flex-col justify-end p-[88px] select-none" style={backgroundImageUrl ? { backgroundImage: 'url(' + backgroundImageUrl + ')', backgroundSize: 'cover', backgroundPosition: 'center' } : undefined}>
+              {backgroundImageUrl ? <div className="absolute inset-0 bg-black/10" /> : <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_30%,#FFFFFF_0%,#F5F4F0_70%)]" />}
+              <div className="relative z-10 flex items-center justify-between mb-auto">
+                <span className="text-[30px] font-semibold tracking-[.16em] text-white drop-shadow-[0_2px_12px_rgba(0,0,0,.45)]">TFIVE</span>
+                <span className="text-[22px] tracking-[.08em] text-white/90 drop-shadow-[0_2px_10px_rgba(0,0,0,.45)]">{dateStr}</span>
+              </div>
+              <div className="relative z-10 -mx-[88px] px-[88px] pt-[210px] pb-[92px] bg-gradient-to-t from-black/80 via-black/45 to-transparent text-white">
+                <div className="text-[22px] font-medium tracking-[.24em] text-white/75 mb-5">TREINO</div>
+                <h1 className="text-[82px] leading-[1.02] font-semibold tracking-[-.045em] break-words">{workoutName}</h1>
+                <div className="text-[27px] font-medium text-white/75 mt-5">{firstName}</div>
+                <div className="mt-12 pt-8 border-t border-white/30 flex items-end gap-16">
+                  <div><div className="text-[18px] tracking-[.18em] text-white/65 mb-2">DURAÇÃO</div><div className="text-[49px] font-medium tracking-[-.03em] tabular-nums">{duration}</div></div>
+                  <div><div className="text-[18px] tracking-[.18em] text-white/65 mb-2">VOLUME</div><div className="text-[49px] font-medium tracking-[-.03em] tabular-nums">{volume}</div></div>
                 </div>
-                <div className="text-[20px] text-zinc-400 font-semibold">{dateStr}</div>
-              </div>
-              <div className="mt-20">
-                <div className="text-[24px] text-[#F04452] font-bold tracking-[.22em] mb-5">SESSÃO FINALIZADA</div>
-                <div className="text-[74px] leading-[1.05] font-black tracking-[-.04em] break-words">{workoutName}</div>
-                <div className="text-[34px] text-zinc-400 mt-7 font-medium">{firstName}</div>
-              </div>
-              <div className="mt-16">
-                <div className="grid grid-cols-2 gap-5">
-                  <div className="bg-[#1D1F23] rounded-[28px] p-8 border border-white/5">
-                    <div className="text-[21px] text-zinc-400 font-bold tracking-[.15em]">DURAÇÃO</div>
-                    <div className="text-[66px] font-black mt-4">{duration}</div>
-                  </div>
-                  <div className="bg-[#1D1F23] rounded-[28px] p-8 border border-white/5">
-                    <div className="text-[21px] text-zinc-400 font-bold tracking-[.15em]">VOLUME</div>
-                    <div className="text-[66px] font-black mt-4">{volume}</div>
-                  </div>
-                  <div className="bg-[#1D1F23] rounded-[28px] p-8 border border-white/5">
-                    <div className="text-[21px] text-zinc-400 font-bold tracking-[.15em]">EXERCÍCIOS</div>
-                    <div className="text-[66px] font-black mt-4">{exercisesCount}</div>
-                  </div>
-                  <div className="bg-[#1D1F23] rounded-[28px] p-8 border border-white/5">
-                    <div className="text-[21px] text-zinc-400 font-bold tracking-[.15em]">SÉRIES</div>
-                    <div className="text-[66px] font-black mt-4">{setsCount}</div>
-                  </div>
-                </div>
-                {isStats && exercisesSummaryList.length > 0 && (
-                  <div className="mt-8 bg-[#1D1F23] rounded-[28px] p-8 border border-white/5">
-                    <div className="text-[21px] text-zinc-400 font-bold tracking-[.15em] mb-5">DESTAQUES DO TREINO</div>
-                    {exercisesSummaryList.slice(0, 5).map(item => (
-                      <div key={item.order} className="flex justify-between gap-5 py-4 border-b border-white/10 last:border-0">
-                        <span className="text-[25px] font-bold truncate">{item.name}</span>
-                        <span className="text-[23px] text-zinc-400 whitespace-nowrap">{item.setsCount} séries {item.maxWeightStr ? `· ${item.maxWeightStr}` : ''}</span>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-              <div className="flex items-center justify-between border-t border-white/15 pt-8 mt-12">
-                <div className="text-[20px] text-zinc-500 tracking-[.16em]">DISCIPLINA • CONSTÂNCIA • EVOLUÇÃO</div>
-                <div className="text-[26px] font-black tracking-[.12em]">TFIVE<span className="text-[#E11D2E]">.</span></div>
               </div>
             </div>
           );
