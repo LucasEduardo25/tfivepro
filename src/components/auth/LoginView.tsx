@@ -8,7 +8,7 @@
 
 import React, { useState } from 'react';
 import { authService } from '../../services/authService';
-import { Lock, Mail, User, AlertCircle, ArrowRight, Loader2, CheckCircle2 } from 'lucide-react';
+import { Lock, Mail, User, Building2, AlertCircle, ArrowRight, Loader2, CheckCircle2 } from 'lucide-react';
 import { TFiveLogo } from '../common/TFiveLogo';
 
 interface LoginViewProps {
@@ -21,6 +21,7 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
+  const [organizationName, setOrganizationName] = useState('');
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -37,6 +38,11 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
 
     if (mode === 'signup' && !fullName.trim()) {
       setErrorMessage('Por favor, informe seu nome completo.');
+      return;
+    }
+
+    if (mode === 'signup' && !organizationName.trim()) {
+      setErrorMessage('Informe o nome do seu espaço de trabalho.');
       return;
     }
 
@@ -69,8 +75,8 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
           setTimeout(onLoginSuccess, 400);
         }
       } else {
-        await authService.signUpWithSupabase(email, password, fullName);
-        setSuccessMessage('Conta criada com sucesso no Supabase Auth! Se este for o primeiro OWNER, execute o script de bootstrap no SQL Editor para vincular sua organização e faça login.');
+        await authService.signUpWithSupabase(email, password, fullName, organizationName);
+        setSuccessMessage('Cadastro recebido. Seu espaço de trabalho será criado automaticamente. Se a confirmação de e-mail estiver ativa, confirme seu endereço antes de entrar.');
         setMode('login');
       }
     } catch (err: any) {
@@ -185,6 +191,29 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
                   className="w-full pl-10 pr-4 py-2.5 bg-white border border-[#D1D5DB] rounded-xl text-[#1F2937] text-xs placeholder-[#6B7280] focus:outline-none focus:border-[#374151] transition-colors"
                 />
               </div>
+            </div>
+          )}
+
+          {mode === 'signup' && (
+            <div>
+              <label className="block text-xs font-semibold text-[#4B5563] uppercase tracking-wider mb-1.5">
+                Nome do espaço de trabalho
+              </label>
+              <div className="relative">
+                <Building2 className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#4B5563]" />
+                <input
+                  type="text"
+                  value={organizationName}
+                  onChange={(e) => setOrganizationName(e.target.value)}
+                  placeholder="Ex: Studio Lucas Treinamento"
+                  required
+                  maxLength={80}
+                  className="w-full pl-10 pr-4 py-2.5 bg-white border border-[#D1D5DB] rounded-xl text-[#1F2937] text-xs placeholder-[#6B7280] focus:outline-none focus:border-[#374151] transition-colors"
+                />
+              </div>
+              <p className="mt-1.5 text-[11px] text-[#6B7280]">
+                Esse será o seu ambiente exclusivo dentro do TFIVE PRO.
+              </p>
             </div>
           )}
 
