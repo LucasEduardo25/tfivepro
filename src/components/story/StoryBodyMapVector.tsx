@@ -57,7 +57,9 @@ const GROUP_LABELS: Partial<Record<MuscleGroup, string>> = {
   QUADS: 'Quadríceps',
   HAMSTRINGS: 'Posterior de coxa',
   CALVES: 'Panturrilhas',
-  ADDUCTORS: 'Adutores'
+  HIP_FLEXORS: 'Flexores do quadril',
+  ADDUCTORS: 'Adutores',
+  ABDUCTORS: 'Abdutores'
 };
 
 export const StoryBodyMapVector: React.FC<StoryBodyMapVectorProps> = ({
