@@ -68,7 +68,7 @@ export const NewPhysicalAssessmentModal: React.FC<NewPhysicalAssessmentModalProp
   const [assessmentDate, setAssessmentDate] = useState<string>(todayStr);
   const [protocol, setProtocol] = useState<AssessmentProtocol>('jackson_pollock_7');
   
-  // Calculate student age from birthDate or fallback to 25
+  // Derive age only from a valid birth date; never invent demographic data.
   const calculatedAge = useMemo(() => {
     if (student.birthDate) {
       const birth = new Date(student.birthDate);
@@ -80,7 +80,7 @@ export const NewPhysicalAssessmentModal: React.FC<NewPhysicalAssessmentModalProp
       }
       if (age >= 10 && age <= 110) return age;
     }
-    return 25;
+    return 0;
   }, [student.birthDate]);
 
   const [age, setAge] = useState<number>(calculatedAge);
@@ -203,7 +203,7 @@ export const NewPhysicalAssessmentModal: React.FC<NewPhysicalAssessmentModalProp
 
   // Integrated calculation results
   const computedResults = useMemo(() => {
-    if (numericWeight <= 0) return null;
+    if (numericWeight <= 0 || age < 10 || age > 110) return null;
 
     if (protocol === 'jackson_pollock_7') {
       return computeCompleteJP7Assessment({
@@ -244,7 +244,8 @@ export const NewPhysicalAssessmentModal: React.FC<NewPhysicalAssessmentModalProp
 
     // Bioimpedance / External app fallback
     const manualBf = parseFloat(manualBodyFatPct.replace(',', '.'));
-    const safeBf = (!isNaN(manualBf) && manualBf > 0) ? manualBf : 20.0;
+    if (!Number.isFinite(manualBf) || manualBf < 1 || manualBf > 75) return null;
+    const safeBf = manualBf;
     const fatKg = calculateFatMass(numericWeight, safeBf);
     const leanKg = calculateLeanMass(numericWeight, fatKg);
     const bmi = calculateBMI(numericWeight, heightCm);
@@ -311,11 +312,15 @@ export const NewPhysicalAssessmentModal: React.FC<NewPhysicalAssessmentModalProp
 
   // Step 1 Validation & Next
   const handleStep1Next = () => {
-    if (numericWeight <= 0) {
-      alert('Por favor, informe o peso atual do aluno.');
+    if (age < 10 || age > 110) {
+      alert('Informe a idade real do aluno (entre 10 e 110 anos).');
       return;
     }
-    if (heightCm <= 0) {
+    if (numericWeight < 30 || numericWeight > 300) {
+      alert('Informe um peso válido entre 30 e 300 kg.');
+      return;
+    }
+    if (heightCm < 90 || heightCm > 240) {
       alert('Por favor, informe a altura do aluno.');
       return;
     }
@@ -355,8 +360,8 @@ export const NewPhysicalAssessmentModal: React.FC<NewPhysicalAssessmentModalProp
       }
     } else {
       const parsedBf = parseFloat(manualBodyFatPct.replace(',', '.'));
-      if (isNaN(parsedBf) || parsedBf <= 0) {
-        alert('Por favor, digite o percentual de gordura corporal (% gordura).');
+      if (!Number.isFinite(parsedBf) || parsedBf < 1 || parsedBf > 75) {
+        alert('Informe um percentual de gordura válido entre 1% e 75%.');
         return;
       }
     }
@@ -648,7 +653,9 @@ export const NewPhysicalAssessmentModal: React.FC<NewPhysicalAssessmentModalProp
                   <input
                     type="number"
                     value={age || ''}
-                    onChange={e => setAge(parseInt(e.target.value) || 25)}
+                    min={10}
+                    max={110}
+                    onChange={e => setAge(parseInt(e.target.value, 10) || 0)}
                     className="w-full bg-white border border-[#E5E7EB] rounded-lg p-2 text-sm font-bold text-[#1F2937] font-mono-nums focus:outline-none focus:border-[#374151]"
                   />
                 </div>
