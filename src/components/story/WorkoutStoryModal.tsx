@@ -48,7 +48,7 @@ export const WorkoutStoryModal: React.FC<WorkoutStoryModalProps> = ({
   externalData,
   onClose
 }) => {
-  const { exercises } = useApp();
+  const { exercises, students } = useApp();
 
   const effectiveSession: WorkoutSession = useMemo(() => {
     if (session) return session;
@@ -77,7 +77,7 @@ export const WorkoutStoryModal: React.FC<WorkoutStoryModalProps> = ({
 
   const [viewMode, setViewMode] = useState<ModalViewMode>('preview');
   const [selectedTemplate, setSelectedTemplate] = useState<DOMStoryTemplateId>('clean_card');
-  const [bodyMapSex, setBodyMapSex] = useState<'MALE' | 'FEMALE'>('MALE');
+  const [bodyMapSexOverride, setBodyMapSexOverride] = useState<{ studentId: string; sex: 'MALE' | 'FEMALE' } | null>(null);
   const [isExporting, setIsExporting] = useState<boolean>(false);
   const [previewBg, setPreviewBg] = useState<'photo' | 'transparent'>('photo');
   const [photoBackground, setPhotoBackground] = useState<string | null>(null);
@@ -97,6 +97,24 @@ export const WorkoutStoryModal: React.FC<WorkoutStoryModalProps> = ({
   const currentTemplate = useMemo(() => {
     return STORY_TEMPLATES.find(t => t.id === selectedTemplate) || STORY_TEMPLATES[0];
   }, [selectedTemplate]);
+
+  const linkedStudent = useMemo(() => {
+    const studentId = effectiveSession.studentId;
+    return students.find(student =>
+      student.id === studentId ||
+      student.uuid === studentId ||
+      student.legacyId === studentId
+    ) || null;
+  }, [students, effectiveSession.studentId]);
+
+  // O sexo cadastrado no perfil do aluno define automaticamente o modelo anatômico.
+  // A seleção manual continua disponível como substituição temporária para este aluno.
+  const profileBodyMapSex: 'MALE' | 'FEMALE' =
+    linkedStudent?.gender === 'female' ? 'FEMALE' : 'MALE';
+  const bodyMapSex =
+    bodyMapSexOverride?.studentId === effectiveSession.studentId
+      ? bodyMapSexOverride.sex
+      : profileBodyMapSex;
 
   const studentName = effectiveSession.studentName || 'Aluno';
 
@@ -357,7 +375,7 @@ export const WorkoutStoryModal: React.FC<WorkoutStoryModalProps> = ({
                   <div className="flex items-center gap-1 rounded-xl border border-zinc-800 bg-zinc-950 p-1">
                     <button
                       type="button"
-                      onClick={() => setBodyMapSex('MALE')}
+                      onClick={() => setBodyMapSexOverride({ studentId: effectiveSession.studentId, sex: 'MALE' })}
                       aria-pressed={bodyMapSex === 'MALE'}
                       className={`rounded-lg px-3 py-1.5 text-[10px] font-bold uppercase tracking-wide transition-colors ${bodyMapSex === 'MALE' ? 'bg-white text-zinc-950' : 'text-zinc-400 hover:text-white'}`}
                     >
@@ -365,7 +383,7 @@ export const WorkoutStoryModal: React.FC<WorkoutStoryModalProps> = ({
                     </button>
                     <button
                       type="button"
-                      onClick={() => setBodyMapSex('FEMALE')}
+                      onClick={() => setBodyMapSexOverride({ studentId: effectiveSession.studentId, sex: 'FEMALE' })}
                       aria-pressed={bodyMapSex === 'FEMALE'}
                       className={`rounded-lg px-3 py-1.5 text-[10px] font-bold uppercase tracking-wide transition-colors ${bodyMapSex === 'FEMALE' ? 'bg-white text-zinc-950' : 'text-zinc-400 hover:text-white'}`}
                     >
