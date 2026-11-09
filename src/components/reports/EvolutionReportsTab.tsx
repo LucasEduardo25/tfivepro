@@ -152,7 +152,7 @@ export const EvolutionReportsTab: React.FC<EvolutionReportsTabProps> = ({ studen
                 disabled={selectedForCompare.length !== 2}
                 className={`px-4 py-2.5 rounded-xl text-xs font-bold font-display uppercase tracking-wider flex items-center gap-2 transition-all ${
                   selectedForCompare.length === 2
-                    ? 'bg-[#F8F9FA] text-white hover:bg-[#27272A] border border-[#374151] shadow-sm'
+                    ? 'bg-[#27272A] text-white hover:bg-[#18181B] border border-[#27272A] shadow-sm'
                     : 'bg-[#F8F9FA]/50 text-[#4B5563] border border-[#E5E7EB]/50 cursor-not-allowed'
                 }`}
                 title={selectedForCompare.length === 2 ? 'Comparar 2 relatórios selecionados' : 'Selecione 2 relatórios abaixo para comparar'}
@@ -179,7 +179,7 @@ export const EvolutionReportsTab: React.FC<EvolutionReportsTabProps> = ({ studen
           <div className="w-16 h-16 rounded-2xl bg-[#F8F9FA] border border-[#E5E7EB] flex items-center justify-center mx-auto mb-4 text-[#374151]">
             <FileText className="w-8 h-8" />
           </div>
-          <h3 className="text-base sm:text-lg font-bold text-white mb-2">
+          <h3 className="text-base sm:text-lg font-bold text-[#1F2937] mb-2">
             Nenhum relatório de evolução criado ainda
           </h3>
           <p className="text-xs sm:text-sm text-[#4B5563] max-w-md mx-auto mb-6">
@@ -214,7 +214,7 @@ export const EvolutionReportsTab: React.FC<EvolutionReportsTabProps> = ({ studen
                     <div className="flex flex-wrap items-center gap-2">
                       <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider flex items-center gap-1 ${
                         isFinalized 
-                          ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30' 
+                          ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30' 
                           : 'bg-amber-500/15 text-amber-400 border border-amber-500/30'
                       }`}>
                         {isFinalized ? <CheckCircle2 className="w-3 h-3" /> : <Clock className="w-3 h-3" />}
@@ -243,7 +243,7 @@ export const EvolutionReportsTab: React.FC<EvolutionReportsTabProps> = ({ studen
                   </div>
 
                   {/* Title & Dates */}
-                  <h3 className="text-base font-bold text-white mb-1 leading-snug line-clamp-1">
+                  <h3 className="text-base font-bold text-[#1F2937] mb-1 leading-snug line-clamp-1">
                     {report.title}
                   </h3>
                   <div className="flex items-center gap-2 text-xs text-[#4B5563] mb-4 font-mono-nums">
@@ -266,7 +266,7 @@ export const EvolutionReportsTab: React.FC<EvolutionReportsTabProps> = ({ studen
 
                     <div>
                       <span className="text-[10px] text-[#4B5563] block uppercase font-bold">Adesão</span>
-                      <span className="text-xl font-black font-display text-emerald-400 font-mono-nums">
+                      <span className="text-xl font-black font-display text-emerald-700 dark:text-emerald-400 font-mono-nums">
                         {report.adherence?.adherenceRatePercent || 0}%
                       </span>
                     </div>
@@ -282,15 +282,15 @@ export const EvolutionReportsTab: React.FC<EvolutionReportsTabProps> = ({ studen
                   {/* Status Tagline */}
                   <div className="mb-4 flex items-center justify-between text-xs">
                     <span className="text-[#4B5563]">Status do Ciclo:</span>
-                    <span className="font-bold text-white bg-[#27272A]/50 px-2.5 py-0.5 rounded-lg border border-[#D1D5DB]/50">
+                    <span className="font-bold text-[#27272A] bg-[#F1F1F0] px-2.5 py-0.5 rounded-lg border border-[#D1D5DB]">
                       {report.periodStatus}
                     </span>
                   </div>
 
                   {/* Key Highlights Snippet */}
                   {report.achievements && report.achievements.length > 0 && (
-                    <div className="mb-4 text-xs text-[#4B5563] bg-[#0A0A0A] p-2.5 rounded-lg border border-[#E5E7EB]/70 line-clamp-2">
-                      <strong className="text-white">Destaque:</strong> {report.achievements[0].title} — {report.achievements[0].description}
+                    <div className="mb-4 text-xs text-[#4B5563] bg-[#F7F7F6] p-2.5 rounded-lg border border-[#E5E7EB] line-clamp-2">
+                      <strong className="text-[#1F2937]">Destaque:</strong> {report.achievements[0].title} — {report.achievements[0].description}
                     </div>
                   )}
                 </div>

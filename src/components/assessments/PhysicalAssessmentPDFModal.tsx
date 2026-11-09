@@ -66,19 +66,23 @@ export const PhysicalAssessmentPDFModal: React.FC<PhysicalAssessmentPDFModalProp
   const previousAssessment = currentIndex > 0 ? chronoSorted[currentIndex - 1] : undefined;
   const comparison = previousAssessment ? compareAssessments(assessment, previousAssessment) : null;
 
-  const age = assessment.age || (student.birthDate ? (() => {
-    const b = new Date(student.birthDate);
-    const d = new Date(assessment.date);
-    let a = d.getFullYear() - b.getFullYear();
-    const m = d.getMonth() - b.getMonth();
-    if (m < 0 || (m === 0 && d.getDate() < b.getDate())) a--;
-    return a;
-  })() : 25);
+  const age = assessment.age && assessment.age >= 10 && assessment.age <= 110
+    ? assessment.age
+    : student.birthDate
+      ? (() => {
+          const b = new Date(student.birthDate);
+          const d = new Date(assessment.date);
+          let a = d.getFullYear() - b.getFullYear();
+          const m = d.getMonth() - b.getMonth();
+          if (m < 0 || (m === 0 && d.getDate() < b.getDate())) a--;
+          return a >= 10 && a <= 110 ? a : null;
+        })()
+      : null;
 
   const gender = assessment.gender || student.gender || 'male';
-  const bfClassification = getBodyFatClassification(assessment.bodyFatPercentage, gender, age);
+  const bfClassification = age !== null ? getBodyFatClassification(assessment.bodyFatPercentage, gender, age) : null;
   const bmiClassification = getBMIClassification(assessment.bmi);
-  const whrClassification = getWHRClassification(assessment.waistHipRatio, gender, age);
+  const whrClassification = age !== null ? getWHRClassification(assessment.waistHipRatio, gender, age) : null;
   const waistClassification = getWaistCircumferenceClassification(assessment.circumferences?.waist, gender);
 
   const sumSkinfolds = assessment.sumOfSkinfolds || (assessment.skinfolds ? calculateSumOf7Skinfolds(assessment.skinfolds) : 0);
@@ -176,7 +180,7 @@ export const PhysicalAssessmentPDFModal: React.FC<PhysicalAssessmentPDFModalProp
             <span className="text-[10px] font-black uppercase tracking-wider text-[#374151] block">
               IMPRESSÃO & PDF A4
             </span>
-            <span className="text-sm font-black text-white font-display uppercase">
+            <span className="text-sm font-black text-[#1F2937] font-display uppercase">
               Relatório de Avaliação Física • {student.name}
             </span>
           </div>
@@ -556,7 +560,7 @@ export const PhysicalAssessmentPDFModal: React.FC<PhysicalAssessmentPDFModalProp
                 Fundamentação Matemática
               </span>
               <p className="text-zinc-600 text-[11px] leading-relaxed">
-                A densidade corporal é calculada pela regressão linear múltipla de Jackson & Pollock (7 dobras), considerando sexo, soma das dobras (Σ7) e idade cronológica ({age} anos). O percentual de gordura é convertido pela Equação de Siri (1956).
+                A densidade corporal é calculada pela regressão linear múltipla de Jackson & Pollock (7 dobras), considerando sexo, soma das dobras (Σ7) e idade cronológica ({age ?? 'não informada'} anos). O percentual de gordura é convertido pela Equação de Siri (1956).
               </p>
               <div className="grid grid-cols-2 gap-4 pt-1 font-mono text-[11px]">
                 <div>
