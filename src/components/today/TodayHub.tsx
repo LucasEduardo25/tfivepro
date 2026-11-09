@@ -32,13 +32,15 @@ interface TodayHubProps {
   onOpenLiveWorkout: () => void;
   onSelectStudent: (student: Student) => void;
   onOpenSchedule: () => void;
+  embedded?: boolean;
 }
 
 export const TodayHub: React.FC<TodayHubProps> = ({
   onStartWorkout,
   onOpenLiveWorkout,
   onSelectStudent,
-  onOpenSchedule
+  onOpenSchedule,
+  embedded = false
 }) => {
   const {
     students,
