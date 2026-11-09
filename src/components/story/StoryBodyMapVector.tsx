@@ -67,7 +67,13 @@ export const StoryBodyMapVector: React.FC<StoryBodyMapVectorProps> = ({
   view = 'both'
 }) => {
   const values = useMemo<MuscleMapValues>(() => {
+    // Give every anatomical group an explicit score of 0 so untrained
+    // muscles use the neutral monochrome base instead of exposing the
+    // original colored body photo beneath the SVG muscle paths.
     const result: MuscleMapValues = {};
+    (Object.keys(GROUP_LABELS) as MuscleGroup[]).forEach(group => {
+      result[group] = { score: 0 };
+    });
     (Object.entries(intensities) as [BodyRegionId, MuscleIntensity][]).forEach(([region, intensity]) => {
       const groups = REGION_TO_GROUPS[region] || [];
       groups.forEach(group => {
