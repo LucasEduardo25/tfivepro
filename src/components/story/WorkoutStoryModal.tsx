@@ -38,67 +38,40 @@ export interface StoryTemplateItem {
 
 export const STORY_TEMPLATES: StoryTemplateItem[] = [
   {
-    id: 'frame',
+    id: 'clean_card',
     number: '01',
-    name: 'FRAME',
-    slug: 'frame',
-    subtitle: 'Moldura futurista e assimétrica',
-    description: 'Cantoneiras técnicas, guias com microtipografia e centro 100% transparente.',
-    tag: 'FUTURISTA'
+    name: 'CLEAN CARD',
+    slug: 'clean-card',
+    subtitle: 'Cartão completo minimalista',
+    description: 'Estética inspirada em apps de treino: fundo escuro, métricas claras e hierarquia visual simples.',
+    tag: 'CARTÃO'
   },
   {
-    id: 'performance',
+    id: 'stats_card',
     number: '02',
-    name: 'PERFORMANCE',
-    slug: 'performance',
-    subtitle: 'Autoridade esportiva limpa',
-    description: 'Painel escuro translúcido na base com métricas de alto impacto e topo aberto.',
-    tag: 'ESPORTIVO'
+    name: 'STATS CARD',
+    slug: 'stats-card',
+    subtitle: 'Cartão completo com destaques',
+    description: 'Inclui exercícios realizados e séries, além das principais métricas da sessão.',
+    tag: 'CARTÃO + DADOS'
   },
   {
-    id: 'mais_forte',
+    id: 'clean_overlay',
     number: '03',
-    name: 'MAIS FORTE',
-    slug: 'mais-forte',
-    subtitle: 'Editorial minimalista',
-    description: 'Tipografia editorial imponente em branco e máxima transparência para a foto.',
-    tag: 'EDITORIAL'
+    name: 'PHOTO OVERLAY',
+    slug: 'photo-overlay',
+    subtitle: 'Sobreposição para sua foto',
+    description: 'Foto livre no centro, com identificação e resumo do treino na parte inferior.',
+    tag: 'TRANSPARENTE'
   },
   {
-    id: 'resumo_treino',
+    id: 'stats_overlay',
     number: '04',
-    name: 'RESUMO',
-    slug: 'resumo',
-    subtitle: 'Lista técnica do treino',
-    description: 'Exercícios, séries e cargas do treino com sofisticação em tons de cinza.',
-    tag: 'TÉCNICO'
-  },
-  {
-    id: 'evolucao',
-    number: '05',
-    name: 'EVOLUÇÃO',
-    slug: 'evolucao',
-    subtitle: 'Telemetria abstrata',
-    description: 'Visualizador atlético de intensidade e esforço com cartões translúcidos.',
-    tag: 'TELEMETRIA'
-  },
-  {
-    id: 'minimal_data',
-    number: '06',
-    name: 'MINIMAL',
-    slug: 'minimal',
-    subtitle: 'Tipografia pura e dados',
-    description: 'Dados em grande escala vertical e micro-linhas. Zero caixas pesadas.',
-    tag: 'MINIMAL'
-  },
-  {
-    id: 'body_map',
-    number: '07',
-    name: 'BODY MAP',
-    slug: 'bodymap',
-    subtitle: 'Anatomia Frente + Costas',
-    description: 'Mapa vetorial minimalista reagindo dinamicamente aos músculos trabalhados.',
-    tag: 'ANATÔMICO'
+    name: 'PHOTO STATS',
+    slug: 'photo-stats',
+    subtitle: 'Sobreposição com estatísticas',
+    description: 'Mantém a foto como protagonista e acrescenta métricas e destaques do treino.',
+    tag: 'TRANSPARENTE + DADOS'
   }
 ];
 
@@ -135,7 +108,7 @@ export const WorkoutStoryModal: React.FC<WorkoutStoryModalProps> = ({
   }, [session, externalData]);
 
   const [viewMode, setViewMode] = useState<ModalViewMode>('preview');
-  const [selectedTemplate, setSelectedTemplate] = useState<DOMStoryTemplateId>('frame');
+  const [selectedTemplate, setSelectedTemplate] = useState<DOMStoryTemplateId>('clean_card');
   const [isExporting, setIsExporting] = useState<boolean>(false);
   const [previewBg, setPreviewBg] = useState<'photo' | 'transparent'>('photo');
   const [exportSuccessMsg, setExportSuccessMsg] = useState<string | null>(null);
@@ -214,12 +187,12 @@ export const WorkoutStoryModal: React.FC<WorkoutStoryModalProps> = ({
                 </span>
                 <span className="w-1 h-1 rounded-full bg-zinc-500" />
                 <span className="text-xs font-mono-nums font-bold text-zinc-400 uppercase">
-                  OVERLAYS TRANSPARENTES
+                  STORIES • CARTÕES E OVERLAYS
                 </span>
               </div>
               <h2 className="text-base sm:text-lg font-black text-white uppercase tracking-wider">
                 {viewMode === 'gallery'
-                  ? 'Coleção de Stories Pós-Treino'
+                  ? 'Stories de Treino'
                   : `${currentTemplate.number} ${currentTemplate.name} • ${currentTemplate.subtitle}`}
               </h2>
             </div>
@@ -255,7 +228,7 @@ export const WorkoutStoryModal: React.FC<WorkoutStoryModalProps> = ({
                 </div>
               </div>
               <div className="text-xs font-mono-nums font-bold text-zinc-400 uppercase tracking-widest bg-zinc-800/60 px-3 py-1.5 rounded-full border border-zinc-700">
-                7 MODELOS TRANSPARENTES (PNG 1080×1920)
+                4 MODELOS • 2 FORMATOS (PNG 1080×1920)
               </div>
             </div>
 
@@ -439,7 +412,7 @@ export const WorkoutStoryModal: React.FC<WorkoutStoryModalProps> = ({
 
                 {/* Legenda Informativa */}
                 <p className="text-[11px] font-mono-nums text-zinc-500 uppercase tracking-widest mt-4 text-center">
-                  1080 × 1920 PX • CANAL ALPHA 0 • PNG PURO
+                  1080 × 1920 PX • PNG • PRONTO PARA COMPARTILHAR
                 </p>
               </div>
             </div>
