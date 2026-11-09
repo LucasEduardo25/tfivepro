@@ -345,7 +345,7 @@ export const StudentMetricsSummaryTab: React.FC<StudentMetricsSummaryTabProps> =
                     >
                       {/* Value label on top */}
                       <span className={`text-[10px] sm:text-xs font-mono-nums font-bold mb-1 transition-all ${
-                        isHovered ? 'text-white font-black scale-110' : 'text-[#71717A] group-hover:text-white'
+                        isHovered ? 'text-blue-700 font-black scale-110' : 'text-slate-400 group-hover:text-blue-600'
                       }`}>
                         {val > 0 ? (mainChartMetric === 'volume' ? formatWeight(val) : val) : '—'}
                       </span>
@@ -356,30 +356,30 @@ export const StudentMetricsSummaryTab: React.FC<StudentMetricsSummaryTabProps> =
                         className={`w-full max-w-[48px] rounded-t-lg transition-all ${
                           val > 0
                             ? isHovered
-                              ? 'bg-[#374151] brightness-125 shadow-lg shadow-xs'
-                              : 'bg-[#374151]/80 group-hover:bg-[#1F2937]'
+                              ? 'bg-gradient-to-t from-blue-700 to-sky-400 shadow-lg shadow-blue-500/20'
+                              : 'bg-gradient-to-t from-blue-600 to-sky-400 group-hover:from-blue-700 group-hover:to-sky-500'
                             : 'bg-[#27272A]/40 border-dashed border-t border-zinc-700'
                         }`}
                       />
 
                       {/* Tooltip Card (touch / hover) */}
                       {isHovered && (
-                        <div className="absolute bottom-full mb-8 z-30 bg-[#18181B] border border-[#27272A] rounded-xl p-3 shadow-2xl min-w-[170px] pointer-events-none text-left animate-in fade-in zoom-in-95">
-                          <span className="text-[10px] font-bold text-[#4B5563] uppercase tracking-wider block border-b border-[#27272A] pb-1 mb-1.5">
+                        <div className="absolute bottom-full mb-8 z-30 bg-white border border-blue-100 rounded-xl p-3 shadow-xl shadow-slate-900/10 min-w-[170px] pointer-events-none text-left animate-in fade-in zoom-in-95">
+                          <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block border-b border-slate-100 pb-1 mb-1.5">
                             Semana: {bucket.weekLabel}
                           </span>
                           <div className="space-y-1 text-xs font-mono-nums">
                             <div className="flex items-center justify-between gap-2">
-                              <span className="text-[#4B5563]">Treinos:</span>
-                              <strong className="text-white">{bucket.sessionsCount}</strong>
+                              <span className="text-slate-500">Treinos:</span>
+                              <strong className="text-slate-800">{bucket.sessionsCount}</strong>
                             </div>
                             <div className="flex items-center justify-between gap-2">
-                              <span className="text-[#4B5563]">Séries Válidas:</span>
-                              <strong className="text-white">{bucket.totalSets}</strong>
+                              <span className="text-slate-500">Séries Válidas:</span>
+                              <strong className="text-slate-800">{bucket.totalSets}</strong>
                             </div>
                             <div className="flex items-center justify-between gap-2">
-                              <span className="text-[#4B5563]">Volume Total:</span>
-                              <strong className="text-[#374151]">{formatWeight(bucket.totalVolume)}</strong>
+                              <span className="text-slate-500">Volume Total:</span>
+                              <strong className="text-blue-700">{formatWeight(bucket.totalVolume)}</strong>
                             </div>
                           </div>
                         </div>
@@ -518,7 +518,7 @@ export const StudentMetricsSummaryTab: React.FC<StudentMetricsSummaryTabProps> =
                           onClick={() => setHoveredPointIndex(isHovered ? null : idx)}
                         >
                           <span className={`text-[10px] sm:text-xs font-mono-nums font-bold mb-1 transition-all ${
-                            isHovered ? 'text-white font-black scale-110' : 'text-[#71717A] group-hover:text-white'
+                            isHovered ? 'text-blue-700 font-black scale-110' : 'text-slate-400 group-hover:text-blue-600'
                           }`}>
                             {displayVal > 0 ? `${displayVal}` : '—'}
                           </span>
@@ -527,30 +527,30 @@ export const StudentMetricsSummaryTab: React.FC<StudentMetricsSummaryTabProps> =
                             style={{ height: `${heightPercent}%` }}
                             className={`w-full max-w-[36px] rounded-t-lg transition-all ${
                               isHovered
-                                ? 'bg-white shadow-lg shadow-white/30'
-                                : 'bg-[#374151] group-hover:brightness-125'
+                                ? 'bg-gradient-to-t from-blue-700 to-sky-400 shadow-lg shadow-blue-500/20'
+                                : 'bg-gradient-to-t from-blue-600 to-sky-400 group-hover:from-blue-700 group-hover:to-sky-500'
                             }`}
                           />
 
-                          <span className="text-[9px] text-[#71717A] font-mono-nums mt-1.5 truncate max-w-[36px]">
+                          <span className="text-[9px] text-slate-400 font-mono-nums mt-1.5 truncate max-w-[36px]">
                             {pt.date}
                           </span>
 
                           {/* Exercise Point Tooltip */}
                           {isHovered && (
-                            <div className="absolute bottom-full mb-8 z-30 bg-[#18181B] border border-[#27272A] rounded-xl p-2.5 shadow-2xl min-w-[150px] pointer-events-none text-left animate-in fade-in">
-                              <span className="text-[10px] font-bold text-[#4B5563] block border-b border-[#27272A] pb-1 mb-1 font-mono-nums">
+                            <div className="absolute bottom-full mb-8 z-30 bg-white border border-blue-100 rounded-xl p-2.5 shadow-xl shadow-slate-900/10 min-w-[150px] pointer-events-none text-left animate-in fade-in">
+                              <span className="text-[10px] font-bold text-slate-500 block border-b border-slate-100 pb-1 mb-1 font-mono-nums">
                                 Sessão em {pt.date}
                               </span>
                               <div className="space-y-0.5 text-xs font-mono-nums">
-                                <div className="text-white font-bold">
+                                <div className="text-slate-800 font-bold">
                                   Carga: {pt.weight} kg × {pt.reps} reps
                                 </div>
-                                <div className="text-[#4B5563] text-[11px]">
+                                <div className="text-slate-500 text-[11px]">
                                   Volume: {formatWeight(pt.volume)}
                                 </div>
                                 {pt.estimated1RM > 0 && (
-                                  <div className="text-[#374151] text-[11px] font-bold">
+                                  <div className="text-blue-700 text-[11px] font-bold">
                                     1RM Est: {pt.estimated1RM} kg
                                   </div>
                                 )}
@@ -728,14 +728,14 @@ export const StudentMetricsSummaryTab: React.FC<StudentMetricsSummaryTabProps> =
                     <span className="text-white">{m.muscleGroup}</span>
                     <div className="flex items-center gap-2 font-mono-nums text-[11px]">
                       <span className="text-[#4B5563]">{formatWeight(m.totalVolume)}</span>
-                      <span className="text-[#374151] w-10 text-right">{m.percentage}%</span>
+                      <span className="text-blue-600 w-10 text-right">{m.percentage}%</span>
                     </div>
                   </div>
                   {/* Horizontal Bar */}
-                  <div className="w-full h-2 rounded-full bg-[#18181B] border border-[#27272A] overflow-hidden">
+                  <div className="w-full h-2 rounded-full bg-slate-100 border border-slate-200 overflow-hidden">
                     <div
                       style={{ width: `${Math.max(4, m.percentage)}%` }}
-                      className="h-full bg-[#374151] rounded-full transition-all duration-300"
+                      className="h-full bg-gradient-to-r from-blue-600 to-sky-400 rounded-full transition-all duration-500"
                     />
                   </div>
                 </div>
@@ -798,8 +798,8 @@ export const StudentMetricsSummaryTab: React.FC<StudentMetricsSummaryTabProps> =
                     key={bucket.weekKey}
                     className={`p-2.5 rounded-xl border text-left flex items-center justify-between transition-all ${
                       bucket.hasWorkout
-                        ? 'bg-[#18181B] border-[#27272A] text-white'
-                        : 'bg-[#121212] border-zinc-800/60 text-[#71717A]'
+                        ? 'bg-blue-50 border-blue-200 text-blue-800'
+                        : 'bg-slate-50 border-slate-200 text-slate-400'
                     }`}
                   >
                     <div className="min-w-0 pr-1">
@@ -807,7 +807,7 @@ export const StudentMetricsSummaryTab: React.FC<StudentMetricsSummaryTabProps> =
                         {bucket.weekLabel}
                       </span>
                       <span className={`text-xs font-bold font-mono-nums ${
-                        bucket.hasWorkout ? 'text-white' : 'text-[#52525B]'
+                        bucket.hasWorkout ? 'text-blue-800' : 'text-slate-500'
                       }`}>
                         {bucket.sessionsCount} {bucket.sessionsCount === 1 ? 'treino' : 'treinos'}
                       </span>
@@ -817,7 +817,7 @@ export const StudentMetricsSummaryTab: React.FC<StudentMetricsSummaryTabProps> =
                       {bucket.hasWorkout ? (
                         <div className="flex gap-0.5">
                           {Array.from({ length: Math.min(bucket.sessionsCount, 5) }).map((_, dotIdx) => (
-                            <span key={dotIdx} className="w-2 h-2 rounded-full bg-[#374151]" />
+                            <span key={dotIdx} className="w-2 h-2 rounded-full bg-blue-500" />
                           ))}
                         </div>
                       ) : (
