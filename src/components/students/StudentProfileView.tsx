@@ -442,79 +442,111 @@ export const StudentProfileView: React.FC<StudentProfileViewProps> = ({
 
   return (
     <div className="space-y-6">
-      {/* Top Header Card with Student Avatar & Primary Actions */}
-      <div className="bg-white border border-[#E5E7EB] rounded-2xl md:rounded-3xl p-4 sm:p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-xl">
-        <div className="flex items-center gap-3 sm:gap-4 min-w-0">
-          <button
-            type="button"
-            onClick={() => setShowEditStudentModal(true)}
-            className="flex-1 md:flex-none px-3.5 py-2 rounded-xl bg-white hover:bg-[#F3F4F6] border border-[#D1D5DB] text-[#374151] hover:text-[#1F2937] text-xs font-semibold tracking-wide transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
-            title="Editar cadastro e foto do aluno"
-          >
-            <Edit className="w-3.5 h-3.5 text-[#4B5563]" />
-            <span>Editar</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => setShowDeleteConfirmModal(true)}
-            className="flex-1 md:flex-none px-3.5 py-2 rounded-xl bg-red-50 hover:bg-red-100 border border-red-200 text-red-600 hover:text-red-700 text-xs font-semibold tracking-wide transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
-            title="Excluir aluno"
-          >
-            <Trash2 className="w-3.5 h-3.5" />
-            <span>Excluir</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setActiveTab("reports")}
-            className="flex-1 md:flex-none px-3.5 py-2 rounded-xl bg-white hover:bg-[#F3F4F6] border border-[#D1D5DB] text-[#374151] hover:text-[#1F2937] text-xs font-semibold tracking-wide transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
-          >
-            <FileText className="w-3.5 h-3.5 text-[#374151]" />
-            <span>Relatórios ({studentReports.length})</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => onStartWorkout(student, studentRoutines[0])}
-            className="flex-1 md:flex-none px-4 py-2 rounded-xl bg-[#374151] hover:bg-[#1F2937] text-white text-xs font-semibold tracking-wide transition-all shadow-xs flex items-center justify-center gap-1.5 cursor-pointer"
-          >
-            <Play className="w-3.5 h-3.5 fill-white" />
-            <span>Iniciar Treino</span>
-          </button>
+      {/* Cabeçalho compacto do perfil */}
+      <section className="bg-white border border-[#E5E7EB] rounded-2xl p-4 sm:p-5 shadow-sm">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-12 h-12 rounded-2xl bg-[#F3F4F6] border border-[#E5E7EB] flex items-center justify-center text-[#1F2937] text-lg font-black shrink-0">
+              {student.name?.trim()?.charAt(0)?.toUpperCase() || "A"}
+            </div>
+            <div className="min-w-0">
+              <h2 className="text-lg sm:text-xl font-bold text-[#1F2937] truncate">{student.name}</h2>
+              <p className="text-xs text-[#6B7280] mt-0.5 truncate">
+                {student.goal || "Objetivo não informado"}
+                {student.planName ? ` • ${student.planName}` : ""}
+              </p>
+              <span className={`inline-flex mt-1 px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wide ${student.status === "active" ? "bg-emerald-50 text-emerald-700" : "bg-[#F3F4F6] text-[#6B7280]"}`}>
+                {student.status === "active" ? "Ativo" : "Inativo"}
+              </span>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 flex-wrap">
+            <button
+              type="button"
+              onClick={() => setShowEditStudentModal(true)}
+              className="px-3 py-2 rounded-xl bg-white hover:bg-[#F3F4F6] border border-[#D1D5DB] text-[#374151] text-xs font-semibold transition-colors flex items-center gap-1.5"
+              title="Editar cadastro do aluno"
+            >
+              <Edit className="w-3.5 h-3.5" />
+              <span>Editar</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowDeleteConfirmModal(true)}
+              className="px-3 py-2 rounded-xl bg-white hover:bg-red-50 border border-[#E5E7EB] text-[#9B1C1C] text-xs font-semibold transition-colors flex items-center gap-1.5"
+              title="Excluir aluno"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+              <span>Excluir</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => onStartWorkout(student, studentRoutines[0])}
+              className="px-4 py-2 rounded-xl bg-[#374151] hover:bg-[#1F2937] text-white text-xs font-semibold transition-colors flex items-center justify-center gap-1.5"
+            >
+              <Play className="w-3.5 h-3.5 fill-white" />
+              <span>Iniciar treino</span>
+            </button>
+          </div>
         </div>
-      </div>
+      </section>
 
-      {/* Profile Navigation Tabs */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none border-b border-[#E5E7EB]">
-        {[
-          { id: "summary", label: "Resumo & Métricas" },
-          { id: "plan", label: studentProposalsCount > 0 ? `Propostas e Contratos (${studentProposalsCount})` : "Propostas e Contratos" },
-          { id: "reports", label: `Relatórios (${studentReports.length})` },
-          { id: "longevity", label: "Longevidade Funcional" },
-          { id: "routines", label: `Rotinas (${studentRoutines.length})` },
-          {
-            id: "assessments",
-            label: `Avaliações (${studentAssessments.length})`,
-          },
-          { id: "history", label: `Histórico (${studentSessions.length})` },
-          { id: "evolution", label: "Evolução de Cargas" },
-          { id: "photos", label: "Fotos & Bio" },
-          { id: "access", label: "Acesso TFIVE" },
-        ].map((tab) => (
-          <button
-            type="button"
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            className={`px-4 py-2 rounded-xl text-xs font-semibold tracking-wide transition-all whitespace-nowrap cursor-pointer touch-manipulation ${
-              activeTab === tab.id
-                ? "bg-[#374151] text-white shadow-xs"
-                : "bg-white text-[#4B5563] hover:text-[#1F2937] hover:bg-[#F3F4F6] border border-[#E5E7EB]"
-            }`}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </div>
+      {/* Navegação principal agrupada por contexto */}
+      {(() => {
+        const groups = [
+          { id: "overview", label: "Visão geral", tabs: [{ id: "summary", label: "Resumo" }] },
+          { id: "training", label: "Treinamento", tabs: [
+            { id: "routines", label: `Rotinas (${studentRoutines.length})` },
+            { id: "history", label: `Histórico (${studentSessions.length})` },
+            { id: "evolution", label: "Cargas" },
+          ] },
+          { id: "assessments", label: "Avaliações", tabs: [
+            { id: "assessments", label: `Avaliações físicas (${studentAssessments.length})` },
+            { id: "longevity", label: "Funcional" },
+          ] },
+          { id: "evolution", label: "Evolução", tabs: [
+            { id: "reports", label: `Relatórios (${studentReports.length})` },
+            { id: "photos", label: "Fotos e bio" },
+          ] },
+          { id: "management", label: "Gestão", tabs: [
+            { id: "plan", label: studentProposalsCount > 0 ? `Planos e contratos (${studentProposalsCount})` : "Planos e contratos" },
+            { id: "access", label: "Acesso TFIVE" },
+          ] },
+        ];
+        const activeGroup = groups.find((group) => group.tabs.some((tab) => tab.id === activeTab)) || groups[0];
+        return (
+          <div className="space-y-2">
+            <nav aria-label="Áreas do perfil do aluno" className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none border-b border-[#E5E7EB]">
+              {groups.map((group) => (
+                <button
+                  type="button"
+                  key={group.id}
+                  onClick={() => setActiveTab(group.tabs[0].id)}
+                  aria-current={activeGroup.id === group.id ? "page" : undefined}
+                  className={`px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-colors ${activeGroup.id === group.id ? "bg-[#374151] text-white" : "bg-white text-[#6B7280] border border-[#E5E7EB] hover:bg-[#F3F4F6]"}`}
+                >
+                  {group.label}
+                </button>
+              ))}
+            </nav>
+            {activeGroup.tabs.length > 1 && (
+              <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+                {activeGroup.tabs.map((tab) => (
+                  <button
+                    type="button"
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    aria-current={activeTab === tab.id ? "page" : undefined}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-colors ${activeTab === tab.id ? "bg-[#E5E7EB] text-[#1F2937]" : "text-[#6B7280] hover:bg-[#F3F4F6]"}`}
+                  >
+                    {tab.label}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        );
+      })()}
 
       {/* TAB CONTENT: PROPOSTAS E CONTRATOS */}
       {activeTab === "plan" && (
@@ -538,27 +570,6 @@ export const StudentProfileView: React.FC<StudentProfileViewProps> = ({
             student={student}
             proposals={proposals}
             onOpenPlanTab={() => setActiveTab("plan")}
-          />
-
-          {/* Card de Onboarding do Aluno */}
-          <CycleDashboardCard
-            student={student}
-            currentCycle={currentCycle}
-            routines={studentRoutines}
-            onStartWorkout={onStartWorkout}
-            onViewRoutine={(routineId) => setActiveTab("routines")}
-            onOpenNewCycleModal={() => {
-              setEditingCycleFromProfile(null);
-              setShowCycleEditorModal(true);
-            }}
-            onEditCycle={(cycle) => {
-              setEditingCycleFromProfile(cycle);
-              setShowCycleEditorModal(true);
-            }}
-            onCompleteCycle={completeTrainingCycle}
-            onExtendBlock={extendTrainingBlock}
-            onChangeBlockRoutine={changeBlockRoutine}
-            onDuplicateCycle={duplicateTrainingCycle}
           />
 
           <StudentMetricsSummaryTab
