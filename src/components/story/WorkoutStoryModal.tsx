@@ -381,7 +381,7 @@ export const WorkoutStoryModal: React.FC<WorkoutStoryModalProps> = ({
 
                 {/* Canvas do Story na proporção 9:16 */}
                 <div 
-                  className="relative shadow-[0_20px_60px_rgba(0,0,0,0.8)] rounded-2xl overflow-hidden shrink-0 transition-all w-[min(52vw,260px)] h-auto aspect-[9/16] max-w-full border border-white/10" 
+                  className="relative shadow-[0_20px_60px_rgba(0,0,0,0.8)] rounded-2xl overflow-hidden shrink-0 transition-all w-[260px] h-[462px] max-w-full border border-white/10" 
                   style={{ 
                     containerType: 'inline-size',
                     backgroundImage: previewBg === 'photo' && photoBackground ? 'url(' + photoBackground + ')' : 'repeating-conic-gradient(#27272A 0% 25%, transparent 0% 50%)',
@@ -398,7 +398,7 @@ export const WorkoutStoryModal: React.FC<WorkoutStoryModalProps> = ({
                   {/* Renderizador DOM em escala proporcional */}
                   <div 
                     className="absolute top-0 left-0 origin-top-left pointer-events-none" 
-                    style={{ width: 1080, height: 1920, transform: 'scale(calc(100cqw / 1080))' }}
+                    style={{ width: 1080, height: 1920, transform: 'scale(0.2407407)' }}
                   >
                     <WorkoutStoryDOMRenderer 
                       session={effectiveSession}
