@@ -130,17 +130,17 @@ export const EvolutionReportsTab: React.FC<EvolutionReportsTabProps> = ({ studen
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <span className="px-2.5 py-0.5 rounded-full bg-[#374151]/15 text-[#374151] text-[10px] font-black uppercase tracking-wider">
+              <span className="px-2.5 py-0.5 rounded-full bg-blue-600/15 text-blue-600 text-[10px] font-black uppercase tracking-wider">
                 Módulo Oficial
               </span>
-              <span className="text-xs text-[#4B5563]">
+              <span className="text-xs text-slate-500">
                 {studentReports.length} {studentReports.length === 1 ? 'relatório gerado' : 'relatórios gerados'}
               </span>
             </div>
-            <h2 className="text-xl sm:text-2xl font-black text-[#1F2937] tracking-tight">
+            <h2 className="text-xl sm:text-2xl font-black text-[#172B4D] tracking-tight">
               Relatórios de Performance & Evolução
             </h2>
-            <p className="text-xs sm:text-sm text-[#4B5563] mt-1 max-w-2xl">
+            <p className="text-xs sm:text-sm text-slate-500 mt-1 max-w-2xl">
               Consolidação trimestral, semestral e anual integrando adesão, histórico de cargas, testes de longevidade funcional, avaliação física e parecer do personal trainer.
             </p>
           </div>
@@ -152,19 +152,19 @@ export const EvolutionReportsTab: React.FC<EvolutionReportsTabProps> = ({ studen
                 disabled={selectedForCompare.length !== 2}
                 className={`px-4 py-2.5 rounded-xl text-xs font-bold font-display uppercase tracking-wider flex items-center gap-2 transition-all ${
                   selectedForCompare.length === 2
-                    ? 'bg-[#27272A] text-white hover:bg-[#18181B] border border-[#27272A] shadow-sm'
-                    : 'bg-[#F8F9FA]/50 text-[#4B5563] border border-[#E5E7EB]/50 cursor-not-allowed'
+                    ? 'bg-[#E2E8F0] text-white hover:bg-[#F1F5F9] border border-[#E2E8F0] shadow-sm'
+                    : 'bg-[#F8F9FA]/50 text-slate-500 border border-[#E5E7EB]/50 cursor-not-allowed'
                 }`}
                 title={selectedForCompare.length === 2 ? 'Comparar 2 relatórios selecionados' : 'Selecione 2 relatórios abaixo para comparar'}
               >
-                <Layers className="w-4 h-4 text-[#374151]" />
+                <Layers className="w-4 h-4 text-blue-600" />
                 <span>Comparar ({selectedForCompare.length}/2)</span>
               </button>
             )}
 
             <button
               onClick={handleCreateNew}
-              className="px-5 py-2.5 rounded-xl bg-[#374151] hover:bg-[#1F2937] text-white text-xs font-black font-display uppercase tracking-wider transition-all shadow-md shadow-xs flex items-center gap-2"
+              className="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-[#1F2937] text-white text-xs font-black font-display uppercase tracking-wider transition-all shadow-md shadow-xs flex items-center gap-2"
             >
               <Plus className="w-4 h-4" />
               <span>Novo Relatório</span>
@@ -176,18 +176,18 @@ export const EvolutionReportsTab: React.FC<EvolutionReportsTabProps> = ({ studen
       {/* Reports List or Empty State */}
       {studentReports.length === 0 ? (
         <div className="bg-white border border-dashed border-[#E5E7EB] rounded-2xl p-10 sm:p-14 text-center">
-          <div className="w-16 h-16 rounded-2xl bg-[#F8F9FA] border border-[#E5E7EB] flex items-center justify-center mx-auto mb-4 text-[#374151]">
+          <div className="w-16 h-16 rounded-2xl bg-[#F8F9FA] border border-[#E5E7EB] flex items-center justify-center mx-auto mb-4 text-blue-600">
             <FileText className="w-8 h-8" />
           </div>
-          <h3 className="text-base sm:text-lg font-bold text-[#1F2937] mb-2">
+          <h3 className="text-base sm:text-lg font-bold text-[#172B4D] mb-2">
             Nenhum relatório de evolução criado ainda
           </h3>
-          <p className="text-xs sm:text-sm text-[#4B5563] max-w-md mx-auto mb-6">
+          <p className="text-xs sm:text-sm text-slate-500 max-w-md mx-auto mb-6">
             Gere o primeiro relatório profissional para <strong>{student.name}</strong>. O sistema compilará automaticamente os treinos, cargas, adesão e avaliações do período.
           </p>
           <button
             onClick={handleCreateNew}
-            className="px-6 py-3 rounded-xl bg-[#374151] hover:bg-[#1F2937] text-white text-xs font-black font-display uppercase tracking-wider transition-all shadow-md shadow-xs inline-flex items-center gap-2"
+            className="px-6 py-3 rounded-xl bg-blue-600 hover:bg-[#1F2937] text-white text-xs font-black font-display uppercase tracking-wider transition-all shadow-md shadow-xs inline-flex items-center gap-2"
           >
             <Plus className="w-4 h-4" />
             <span>Criar Relatório de Evolução</span>
@@ -204,7 +204,7 @@ export const EvolutionReportsTab: React.FC<EvolutionReportsTabProps> = ({ studen
                 key={report.id}
                 className={`bg-white border rounded-2xl p-5 transition-all flex flex-col justify-between relative ${
                   isSelectedForCompare 
-                    ? 'border-[#374151] shadow-lg shadow-xs' 
+                    ? 'border-[#BFDBFE] shadow-lg shadow-xs' 
                     : 'border-[#E5E7EB] hover:border-[#D1D5DB]'
                 }`}
               >
@@ -221,7 +221,7 @@ export const EvolutionReportsTab: React.FC<EvolutionReportsTabProps> = ({ studen
                         {isFinalized ? 'Finalizado' : 'Rascunho'}
                       </span>
 
-                      <span className="px-2.5 py-0.5 rounded-full bg-[#F8F9FA] text-[#374151] text-[10px] font-bold uppercase tracking-wider border border-[#E5E7EB]">
+                      <span className="px-2.5 py-0.5 rounded-full bg-[#F8F9FA] text-blue-600 text-[10px] font-bold uppercase tracking-wider border border-[#E5E7EB]">
                         {report.periodType} ({report.durationDays} dias)
                       </span>
                     </div>
@@ -232,8 +232,8 @@ export const EvolutionReportsTab: React.FC<EvolutionReportsTabProps> = ({ studen
                         onClick={() => handleToggleCompareSelect(report.id)}
                         className={`px-2 py-1 rounded-lg text-[10px] font-bold font-display uppercase tracking-wider transition-all border ${
                           isSelectedForCompare
-                            ? 'bg-[#374151] text-white border-[#374151]'
-                            : 'bg-[#F8F9FA] text-[#4B5563] border-[#E5E7EB] hover:text-white'
+                            ? 'bg-blue-600 text-white border-[#BFDBFE]'
+                            : 'bg-[#F8F9FA] text-slate-500 border-[#E5E7EB] hover:text-white'
                         }`}
                         title="Marcar para comparação"
                       >
@@ -243,37 +243,37 @@ export const EvolutionReportsTab: React.FC<EvolutionReportsTabProps> = ({ studen
                   </div>
 
                   {/* Title & Dates */}
-                  <h3 className="text-base font-bold text-[#1F2937] mb-1 leading-snug line-clamp-1">
+                  <h3 className="text-base font-bold text-[#172B4D] mb-1 leading-snug line-clamp-1">
                     {report.title}
                   </h3>
-                  <div className="flex items-center gap-2 text-xs text-[#4B5563] mb-4 font-mono-nums">
-                    <Calendar className="w-3.5 h-3.5 text-[#374151]" />
+                  <div className="flex items-center gap-2 text-xs text-slate-500 mb-4 font-mono-nums">
+                    <Calendar className="w-3.5 h-3.5 text-blue-600" />
                     <span>{report.startDate} a {report.endDate}</span>
                     <span className="text-[#3F3F46]">•</span>
-                    <span className="text-[#374151] font-semibold">{report.primaryGoal}</span>
+                    <span className="text-blue-600 font-semibold">{report.primaryGoal}</span>
                   </div>
 
                   {/* Score & Status Highlight */}
                   <div className="bg-[#F8F9FA] rounded-xl p-3.5 border border-[#E5E7EB] mb-4 grid grid-cols-3 gap-2 text-center">
                     <div>
-                      <span className="text-[10px] text-[#4B5563] block uppercase font-bold">Evolution Score</span>
-                      <span className="text-xl font-black text-[#1F2937] font-mono-nums flex items-center justify-center gap-1">
-                        <Zap className="w-4 h-4 text-[#374151] fill-[#374151]" />
+                      <span className="text-[10px] text-slate-500 block uppercase font-bold">Evolution Score</span>
+                      <span className="text-xl font-black text-[#172B4D] font-mono-nums flex items-center justify-center gap-1">
+                        <Zap className="w-4 h-4 text-blue-600 fill-[#374151]" />
                         {report.evolutionScore?.overallScore || 0}
-                        <span className="text-xs text-[#4B5563] font-normal">/100</span>
+                        <span className="text-xs text-slate-500 font-normal">/100</span>
                       </span>
                     </div>
 
                     <div>
-                      <span className="text-[10px] text-[#4B5563] block uppercase font-bold">Adesão</span>
+                      <span className="text-[10px] text-slate-500 block uppercase font-bold">Adesão</span>
                       <span className="text-xl font-black font-display text-emerald-700 dark:text-emerald-400 font-mono-nums">
                         {report.adherence?.adherenceRatePercent || 0}%
                       </span>
                     </div>
 
                     <div>
-                      <span className="text-[10px] text-[#4B5563] block uppercase font-bold">Treinos</span>
-                      <span className="text-xl font-black text-[#1F2937] font-mono-nums">
+                      <span className="text-[10px] text-slate-500 block uppercase font-bold">Treinos</span>
+                      <span className="text-xl font-black text-[#172B4D] font-mono-nums">
                         {report.adherence?.completedSessions || 0}
                       </span>
                     </div>
@@ -281,16 +281,16 @@ export const EvolutionReportsTab: React.FC<EvolutionReportsTabProps> = ({ studen
 
                   {/* Status Tagline */}
                   <div className="mb-4 flex items-center justify-between text-xs">
-                    <span className="text-[#4B5563]">Status do Ciclo:</span>
-                    <span className="font-bold text-[#27272A] bg-[#F1F1F0] px-2.5 py-0.5 rounded-lg border border-[#D1D5DB]">
+                    <span className="text-slate-500">Status do Ciclo:</span>
+                    <span className="font-bold text-[#172B4D] bg-[#F1F1F0] px-2.5 py-0.5 rounded-lg border border-[#D1D5DB]">
                       {report.periodStatus}
                     </span>
                   </div>
 
                   {/* Key Highlights Snippet */}
                   {report.achievements && report.achievements.length > 0 && (
-                    <div className="mb-4 text-xs text-[#4B5563] bg-[#F7F7F6] p-2.5 rounded-lg border border-[#E5E7EB] line-clamp-2">
-                      <strong className="text-[#1F2937]">Destaque:</strong> {report.achievements[0].title} — {report.achievements[0].description}
+                    <div className="mb-4 text-xs text-slate-500 bg-[#F7F7F6] p-2.5 rounded-lg border border-[#E5E7EB] line-clamp-2">
+                      <strong className="text-[#172B4D]">Destaque:</strong> {report.achievements[0].title} — {report.achievements[0].description}
                     </div>
                   )}
                 </div>
@@ -300,7 +300,7 @@ export const EvolutionReportsTab: React.FC<EvolutionReportsTabProps> = ({ studen
                   <div className="flex items-center gap-1.5">
                     <button
                       onClick={() => setViewingReport(report)}
-                      className="px-3.5 py-2 rounded-xl bg-[#374151] hover:bg-[#1F2937] text-white text-xs font-bold font-display uppercase tracking-wider transition-all flex items-center gap-1.5"
+                      className="px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-[#1F2937] text-white text-xs font-bold font-display uppercase tracking-wider transition-all flex items-center gap-1.5"
                     >
                       <Eye className="w-3.5 h-3.5" />
                       <span>Visualizar</span>
@@ -308,26 +308,26 @@ export const EvolutionReportsTab: React.FC<EvolutionReportsTabProps> = ({ studen
 
                     <button
                       onClick={() => setPdfReport(report)}
-                      className="p-2 rounded-xl bg-[#F8F9FA] hover:bg-[#27272A] text-[#374151] hover:text-white border border-[#E5E7EB] transition-all"
+                      className="p-2 rounded-xl bg-[#F8F9FA] hover:bg-[#E2E8F0] text-blue-600 hover:text-white border border-[#E5E7EB] transition-all"
                       title="Gerar PDF / Imprimir"
                     >
-                      <Printer className="w-4 h-4 text-[#4B5563] hover:text-white" />
+                      <Printer className="w-4 h-4 text-slate-500 hover:text-white" />
                     </button>
 
                     <button
                       onClick={() => handleEdit(report)}
-                      className="p-2 rounded-xl bg-[#F8F9FA] hover:bg-[#27272A] text-[#374151] hover:text-white border border-[#E5E7EB] transition-all"
+                      className="p-2 rounded-xl bg-[#F8F9FA] hover:bg-[#E2E8F0] text-blue-600 hover:text-white border border-[#E5E7EB] transition-all"
                       title="Editar dados e parecer"
                     >
-                      <Edit className="w-4 h-4 text-[#4B5563] hover:text-white" />
+                      <Edit className="w-4 h-4 text-slate-500 hover:text-white" />
                     </button>
 
                     <button
                       onClick={() => handleDuplicate(report)}
-                      className="p-2 rounded-xl bg-[#F8F9FA] hover:bg-[#27272A] text-[#374151] hover:text-white border border-[#E5E7EB] transition-all"
+                      className="p-2 rounded-xl bg-[#F8F9FA] hover:bg-[#E2E8F0] text-blue-600 hover:text-white border border-[#E5E7EB] transition-all"
                       title="Duplicar relatório"
                     >
-                      <Copy className="w-4 h-4 text-[#4B5563] hover:text-white" />
+                      <Copy className="w-4 h-4 text-slate-500 hover:text-white" />
                     </button>
                   </div>
 
@@ -341,7 +341,7 @@ export const EvolutionReportsTab: React.FC<EvolutionReportsTabProps> = ({ studen
                       </button>
                       <button
                         onClick={() => setDeleteConfirmId(null)}
-                        className="px-2 py-1.5 rounded-lg bg-[#27272A] text-white text-[11px] font-bold uppercase transition-all"
+                        className="px-2 py-1.5 rounded-lg bg-[#E2E8F0] text-white text-[11px] font-bold uppercase transition-all"
                       >
                         Não
                       </button>
@@ -349,7 +349,7 @@ export const EvolutionReportsTab: React.FC<EvolutionReportsTabProps> = ({ studen
                   ) : (
                     <button
                       onClick={() => setDeleteConfirmId(report.id)}
-                      className="p-2 rounded-xl text-[#4B5563] hover:text-red-400 hover:bg-red-500/10 transition-all"
+                      className="p-2 rounded-xl text-slate-500 hover:text-red-400 hover:bg-red-500/10 transition-all"
                       title="Excluir relatório"
                     >
                       <Trash2 className="w-4 h-4" />
