@@ -154,8 +154,17 @@ export const IntelligenceView: React.FC = () => {
     try {
       const { data, error } = await supabase.functions.invoke('tfive-ai-assistant', { body: { question: q } });
       if (error) {
-        const details = typeof data?.error === 'string' ? data.error : error.message;
-        throw new Error(details || 'Não foi possível consultar a IA.');
+        let details = typeof data?.error === 'string' ? data.error : '';
+        const responseContext = (error as Error & { context?: Response }).context;
+        if (!details && responseContext && typeof responseContext.clone === 'function') {
+          try {
+            const payload = await responseContext.clone().json();
+            if (typeof payload?.error === 'string') details = payload.error;
+          } catch {
+            // Mantém a mensagem padrão quando a resposta não contém JSON.
+          }
+        }
+        throw new Error(details || error.message || 'Não foi possível consultar a IA.');
       }
       if (data?.error) throw new Error(data.error);
       if (typeof data?.answer !== 'string' || !data.answer.trim()) throw new Error('A IA retornou uma resposta vazia. Tente novamente.');
