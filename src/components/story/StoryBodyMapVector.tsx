@@ -107,8 +107,8 @@ export const StoryBodyMapVector: React.FC<StoryBodyMapVectorProps> = ({
         view={selectedView}
         sex="MALE"
         colorModel="LOAD"
-        monochromeColor="#3F3F46"
-        monochromeBaseColor="#E5E5E5"
+        monochromeColor="#3185E8"
+        monochromeBaseColor="#D1D5DB"
         backgroundImageFront={maleFront}
         backgroundImageBack={maleBack}
         backgroundGrayscale
