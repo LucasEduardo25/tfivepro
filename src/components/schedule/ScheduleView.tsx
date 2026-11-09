@@ -331,7 +331,7 @@ export const ScheduleView: React.FC<ScheduleViewProps> = ({
         <div className="flex flex-wrap items-center gap-2.5">
           <details className="relative">
             <summary className="list-none cursor-pointer px-3.5 py-2.5 rounded-xl bg-white hover:bg-[#F8F9FA] border border-[#E5E7EB] text-[#374151] font-bold text-xs flex items-center gap-2 transition-all">
-              <CalendarClock className="w-4 h-4" />
+              <CalendarDays className="w-4 h-4" />
               <span>Ferramentas</span>
               {activeRecurrencesCount > 0 && (
                 <span className="px-1.5 py-0.5 rounded-full bg-[#374151] text-white text-[10px] font-black">
