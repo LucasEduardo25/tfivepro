@@ -176,6 +176,15 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         </div>
 
 
+        <div className="flex items-center gap-2.5 flex-wrap">
+          <button
+            onClick={() => setShowQuickStartModal(true)}
+            className="px-5 py-2.5 rounded-xl bg-[#374151] hover:bg-[#1F2937] text-white text-xs font-semibold tracking-wide transition-colors flex items-center justify-center gap-2 shadow-xs"
+          >
+            <Play className="w-3.5 h-3.5 fill-white" />
+            <span>{activeWorkouts.length === 1 ? 'Adicionar 2º Aluno' : 'Treino Avulso'}</span>
+          </button>
+        </div>
       </header>
 
       {/* 2. BARRA DE AÇÕES RÁPIDAS (EXISTENTES) */}
