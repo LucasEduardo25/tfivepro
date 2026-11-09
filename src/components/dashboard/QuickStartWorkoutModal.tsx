@@ -5,7 +5,6 @@ import {
   Search, 
   UserPlus, 
   Dumbbell, 
-  Zap, 
   ChevronRight, 
   Sparkles, 
   Users 
@@ -28,8 +27,6 @@ export const QuickStartWorkoutModal: React.FC<QuickStartWorkoutModalProps> = ({
   const { students, routines, activeWorkouts } = useApp();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
-  const [customStudentName, setCustomStudentName] = useState('');
-  const [isAdHocMode, setIsAdHocMode] = useState(false);
 
   const activeStudents = useMemo(() => {
     return students.filter(s => s.status === 'active');
@@ -60,28 +57,6 @@ export const QuickStartWorkoutModal: React.FC<QuickStartWorkoutModalProps> = ({
   const handleStartWithStudentAndRoutine = (routine?: WorkoutRoutine) => {
     if (!selectedStudent) return;
     onSelectStudentToStart(selectedStudent, routine);
-    onClose();
-  };
-
-  const handleStartAdHoc = () => {
-    const name = customStudentName.trim() || 'Treino Avulso';
-    const adHocStudent: Student = {
-      id: `avulso_${Date.now()}`,
-      name,
-      photo: '',
-      phone: '',
-      email: '',
-      goal: 'Sessão Avulsa',
-      notes: '',
-      status: 'active',
-      gender: 'male',
-      planName: 'Avulso',
-      priceMonthly: 0,
-      startDate: new Date().toISOString().split('T')[0],
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    };
-    onSelectStudentToStart(adHocStudent);
     onClose();
   };
 
@@ -124,7 +99,7 @@ export const QuickStartWorkoutModal: React.FC<QuickStartWorkoutModalProps> = ({
                 Você já possui 2 sessões em andamento ({activeWorkouts[0]?.studentName.split(' ')[0]} e {activeWorkouts[1]?.studentName.split(' ')[0]}). Finalize uma para iniciar outra.
               </p>
             </div>
-          ) : !selectedStudent && !isAdHocMode ? (
+          ) : !selectedStudent ? (
             <>
               {/* Search input */}
               <div className="relative">
@@ -140,21 +115,7 @@ export const QuickStartWorkoutModal: React.FC<QuickStartWorkoutModalProps> = ({
               </div>
 
               {/* Quick Actions Row */}
-              <div className="grid grid-cols-2 gap-2">
-                <button
-                  type="button"
-                  onClick={() => setIsAdHocMode(true)}
-                  className="p-3 rounded-xl bg-[#050505] border border-[#27272a] hover:border-[#374151] hover:bg-[#18181B] flex items-center gap-2.5 transition-all text-left group"
-                >
-                  <div className="w-8 h-8 rounded-lg bg-white/5 group-hover:bg-[#F3F4F6] flex items-center justify-center text-[#4B5563] group-hover:text-[#1F2937] transition-colors">
-                    <Zap className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <span className="block text-xs font-bold text-white group-hover:text-[#1F2937] transition-colors">Treino Avulso</span>
-                    <span className="block text-[10px] text-[#71717A]">Sem ficha prévia</span>
-                  </div>
-                </button>
-
+              <div className="grid grid-cols-1 gap-2">
                 <button
                   type="button"
                   onClick={() => {
@@ -230,44 +191,6 @@ export const QuickStartWorkoutModal: React.FC<QuickStartWorkoutModalProps> = ({
                 )}
               </div>
             </>
-          ) : isAdHocMode ? (
-            /* Ad-hoc workout flow */
-            <div className="space-y-4">
-              <div className="p-3 rounded-xl bg-[#050505] border border-[#27272a] space-y-2">
-                <label className="block text-xs font-bold uppercase tracking-wider text-[#4B5563]">
-                  Identificação do Aluno Avulso
-                </label>
-                <input
-                  type="text"
-                  value={customStudentName}
-                  onChange={e => setCustomStudentName(e.target.value)}
-                  placeholder="Nome do aluno (ex: Treino Avulso / Convidado)"
-                  className="w-full bg-[#121212] border border-[#27272a] focus:border-[#374151] rounded-xl px-3.5 py-2.5 text-sm text-white placeholder-[#71717A] focus:outline-none"
-                  autoFocus
-                />
-                <p className="text-[11px] text-[#71717A]">
-                  Você poderá adicionar exercícios e registrar cargas em tempo real.
-                </p>
-              </div>
-
-              <div className="flex items-center justify-between gap-3 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setIsAdHocMode(false)}
-                  className="px-4 py-2.5 rounded-xl border border-[#27272a] text-xs font-bold text-[#4B5563] hover:text-white"
-                >
-                  Voltar
-                </button>
-                <button
-                  type="button"
-                  onClick={handleStartAdHoc}
-                  className="px-5 py-2.5 rounded-xl bg-[#374151] hover:bg-[#1F2937] text-xs font-bold text-white transition-all shadow-[0_4px_15px_rgba(217,4,41,0.3)] flex items-center gap-2"
-                >
-                  <Play className="w-4 h-4 fill-white" />
-                  <span>Iniciar Sessão Avulsa</span>
-                </button>
-              </div>
-            </div>
           ) : (
             /* Student selected: Choose Routine */
             <div className="space-y-4">

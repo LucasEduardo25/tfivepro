@@ -13,7 +13,8 @@ import {
   XCircle, 
   Dumbbell, 
   SlidersHorizontal, 
-  CalendarDays, 
+  CalendarDays,
+  ChevronDown,
   Filter,
   User
 } from 'lucide-react';
@@ -328,30 +329,39 @@ export const ScheduleView: React.FC<ScheduleViewProps> = ({
 
         {/* Action Buttons */}
         <div className="flex flex-wrap items-center gap-2.5">
-          <button
-            type="button"
-            onClick={() => setShowRecurrencesModal(true)}
-            className="px-3.5 py-2.5 rounded-xl bg-[#F8F9FA] hover:bg-[#27272A] border border-[#E5E7EB] hover:border-[#6B7280] text-[#374151] font-bold text-xs flex items-center gap-2 transition-all"
-            title="Gerenciar rotinas semanais dos alunos"
-          >
-            <Repeat className="w-4 h-4 text-[#374151]" />
-            <span>Rotinas Fixas</span>
-            {activeRecurrencesCount > 0 && (
-              <span className="px-1.5 py-0.5 rounded-full bg-[#374151] text-white text-[10px] font-black">
-                {activeRecurrencesCount}
-              </span>
-            )}
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setShowCopyWeekModal(true)}
-            className="px-3.5 py-2.5 rounded-xl bg-[#F8F9FA] hover:bg-[#27272A] border border-[#E5E7EB] hover:border-[#6B7280] text-[#374151] font-bold text-xs flex items-center gap-2 transition-all"
-            title="Copiar grade semanal para outra semana"
-          >
-            <Copy className="w-4 h-4 text-[#4B5563]" />
-            <span>Copiar Semana</span>
-          </button>
+          <details className="relative">
+            <summary className="list-none cursor-pointer px-3.5 py-2.5 rounded-xl bg-white hover:bg-[#F8F9FA] border border-[#E5E7EB] text-[#374151] font-bold text-xs flex items-center gap-2 transition-all">
+              <CalendarDays className="w-4 h-4" />
+              <span>Ferramentas</span>
+              {activeRecurrencesCount > 0 && (
+                <span className="px-1.5 py-0.5 rounded-full bg-[#374151] text-white text-[10px] font-black">
+                  {activeRecurrencesCount}
+                </span>
+              )}
+              <ChevronDown className="w-3.5 h-3.5" />
+            </summary>
+            <div className="absolute right-0 top-full mt-2 z-20 min-w-52 rounded-xl border border-[#E5E7EB] bg-white p-2 shadow-xl space-y-1">
+              <button
+                type="button"
+                onClick={() => setShowRecurrencesModal(true)}
+                className="w-full text-left px-3 py-2.5 rounded-lg hover:bg-[#F3F4F6] text-xs font-semibold text-[#374151] flex items-center gap-2"
+                title="Gerenciar rotinas semanais dos alunos"
+              >
+                <Repeat className="w-4 h-4" />
+                <span>Rotinas Fixas</span>
+                {activeRecurrencesCount > 0 && <span className="ml-auto text-[10px] font-bold">{activeRecurrencesCount}</span>}
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowCopyWeekModal(true)}
+                className="w-full text-left px-3 py-2.5 rounded-lg hover:bg-[#F3F4F6] text-xs font-semibold text-[#374151] flex items-center gap-2"
+                title="Copiar grade semanal para outra semana"
+              >
+                <Copy className="w-4 h-4" />
+                <span>Copiar Semana</span>
+              </button>
+            </div>
+          </details>
 
           <button
             type="button"
