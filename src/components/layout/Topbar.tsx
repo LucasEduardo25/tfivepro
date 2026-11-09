@@ -86,7 +86,7 @@ export const Topbar: React.FC<TopbarProps> = ({
           onClick={() => onSelectTab('dashboard')} 
           className="flex md:hidden items-center cursor-pointer shrink-0"
         >
-          <TFiveLogo size="sm" theme="light" />
+          <TFiveLogo size="sm" theme={theme} />
         </div>
 
         {/* Desktop / Tablet Breadcrumb & Title */}
