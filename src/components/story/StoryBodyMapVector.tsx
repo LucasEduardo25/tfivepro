@@ -1,8 +1,8 @@
 import React, { useMemo } from 'react';
 import { MuscleMap } from '@musclemap/react';
 import type { MuscleMapValues, MuscleGroup } from '@musclemap/core';
-import maleFront from '@musclemap/assets/bodies/male-front.webp';
-import maleBack from '@musclemap/assets/bodies/male-back.webp';
+import maleFront from '@musclemap/assets/bodies/male-front.webp?inline';
+import maleBack from '@musclemap/assets/bodies/male-back.webp?inline';
 import { BodyRegionId, MuscleIntensity } from '../common/BodyMap/bodyMapTypes';
 
 export interface StoryBodyMapVectorProps {
