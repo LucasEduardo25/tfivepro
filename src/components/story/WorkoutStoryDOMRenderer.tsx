@@ -957,15 +957,15 @@ export const WorkoutStoryDOMRenderer = forwardRef<StoryDOMRendererRef, StoryDOMR
                   <div className="flex items-center justify-between text-xs font-mono-nums">
                     <div className="flex items-center gap-6">
                       <div className="flex items-center gap-2">
-                        <span className="w-3.5 h-3.5 rounded-xs bg-[#3F3F46] border border-[#27272A] inline-block shadow-xs" />
+                        <span className="w-3.5 h-3.5 rounded-xs bg-[#3185E8] border border-[#2563C7] inline-block shadow-xs" />
                         <span className="font-bold text-zinc-900 uppercase tracking-wider">Músculo Primário</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <span className="w-3.5 h-3.5 rounded-xs bg-[#A1A1AA] border border-[#71717A] inline-block shadow-xs" />
+                        <span className="w-3.5 h-3.5 rounded-xs bg-[#89B1E1] border border-[#6D9FD8] inline-block shadow-xs" />
                         <span className="font-bold text-zinc-700 uppercase tracking-wider">Secundário</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <span className="w-3.5 h-3.5 rounded-xs bg-[#E5E5E5] border border-[#D4D4D8] inline-block" />
+                        <span className="w-3.5 h-3.5 rounded-xs bg-[#D1D5DB] border border-[#9CA3AF] inline-block" />
                         <span className="font-bold text-zinc-400 uppercase tracking-wider">Em Repouso</span>
                       </div>
                     </div>
