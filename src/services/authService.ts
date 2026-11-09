@@ -314,13 +314,24 @@ class AuthService {
   /**
    * Cadastro oficial via Supabase Auth
    */
-  public async signUpWithSupabase(email: string, password: string, fullName: string) {
+  public async signUpWithSupabase(
+    email: string,
+    password: string,
+    fullName: string,
+    organizationName: string
+  ) {
+    const normalizedOrganizationName = organizationName.trim();
+    if (!normalizedOrganizationName) {
+      throw new Error('Informe o nome do seu espaço de trabalho.');
+    }
+
     const { data, error } = await supabase.auth.signUp({
       email: email.trim(),
       password,
       options: {
         data: {
           full_name: fullName.trim(),
+          organization_name: normalizedOrganizationName,
         },
       },
     });
