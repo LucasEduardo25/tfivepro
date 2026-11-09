@@ -171,7 +171,7 @@ export const StudentPerformanceInsightsTab: React.FC<Props> = ({ student, sessio
 
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 no-print">
         <div>
-          <div className="flex items-center gap-3"><div className="h-10 w-1 rounded-full bg-gradient-to-b from-blue-500 to-indigo-600 shadow-[0_4px_14px_rgba(37,99,235,.18)]" /><div><h3 className="text-lg font-black uppercase tracking-[0.16em] text-[#172B4D]">Análise de desempenho</h3><p className="text-[11px] tracking-wide text-slate-500">CENTRO DE DESEMPENHO • TFIVE PRO</p></div></div>
+          <div className="flex items-center gap-3"><div className="h-10 w-1 rounded-full bg-gradient-to-b from-blue-500 to-sky-400 shadow-[0_4px_14px_rgba(37,99,235,.18)]" /><div><h3 className="text-lg font-black uppercase tracking-[0.16em] text-slate-800">Análise de desempenho</h3><p className="text-[11px] tracking-wide text-slate-500">CENTRO DE DESEMPENHO • TFIVE PRO</p></div></div>
         </div>
         <div className="flex flex-wrap gap-2">
           <select value={period} onChange={(event) => setPeriod(event.target.value as Period)}
@@ -185,7 +185,7 @@ export const StudentPerformanceInsightsTab: React.FC<Props> = ({ student, sessio
         </div>
       </div>
 
-      <section id="tfive-performance-report" className="relative space-y-5 overflow-hidden rounded-[28px] border border-[#E2E8F0] bg-[#F4F7FB] p-3 sm:p-5 text-[#172B4D] shadow-[0_16px_48px_rgba(15,23,42,.06)] before:pointer-events-none before:absolute before:-right-24 before:-top-24 before:h-72 before:w-72 before:rounded-full before:bg-blue-600/5 before:blur-3xl">
+      <section id="tfive-performance-report" className="relative space-y-5 overflow-hidden rounded-[28px] border border-[#E2E8F0] bg-[#F8FAFC] p-3 sm:p-5 text-slate-800 shadow-[0_16px_48px_rgba(15,23,42,.06)] before:pointer-events-none before:absolute before:-right-24 before:-top-24 before:h-72 before:w-72 before:rounded-full before:bg-blue-600/5 before:blur-3xl">
         <header className="hidden print:block border-b border-gray-300 pb-4">
           <p className="text-xs font-black tracking-widest text-gray-700">TFIVE PRO • RELATÓRIO DE DESEMPENHO</p>
           <h1 className="mt-1 text-2xl font-black text-gray-950">{student.name}</h1>
@@ -201,7 +201,7 @@ export const StudentPerformanceInsightsTab: React.FC<Props> = ({ student, sessio
           ].map((metric) => (
             <div key={metric.label} className="print-card rounded-[22px] border border-[#E2E8F0] bg-gradient-to-br from-white to-[#F8FAFC] p-4 shadow-[0_8px_24px_rgba(15,23,42,.04)]">
               <p className="text-[10px] font-bold uppercase tracking-wide text-slate-500 print-muted">{metric.label}</p>
-              <p className="mt-1 text-xl font-black tracking-tight text-[#172B4D]">{metric.value}</p>
+              <p className="mt-1 text-xl font-black tracking-tight text-slate-800">{metric.value}</p>
               <p className="mt-1 text-[10px] text-slate-500 print-muted">{metric.detail}</p>
             </div>
           ))}
@@ -212,7 +212,7 @@ export const StudentPerformanceInsightsTab: React.FC<Props> = ({ student, sessio
             <div className="mb-5 flex items-start justify-between gap-3">
               <div className="flex items-center gap-2">
                 <div className="rounded-2xl border border-blue-500/20 bg-blue-600/10 p-2.5 shadow-[0_4px_14px_rgba(37,99,235,.08)]"><CalendarDays className="h-4 w-4 text-blue-600" /></div>
-                <div><h4 className="text-sm font-bold tracking-wide text-[#172B4D]">Frequência semanal</h4><p className="text-[10px] text-slate-500">Últimas 8 semanas</p></div>
+                <div><h4 className="text-sm font-bold tracking-wide text-slate-800">Frequência semanal</h4><p className="text-[10px] text-slate-500">Últimas 8 semanas</p></div>
               </div>
               <span className="rounded-full border border-blue-500/20 bg-blue-500/10 px-3 py-1 text-[9px] font-bold tracking-[0.18em] text-blue-700">TREINOS</span>
             </div>
@@ -243,7 +243,7 @@ export const StudentPerformanceInsightsTab: React.FC<Props> = ({ student, sessio
             <div className="mb-5 flex items-start justify-between gap-3">
               <div className="flex items-center gap-2">
                 <div className="rounded-2xl border border-sky-500/20 bg-sky-500/10 p-2.5 shadow-[0_0_24px_rgba(34,211,238,.10)]"><TrendingUp className="h-4 w-4 text-sky-600" /></div>
-                <div><h4 className="text-sm font-bold tracking-wide text-[#172B4D]">Evolução por exercício</h4><p className="text-[10px] text-slate-500">Primeira carga × carga recente</p></div>
+                <div><h4 className="text-sm font-bold tracking-wide text-slate-800">Evolução por exercício</h4><p className="text-[10px] text-slate-500">Primeira carga × carga recente</p></div>
               </div>
               <span className="rounded-full border border-sky-500/20 bg-sky-500/10 px-3 py-1 text-[9px] font-bold tracking-[0.18em] text-sky-700">CARGAS</span>
             </div>
@@ -269,7 +269,7 @@ export const StudentPerformanceInsightsTab: React.FC<Props> = ({ student, sessio
         <section className="print-card rounded-[26px] border border-[#E2E8F0] bg-gradient-to-br from-white to-[#F8FAFC] p-5 shadow-[0_12px_32px_rgba(15,23,42,.05)]">
           <div className="mb-3 flex items-center gap-2">
             <div className="rounded-xl border border-blue-500/20 bg-blue-500/10 p-2"><Award className="h-4 w-4 text-blue-500" /></div>
-            <h4 className="text-sm font-bold tracking-wide text-[#172B4D]">Recordes pessoais — histórico completo</h4>
+            <h4 className="text-sm font-bold tracking-wide text-slate-800">Recordes pessoais — histórico completo</h4>
           </div>
           {bestRecords.length ? (
             <div className="overflow-x-auto">
