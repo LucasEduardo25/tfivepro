@@ -1,0 +1,6 @@
+{
+  "name": "TFIVE PRO",
+  "description": "Sistema profissional de gestão e execução de treinos em tempo real para Personal Trainer presencial.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

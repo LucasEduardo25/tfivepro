@@ -1,0 +1,1769 @@
+{
+  "backupFormat": "TFIVE_PRE_MIGRATION_BACKUP_V3",
+  "migrationRunId": "mig_1788908958227_953087ff",
+  "createdAt": "2026-09-08T23:09:18.431Z",
+  "sourceData": {
+    "organizationId": "org_default",
+    "trainerProfile": {
+      "id": "trainer_owner_1",
+      "organizationId": "org_default",
+      "name": "Personal Master TFIVE",
+      "email": "treinador@tfive.pro",
+      "cref": "012345-G/SP",
+      "phone": "(11) 98888-7777",
+      "slogan": "Performance sem desculpas. Resultados sem limites."
+    },
+    "syncQueue": [
+      {
+        "id": "sq_1",
+        "entityType": "sessions",
+        "entityId": "sess_prev_1",
+        "operation": "upsert",
+        "status": "COMPLETED",
+        "timestamp": 1788905358227
+      },
+      {
+        "id": "sq_2",
+        "entityType": "assessments",
+        "entityId": "asmt_carlos_1",
+        "operation": "upsert",
+        "status": "COMPLETED",
+        "timestamp": 1788901758227
+      },
+      {
+        "id": "sq_3",
+        "entityType": "students",
+        "entityId": "std_carlos",
+        "operation": "upsert",
+        "status": "COMPLETED",
+        "timestamp": 1788822558227
+      },
+      {
+        "id": "sq_4",
+        "entityType": "training_memories",
+        "entityId": "mem_1",
+        "operation": "upsert",
+        "status": "COMPLETED",
+        "timestamp": 1788908858227
+      }
+    ],
+    "students": [
+      {
+        "id": "std_carlos",
+        "organizationId": "org_default",
+        "name": "Carlos Eduardo Santos",
+        "email": "carlos.santos@email.com",
+        "phone": "(11) 98765-4321",
+        "status": "active",
+        "birthDate": "1992-05-14",
+        "gender": "male",
+        "goal": "Hipertrofia e Força",
+        "notes": "Histórico de lesão no manguito rotador direito em 2024. Cuidado na abdução extrema.",
+        "studentVisibleNotes": "Foco na cadência controlada e ingestão hídrica durante o treino.",
+        "tags": [
+          "avançado",
+          "hipertrofia",
+          "personal_presencial"
+        ],
+        "createdAt": "2026-01-10T10:00:00Z",
+        "updatedAt": "2026-09-08T10:00:00Z"
+      },
+      {
+        "id": "std_mariana",
+        "organizationId": "org_default",
+        "name": "Mariana Oliveira Silva",
+        "email": "mariana.silva@email.com",
+        "phone": "(11) 97654-3210",
+        "status": "active",
+        "birthDate": "1995-08-22",
+        "gender": "female",
+        "goal": "Definição e Condicionamento",
+        "notes": "Sensibilidade patelar em agachamento profundo sem aquecimento prévio.",
+        "studentVisibleNotes": "Aquecimento específico de 5 minutos antes de iniciar.",
+        "tags": [
+          "intermediário",
+          "condicionamento"
+        ],
+        "createdAt": "2026-02-15T14:00:00Z",
+        "updatedAt": "2026-09-07T12:00:00Z"
+      },
+      {
+        "id": "std_rodrigo",
+        "organizationId": "org_default",
+        "name": "Rodrigo Mendonça",
+        "email": "rodrigo.m@email.com",
+        "phone": "(11) 96543-2109",
+        "status": "active",
+        "birthDate": "1988-11-03",
+        "gender": "male",
+        "goal": "Emagrecimento e Saúde",
+        "notes": "Hipertenso controlado com medicação matinal.",
+        "studentVisibleNotes": "Manter pausas completas entre séries pesadas.",
+        "tags": [
+          "saúde",
+          "hipertensão_controlada"
+        ],
+        "createdAt": "2026-03-01T09:00:00Z",
+        "updatedAt": "2026-09-05T15:30:00Z"
+      },
+      {
+        "id": "std_beatriz",
+        "organizationId": "org_default",
+        "name": "Beatriz Lima Costa",
+        "email": "beatriz.costa@email.com",
+        "phone": "(11) 95432-1098",
+        "status": "active",
+        "birthDate": "1998-03-30",
+        "gender": "female",
+        "goal": "Ganho de Massa Magra Glúteos/Inferiores",
+        "notes": "Excelente consciência corporal e progressão linear constante.",
+        "studentVisibleNotes": "Focar na pausa isométrica no topo de cada repetição.",
+        "tags": [
+          "avançado",
+          "membros_inferiores"
+        ],
+        "createdAt": "2026-04-12T11:20:00Z",
+        "updatedAt": "2026-09-06T18:00:00Z"
+      },
+      {
+        "id": "std_fernando",
+        "organizationId": "org_default",
+        "name": "Fernando Guimarães",
+        "email": "fernando.g@email.com",
+        "phone": "(11) 94321-0987",
+        "status": "inactive",
+        "birthDate": "1985-07-19",
+        "gender": "male",
+        "goal": "Reabilitação Postural",
+        "notes": "Aluno em viagem corporativa até fim do mês.",
+        "studentVisibleNotes": "Exercícios de mobilidade diários recomendados.",
+        "tags": [
+          "mobilidade",
+          "em_viagem"
+        ],
+        "createdAt": "2026-05-02T16:45:00Z",
+        "updatedAt": "2026-08-30T10:00:00Z"
+      }
+    ],
+    "exercises": [
+      {
+        "id": "ex_supino_reto",
+        "name": "Supino Reto com Barra",
+        "muscleGroup": "Peitoral",
+        "primaryMuscles": [
+          "Peitoral Maior"
+        ],
+        "secondaryMuscles": [
+          "Tríceps Braquial",
+          "Deltóide Anterior"
+        ],
+        "equipment": "Barra Olímpica e Banco",
+        "movementPattern": "Empurrar Horizontal",
+        "prescriptionType": "weight_reps",
+        "isSystem": true
+      },
+      {
+        "id": "ex_crucifixo_halteres",
+        "name": "Crucifixo Reto com Halteres",
+        "muscleGroup": "Peitoral",
+        "primaryMuscles": [
+          "Peitoral Maior"
+        ],
+        "secondaryMuscles": [
+          "Deltóide Anterior"
+        ],
+        "equipment": "Halteres",
+        "movementPattern": "Adução Horizontal",
+        "prescriptionType": "weight_reps",
+        "isSystem": true
+      },
+      {
+        "id": "ex_triceps_polia",
+        "name": "Tríceps na Polia com Barra Reta",
+        "muscleGroup": "Tríceps",
+        "primaryMuscles": [
+          "Tríceps Braquial"
+        ],
+        "secondaryMuscles": [],
+        "equipment": "Polia Alta",
+        "movementPattern": "Extensão de Cotovelos",
+        "prescriptionType": "weight_reps",
+        "isSystem": true
+      },
+      {
+        "id": "ex_agachamento_livre",
+        "name": "Agachamento Livre com Barra",
+        "muscleGroup": "Quadríceps",
+        "primaryMuscles": [
+          "Quadríceps",
+          "Glúteo Máximo"
+        ],
+        "secondaryMuscles": [
+          "Posteriores de Coxa",
+          "Eretores da Espinha"
+        ],
+        "equipment": "Barra Olímpica e Gaiola",
+        "movementPattern": "Dominante de Joelho",
+        "prescriptionType": "weight_reps",
+        "isSystem": true
+      },
+      {
+        "id": "ex_leg_press",
+        "name": "Leg Press 45°",
+        "muscleGroup": "Quadríceps",
+        "primaryMuscles": [
+          "Quadríceps",
+          "Glúteo Máximo"
+        ],
+        "secondaryMuscles": [
+          "Panturrilhas"
+        ],
+        "equipment": "Máquina Leg Press 45",
+        "movementPattern": "Empurrar com Pernas",
+        "prescriptionType": "weight_reps",
+        "isSystem": true
+      },
+      {
+        "id": "ex_puxada_alta",
+        "name": "Puxada Alta Frontal na Polia",
+        "muscleGroup": "Costas",
+        "primaryMuscles": [
+          "Grande Dorsal"
+        ],
+        "secondaryMuscles": [
+          "Bíceps Braquial",
+          "Braquial"
+        ],
+        "equipment": "Polia Alta",
+        "movementPattern": "Puxar Vertical",
+        "prescriptionType": "weight_reps",
+        "isSystem": true
+      },
+      {
+        "id": "ex_remada_curvada",
+        "name": "Remada Curvada Pronada",
+        "muscleGroup": "Costas",
+        "primaryMuscles": [
+          "Grande Dorsal",
+          "Trapézio"
+        ],
+        "secondaryMuscles": [
+          "Bíceps Braquial"
+        ],
+        "equipment": "Barra Olímpica",
+        "movementPattern": "Puxar Horizontal",
+        "prescriptionType": "weight_reps",
+        "isSystem": true
+      },
+      {
+        "id": "ex_elevacao_lateral",
+        "name": "Elevação Lateral com Halteres",
+        "muscleGroup": "Ombros",
+        "primaryMuscles": [
+          "Deltóide Lateral"
+        ],
+        "secondaryMuscles": [
+          "Trapézio"
+        ],
+        "equipment": "Halteres",
+        "movementPattern": "Abdução de Ombros",
+        "prescriptionType": "weight_reps",
+        "isSystem": true
+      }
+    ],
+    "routines": [
+      {
+        "id": "rt_carlos_abcd",
+        "studentId": "std_carlos",
+        "organizationId": "org_default",
+        "title": "Periodização Hipertrofia — Divisão ABCD",
+        "objective": "Hipertrofia Miofibrilar e Força Base",
+        "status": "active",
+        "isArchived": false,
+        "workouts": [
+          {
+            "id": "rw_carlos_a",
+            "letter": "A",
+            "name": "Treino A — Peitoral e Tríceps",
+            "order": 1,
+            "description": "Foco em força pesada de empurrar e finalização com bi-set",
+            "groups": [
+              {
+                "id": "grp_biset_peito",
+                "type": "bi_set",
+                "name": "Bi-Set Peitoral (Composto + Isolador)",
+                "rounds": 3,
+                "restAfterRound": 90
+              }
+            ],
+            "exercises": [
+              {
+                "id": "re_carlos_a1",
+                "exerciseId": "ex_supino_reto",
+                "order": 1,
+                "groupId": null,
+                "prescriptionType": "weight_reps",
+                "sets": 4,
+                "repsMin": 6,
+                "repsMax": 8,
+                "rpe": 8.5,
+                "rest": 120,
+                "notes": "Pausa de 1s no peito"
+              },
+              {
+                "id": "re_carlos_a2",
+                "exerciseId": "ex_crucifixo_halteres",
+                "order": 2,
+                "groupId": "grp_biset_peito",
+                "prescriptionType": "weight_reps",
+                "sets": 3,
+                "repsMin": 10,
+                "repsMax": 12,
+                "rpe": 8,
+                "rest": 0,
+                "notes": "Alongamento máximo"
+              },
+              {
+                "id": "re_carlos_a3",
+                "exerciseId": "ex_triceps_polia",
+                "order": 3,
+                "groupId": "grp_biset_peito",
+                "prescriptionType": "weight_reps",
+                "sets": 3,
+                "repsMin": 12,
+                "repsMax": 15,
+                "rpe": 9,
+                "rest": 90,
+                "notes": "Pico de contração de 2s"
+              }
+            ]
+          },
+          {
+            "id": "rw_carlos_b",
+            "letter": "B",
+            "name": "Treino B — Dorsais e Ombros",
+            "order": 2,
+            "description": "Densidade dorsal e deltoide lateral",
+            "exercises": [
+              {
+                "id": "re_carlos_b1",
+                "exerciseId": "ex_puxada_alta",
+                "order": 1,
+                "prescriptionType": "weight_reps",
+                "sets": 4,
+                "repsMin": 8,
+                "repsMax": 10,
+                "rpe": 8,
+                "rest": 90,
+                "notes": "Puxar com os cotovelos"
+              },
+              {
+                "id": "re_carlos_b2",
+                "exerciseId": "ex_remada_curvada",
+                "order": 2,
+                "prescriptionType": "weight_reps",
+                "sets": 4,
+                "repsMin": 8,
+                "repsMax": 10,
+                "rpe": 8.5,
+                "rest": 90,
+                "notes": "Tronco firme e estável"
+              },
+              {
+                "id": "re_carlos_b3",
+                "exerciseId": "ex_elevacao_lateral",
+                "order": 3,
+                "prescriptionType": "weight_reps",
+                "sets": 4,
+                "repsMin": 12,
+                "repsMax": 15,
+                "rpe": 9,
+                "rest": 60,
+                "notes": "Sem balanço do tronco"
+              }
+            ]
+          },
+          {
+            "id": "rw_carlos_c",
+            "letter": "C",
+            "name": "Treino C — Quadríceps e Panturrilhas",
+            "order": 3,
+            "description": "Força em cadeia anterior",
+            "exercises": [
+              {
+                "id": "re_carlos_c1",
+                "exerciseId": "ex_agachamento_livre",
+                "order": 1,
+                "prescriptionType": "weight_reps",
+                "sets": 4,
+                "repsMin": 6,
+                "repsMax": 8,
+                "rpe": 8.5,
+                "rest": 150,
+                "notes": "Profundidade paralela"
+              },
+              {
+                "id": "re_carlos_c2",
+                "exerciseId": "ex_leg_press",
+                "order": 2,
+                "prescriptionType": "weight_reps",
+                "sets": 3,
+                "repsMin": 10,
+                "repsMax": 12,
+                "rpe": 8.5,
+                "rest": 90,
+                "notes": "Pés na largura dos ombros"
+              }
+            ]
+          },
+          {
+            "id": "rw_carlos_d",
+            "letter": "D",
+            "name": "Treino D — Posteriores, Glúteos e Abdômen",
+            "order": 4,
+            "description": "Cadeia posterior e estabilização de core",
+            "exercises": [
+              {
+                "id": "re_carlos_d1",
+                "exerciseId": "ex_agachamento_livre",
+                "order": 1,
+                "prescriptionType": "weight_reps",
+                "sets": 3,
+                "repsMin": 10,
+                "repsMax": 12,
+                "rpe": 8,
+                "rest": 90,
+                "notes": "Agachamento sumô foco em adutores/glúteos"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "rt_mariana_ab",
+        "studentId": "std_mariana",
+        "organizationId": "org_default",
+        "title": "Condicionamento e Definição AB",
+        "objective": "Condicionamento Metabólico",
+        "status": "active",
+        "isArchived": false,
+        "workouts": [
+          {
+            "id": "rw_mariana_a",
+            "letter": "A",
+            "name": "Treino A — Membros Superiores e Core",
+            "order": 1,
+            "exercises": [
+              {
+                "id": "re_mar_a1",
+                "exerciseId": "ex_puxada_alta",
+                "order": 1,
+                "sets": 3,
+                "repsMin": 12,
+                "repsMax": 15,
+                "rest": 60
+              },
+              {
+                "id": "re_mar_a2",
+                "exerciseId": "ex_elevacao_lateral",
+                "order": 2,
+                "sets": 3,
+                "repsMin": 15,
+                "repsMax": 15,
+                "rest": 45
+              }
+            ]
+          },
+          {
+            "id": "rw_mariana_b",
+            "letter": "B",
+            "name": "Treino B — Membros Inferiores",
+            "order": 2,
+            "exercises": [
+              {
+                "id": "re_mar_b1",
+                "exerciseId": "ex_leg_press",
+                "order": 1,
+                "sets": 4,
+                "repsMin": 12,
+                "repsMax": 15,
+                "rest": 60
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "rt_rodrigo_funcional",
+        "studentId": "std_rodrigo",
+        "organizationId": "org_default",
+        "title": "Saúde e Funcional A",
+        "objective": "Manutenção da Saúde e Postura",
+        "status": "active",
+        "isArchived": false,
+        "workouts": [
+          {
+            "id": "rw_rodrigo_a",
+            "letter": "A",
+            "name": "Treino Geral A",
+            "order": 1,
+            "exercises": [
+              {
+                "id": "re_rod_a1",
+                "exerciseId": "ex_puxada_alta",
+                "order": 1,
+                "sets": 3,
+                "repsMin": 12,
+                "repsMax": 15,
+                "rest": 60
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "rt_beatriz_gluteos",
+        "studentId": "std_beatriz",
+        "organizationId": "org_default",
+        "title": "Inferiores Avançado ABC",
+        "objective": "Hipertrofia Glúteos e Posteriores",
+        "status": "active",
+        "isArchived": false,
+        "workouts": [
+          {
+            "id": "rw_bea_a",
+            "letter": "A",
+            "name": "Glúteos e Quadríceps",
+            "order": 1,
+            "exercises": [
+              {
+                "id": "re_bea_a1",
+                "exerciseId": "ex_agachamento_livre",
+                "order": 1,
+                "sets": 4,
+                "repsMin": 8,
+                "repsMax": 10,
+                "rest": 120
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "rt_fernando_mobilidade",
+        "studentId": "std_fernando",
+        "organizationId": "org_default",
+        "title": "Mobilidade e Reabilitação",
+        "objective": "Mobilidade Torácica e Quadril",
+        "status": "active",
+        "isArchived": false,
+        "workouts": [
+          {
+            "id": "rw_fer_a",
+            "letter": "A",
+            "name": "Sessão de Mobilidade A",
+            "order": 1,
+            "exercises": [
+              {
+                "id": "re_fer_a1",
+                "exerciseId": "ex_puxada_alta",
+                "order": 1,
+                "sets": 3,
+                "repsMin": 15,
+                "repsMax": 20,
+                "rest": 45
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "sessions": [
+      {
+        "id": "sess_carlos_1",
+        "studentId": "std_carlos",
+        "organizationId": "org_default",
+        "routineId": "rt_carlos_abcd",
+        "workoutId": "rw_carlos_a",
+        "studentName": "Carlos Eduardo Santos",
+        "routineTitle": "Periodização Hipertrofia — Divisão ABCD",
+        "workoutLetter": "A",
+        "workoutName": "Treino A — Peitoral e Tríceps",
+        "cycleName": "Mesociclo de Força e Hipertrofia",
+        "blockName": "Bloco 1: Volume Acumulativo",
+        "startTime": "2026-09-06T08:00:00Z",
+        "endTime": "2026-09-06T08:55:00Z",
+        "durationSeconds": 3300,
+        "status": "completed",
+        "totalVolume": 3520,
+        "totalSets": 6,
+        "notes": "Excelente desempenho no supino. Bateu recorde de carga na 3ª série!",
+        "coachNotes": "Observar controle excêntrico nas próximas sessões.",
+        "sets": [
+          {
+            "id": "set_c1",
+            "exerciseId": "ex_supino_reto",
+            "exerciseName": "Supino Reto com Barra",
+            "setNumber": 1,
+            "targetReps": 10,
+            "actualReps": 10,
+            "weightKg": 80,
+            "rpe": 7.5,
+            "isPR": false,
+            "completed": true,
+            "completedAt": "2026-09-06T08:10:00Z"
+          },
+          {
+            "id": "set_c2",
+            "exerciseId": "ex_supino_reto",
+            "exerciseName": "Supino Reto com Barra",
+            "setNumber": 2,
+            "targetReps": 10,
+            "actualReps": 10,
+            "weightKg": 84,
+            "rpe": 8,
+            "isPR": false,
+            "completed": true,
+            "completedAt": "2026-09-06T08:14:00Z"
+          },
+          {
+            "id": "set_c3",
+            "exerciseId": "ex_supino_reto",
+            "exerciseName": "Supino Reto com Barra",
+            "setNumber": 3,
+            "targetReps": 8,
+            "actualReps": 8,
+            "weightKg": 88,
+            "rpe": 8.5,
+            "isPR": true,
+            "completed": true,
+            "completedAt": "2026-09-06T08:18:00Z"
+          },
+          {
+            "id": "set_c4",
+            "exerciseId": "ex_supino_reto",
+            "exerciseName": "Supino Reto com Barra",
+            "setNumber": 4,
+            "targetReps": 8,
+            "actualReps": 8,
+            "weightKg": 88,
+            "rpe": 9,
+            "isPR": false,
+            "completed": true,
+            "completedAt": "2026-09-06T08:22:00Z"
+          },
+          {
+            "id": "set_c5",
+            "exerciseId": "ex_crucifixo_halteres",
+            "exerciseName": "Crucifixo Reto com Halteres",
+            "setNumber": 1,
+            "targetReps": 12,
+            "actualReps": 12,
+            "weightKg": 20,
+            "rpe": 8,
+            "isPR": false,
+            "completed": true,
+            "completedAt": "2026-09-06T08:30:00Z"
+          },
+          {
+            "id": "set_c6",
+            "exerciseId": "ex_triceps_polia",
+            "exerciseName": "Tríceps na Polia com Barra Reta",
+            "setNumber": 1,
+            "targetReps": 15,
+            "actualReps": 15,
+            "weightKg": 35,
+            "rpe": 8.5,
+            "isPR": false,
+            "completed": true,
+            "completedAt": "2026-09-06T08:32:00Z"
+          }
+        ]
+      },
+      {
+        "id": "sess_carlos_2",
+        "studentId": "std_carlos",
+        "organizationId": "org_default",
+        "routineId": "rt_carlos_abcd",
+        "workoutId": "rw_carlos_b",
+        "studentName": "Carlos Eduardo Santos",
+        "routineTitle": "Periodização Hipertrofia — Divisão ABCD",
+        "workoutLetter": "B",
+        "workoutName": "Treino B — Dorsais e Ombros",
+        "startTime": "2026-09-04T08:00:00Z",
+        "endTime": "2026-09-04T08:50:00Z",
+        "durationSeconds": 3000,
+        "status": "completed",
+        "totalVolume": 2800,
+        "totalSets": 4,
+        "sets": [
+          {
+            "id": "set_c7",
+            "exerciseId": "ex_puxada_alta",
+            "exerciseName": "Puxada Alta Frontal na Polia",
+            "setNumber": 1,
+            "targetReps": 10,
+            "actualReps": 10,
+            "weightKg": 65,
+            "rpe": 8,
+            "isPR": false,
+            "completed": true,
+            "completedAt": "2026-09-04T08:12:00Z"
+          },
+          {
+            "id": "set_c8",
+            "exerciseId": "ex_puxada_alta",
+            "exerciseName": "Puxada Alta Frontal na Polia",
+            "setNumber": 2,
+            "targetReps": 10,
+            "actualReps": 10,
+            "weightKg": 70,
+            "rpe": 8.5,
+            "isPR": false,
+            "completed": true,
+            "completedAt": "2026-09-04T08:16:00Z"
+          },
+          {
+            "id": "set_c9",
+            "exerciseId": "ex_remada_curvada",
+            "exerciseName": "Remada Curvada Pronada",
+            "setNumber": 1,
+            "targetReps": 8,
+            "actualReps": 8,
+            "weightKg": 60,
+            "rpe": 8,
+            "isPR": false,
+            "completed": true,
+            "completedAt": "2026-09-04T08:24:00Z"
+          },
+          {
+            "id": "set_c10",
+            "exerciseId": "ex_elevacao_lateral",
+            "exerciseName": "Elevação Lateral com Halteres",
+            "setNumber": 1,
+            "targetReps": 15,
+            "actualReps": 15,
+            "weightKg": 12,
+            "rpe": 8.5,
+            "isPR": false,
+            "completed": true,
+            "completedAt": "2026-09-04T08:35:00Z"
+          }
+        ]
+      },
+      {
+        "id": "sess_mariana_1",
+        "studentId": "std_mariana",
+        "organizationId": "org_default",
+        "routineId": "rt_mariana_ab",
+        "workoutId": "rw_mariana_a",
+        "studentName": "Mariana Oliveira Silva",
+        "routineTitle": "Condicionamento e Definição AB",
+        "workoutLetter": "A",
+        "workoutName": "Treino A — Membros Superiores e Core",
+        "startTime": "2026-09-05T09:00:00Z",
+        "endTime": "2026-09-05T09:45:00Z",
+        "durationSeconds": 2700,
+        "status": "completed",
+        "totalVolume": 1450,
+        "totalSets": 3,
+        "sets": [
+          {
+            "id": "set_m1",
+            "exerciseId": "ex_puxada_alta",
+            "exerciseName": "Puxada Alta Frontal na Polia",
+            "setNumber": 1,
+            "targetReps": 12,
+            "actualReps": 12,
+            "weightKg": 40,
+            "rpe": 7.5,
+            "isPR": false,
+            "completed": true,
+            "completedAt": "2026-09-05T09:10:00Z"
+          },
+          {
+            "id": "set_m2",
+            "exerciseId": "ex_puxada_alta",
+            "exerciseName": "Puxada Alta Frontal na Polia",
+            "setNumber": 2,
+            "targetReps": 12,
+            "actualReps": 12,
+            "weightKg": 42.5,
+            "rpe": 8,
+            "isPR": true,
+            "completed": true,
+            "completedAt": "2026-09-05T09:15:00Z"
+          },
+          {
+            "id": "set_m3",
+            "exerciseId": "ex_elevacao_lateral",
+            "exerciseName": "Elevação Lateral com Halteres",
+            "setNumber": 1,
+            "targetReps": 15,
+            "actualReps": 15,
+            "weightKg": 7,
+            "rpe": 8.5,
+            "isPR": false,
+            "completed": true,
+            "completedAt": "2026-09-05T09:25:00Z"
+          }
+        ]
+      },
+      {
+        "id": "sess_mariana_2",
+        "studentId": "std_mariana",
+        "organizationId": "org_default",
+        "routineId": "rt_mariana_ab",
+        "workoutId": "rw_mariana_b",
+        "studentName": "Mariana Oliveira Silva",
+        "routineTitle": "Condicionamento e Definição AB",
+        "workoutLetter": "B",
+        "workoutName": "Treino B — Membros Inferiores",
+        "startTime": "2026-09-03T09:00:00Z",
+        "endTime": "2026-09-03T09:50:00Z",
+        "durationSeconds": 3000,
+        "status": "completed",
+        "totalVolume": 2200,
+        "totalSets": 3,
+        "sets": [
+          {
+            "id": "set_m4",
+            "exerciseId": "ex_leg_press",
+            "exerciseName": "Leg Press 45°",
+            "setNumber": 1,
+            "targetReps": 12,
+            "actualReps": 12,
+            "weightKg": 120,
+            "rpe": 7.5,
+            "isPR": false,
+            "completed": true,
+            "completedAt": "2026-09-03T09:12:00Z"
+          },
+          {
+            "id": "set_m5",
+            "exerciseId": "ex_leg_press",
+            "exerciseName": "Leg Press 45°",
+            "setNumber": 2,
+            "targetReps": 12,
+            "actualReps": 12,
+            "weightKg": 130,
+            "rpe": 8,
+            "isPR": false,
+            "completed": true,
+            "completedAt": "2026-09-03T09:18:00Z"
+          },
+          {
+            "id": "set_m6",
+            "exerciseId": "ex_leg_press",
+            "exerciseName": "Leg Press 45°",
+            "setNumber": 3,
+            "targetReps": 12,
+            "actualReps": 12,
+            "weightKg": 140,
+            "rpe": 8.5,
+            "isPR": true,
+            "completed": true,
+            "completedAt": "2026-09-03T09:25:00Z"
+          }
+        ]
+      },
+      {
+        "id": "sess_rodrigo_1",
+        "studentId": "std_rodrigo",
+        "organizationId": "org_default",
+        "routineId": "rt_rodrigo_funcional",
+        "workoutId": "rw_rodrigo_a",
+        "studentName": "Rodrigo Mendonça",
+        "routineTitle": "Saúde e Funcional A",
+        "workoutLetter": "A",
+        "workoutName": "Treino Geral A",
+        "startTime": "2026-09-05T07:00:00Z",
+        "endTime": "2026-09-05T07:45:00Z",
+        "durationSeconds": 2700,
+        "status": "completed",
+        "totalVolume": 1200,
+        "totalSets": 2,
+        "sets": [
+          {
+            "id": "set_r1",
+            "exerciseId": "ex_puxada_alta",
+            "exerciseName": "Puxada Alta Frontal na Polia",
+            "setNumber": 1,
+            "targetReps": 12,
+            "actualReps": 12,
+            "weightKg": 45,
+            "rpe": 7,
+            "isPR": false,
+            "completed": true,
+            "completedAt": "2026-09-05T07:15:00Z"
+          },
+          {
+            "id": "set_r2",
+            "exerciseId": "ex_puxada_alta",
+            "exerciseName": "Puxada Alta Frontal na Polia",
+            "setNumber": 2,
+            "targetReps": 12,
+            "actualReps": 12,
+            "weightKg": 50,
+            "rpe": 7.5,
+            "isPR": false,
+            "completed": true,
+            "completedAt": "2026-09-05T07:22:00Z"
+          }
+        ]
+      },
+      {
+        "id": "sess_rodrigo_2",
+        "studentId": "std_rodrigo",
+        "organizationId": "org_default",
+        "routineId": "rt_rodrigo_funcional",
+        "workoutId": "rw_rodrigo_a",
+        "studentName": "Rodrigo Mendonça",
+        "routineTitle": "Saúde e Funcional A",
+        "workoutLetter": "A",
+        "workoutName": "Treino Geral A",
+        "startTime": "2026-09-02T07:00:00Z",
+        "endTime": "2026-09-02T07:45:00Z",
+        "durationSeconds": 2700,
+        "status": "completed",
+        "totalVolume": 1100,
+        "totalSets": 2,
+        "sets": [
+          {
+            "id": "set_r3",
+            "exerciseId": "ex_puxada_alta",
+            "exerciseName": "Puxada Alta Frontal na Polia",
+            "setNumber": 1,
+            "targetReps": 12,
+            "actualReps": 12,
+            "weightKg": 45,
+            "rpe": 7,
+            "isPR": false,
+            "completed": true,
+            "completedAt": "2026-09-02T07:15:00Z"
+          },
+          {
+            "id": "set_r4",
+            "exerciseId": "ex_puxada_alta",
+            "exerciseName": "Puxada Alta Frontal na Polia",
+            "setNumber": 2,
+            "targetReps": 12,
+            "actualReps": 12,
+            "weightKg": 45,
+            "rpe": 7,
+            "isPR": false,
+            "completed": true,
+            "completedAt": "2026-09-02T07:22:00Z"
+          }
+        ]
+      },
+      {
+        "id": "sess_beatriz_1",
+        "studentId": "std_beatriz",
+        "organizationId": "org_default",
+        "routineId": "rt_beatriz_gluteos",
+        "workoutId": "rw_bea_a",
+        "studentName": "Beatriz Lima Costa",
+        "routineTitle": "Inferiores Avançado ABC",
+        "workoutLetter": "A",
+        "workoutName": "Glúteos e Quadríceps",
+        "startTime": "2026-09-06T18:00:00Z",
+        "endTime": "2026-09-06T18:55:00Z",
+        "durationSeconds": 3300,
+        "status": "completed",
+        "totalVolume": 2400,
+        "totalSets": 3,
+        "sets": [
+          {
+            "id": "set_b1",
+            "exerciseId": "ex_agachamento_livre",
+            "exerciseName": "Agachamento Livre com Barra",
+            "setNumber": 1,
+            "targetReps": 8,
+            "actualReps": 8,
+            "weightKg": 70,
+            "rpe": 8,
+            "isPR": false,
+            "completed": true,
+            "completedAt": "2026-09-06T18:15:00Z"
+          },
+          {
+            "id": "set_b2",
+            "exerciseId": "ex_agachamento_livre",
+            "exerciseName": "Agachamento Livre com Barra",
+            "setNumber": 2,
+            "targetReps": 8,
+            "actualReps": 8,
+            "weightKg": 75,
+            "rpe": 8.5,
+            "isPR": false,
+            "completed": true,
+            "completedAt": "2026-09-06T18:22:00Z"
+          },
+          {
+            "id": "set_b3",
+            "exerciseId": "ex_agachamento_livre",
+            "exerciseName": "Agachamento Livre com Barra",
+            "setNumber": 3,
+            "targetReps": 8,
+            "actualReps": 8,
+            "weightKg": 80,
+            "rpe": 9,
+            "isPR": true,
+            "completed": true,
+            "completedAt": "2026-09-06T18:30:00Z"
+          }
+        ]
+      },
+      {
+        "id": "sess_beatriz_2",
+        "studentId": "std_beatriz",
+        "organizationId": "org_default",
+        "routineId": "rt_beatriz_gluteos",
+        "workoutId": "rw_bea_a",
+        "studentName": "Beatriz Lima Costa",
+        "routineTitle": "Inferiores Avançado ABC",
+        "workoutLetter": "A",
+        "workoutName": "Glúteos e Quadríceps",
+        "startTime": "2026-09-03T18:00:00Z",
+        "endTime": "2026-09-03T18:50:00Z",
+        "durationSeconds": 3000,
+        "status": "completed",
+        "totalVolume": 2100,
+        "totalSets": 3,
+        "sets": [
+          {
+            "id": "set_b4",
+            "exerciseId": "ex_agachamento_livre",
+            "exerciseName": "Agachamento Livre com Barra",
+            "setNumber": 1,
+            "targetReps": 8,
+            "actualReps": 8,
+            "weightKg": 65,
+            "rpe": 7.5,
+            "isPR": false,
+            "completed": true,
+            "completedAt": "2026-09-03T18:15:00Z"
+          },
+          {
+            "id": "set_b5",
+            "exerciseId": "ex_agachamento_livre",
+            "exerciseName": "Agachamento Livre com Barra",
+            "setNumber": 2,
+            "targetReps": 8,
+            "actualReps": 8,
+            "weightKg": 70,
+            "rpe": 8,
+            "isPR": false,
+            "completed": true,
+            "completedAt": "2026-09-03T18:22:00Z"
+          },
+          {
+            "id": "set_b6",
+            "exerciseId": "ex_agachamento_livre",
+            "exerciseName": "Agachamento Livre com Barra",
+            "setNumber": 3,
+            "targetReps": 8,
+            "actualReps": 8,
+            "weightKg": 75,
+            "rpe": 8.5,
+            "isPR": false,
+            "completed": true,
+            "completedAt": "2026-09-03T18:30:00Z"
+          }
+        ]
+      },
+      {
+        "id": "sess_fernando_1",
+        "studentId": "std_fernando",
+        "organizationId": "org_default",
+        "routineId": "rt_fernando_mobilidade",
+        "workoutId": "rw_fer_a",
+        "studentName": "Fernando Guimarães",
+        "routineTitle": "Mobilidade e Reabilitação",
+        "workoutLetter": "A",
+        "workoutName": "Sessão de Mobilidade A",
+        "startTime": "2026-08-25T17:00:00Z",
+        "endTime": "2026-08-25T17:40:00Z",
+        "durationSeconds": 2400,
+        "status": "completed",
+        "totalVolume": 800,
+        "totalSets": 2,
+        "sets": [
+          {
+            "id": "set_f1",
+            "exerciseId": "ex_puxada_alta",
+            "exerciseName": "Puxada Alta Frontal na Polia",
+            "setNumber": 1,
+            "targetReps": 15,
+            "actualReps": 15,
+            "weightKg": 35,
+            "rpe": 6.5,
+            "isPR": false,
+            "completed": true,
+            "completedAt": "2026-08-25T17:15:00Z"
+          },
+          {
+            "id": "set_f2",
+            "exerciseId": "ex_puxada_alta",
+            "exerciseName": "Puxada Alta Frontal na Polia",
+            "setNumber": 2,
+            "targetReps": 15,
+            "actualReps": 15,
+            "weightKg": 40,
+            "rpe": 7,
+            "isPR": false,
+            "completed": true,
+            "completedAt": "2026-08-25T17:22:00Z"
+          }
+        ]
+      },
+      {
+        "id": "sess_fernando_2",
+        "studentId": "std_fernando",
+        "organizationId": "org_default",
+        "routineId": "rt_fernando_mobilidade",
+        "workoutId": "rw_fer_a",
+        "studentName": "Fernando Guimarães",
+        "routineTitle": "Mobilidade e Reabilitação",
+        "workoutLetter": "A",
+        "workoutName": "Sessão de Mobilidade A",
+        "startTime": "2026-08-20T17:00:00Z",
+        "endTime": "2026-08-20T17:40:00Z",
+        "durationSeconds": 2400,
+        "status": "completed",
+        "totalVolume": 750,
+        "totalSets": 2,
+        "sets": [
+          {
+            "id": "set_f3",
+            "exerciseId": "ex_puxada_alta",
+            "exerciseName": "Puxada Alta Frontal na Polia",
+            "setNumber": 1,
+            "targetReps": 15,
+            "actualReps": 15,
+            "weightKg": 35,
+            "rpe": 6.5,
+            "isPR": false,
+            "completed": true,
+            "completedAt": "2026-08-20T17:15:00Z"
+          },
+          {
+            "id": "set_f4",
+            "exerciseId": "ex_puxada_alta",
+            "exerciseName": "Puxada Alta Frontal na Polia",
+            "setNumber": 2,
+            "targetReps": 15,
+            "actualReps": 15,
+            "weightKg": 35,
+            "rpe": 6.5,
+            "isPR": false,
+            "completed": true,
+            "completedAt": "2026-08-20T17:22:00Z"
+          }
+        ]
+      }
+    ],
+    "personalRecords": [],
+    "assessments": [
+      {
+        "id": "asmt_carlos_1",
+        "studentId": "std_carlos",
+        "organizationId": "org_default",
+        "date": "2026-09-01",
+        "weightKg": 84.5,
+        "heightCm": 180,
+        "age": 34,
+        "gender": "male",
+        "protocol": "pollock7",
+        "source": "manual_tfive",
+        "bodyFatPercentage": 14.2,
+        "fatMassKg": 12,
+        "leanMassKg": 72.5,
+        "leanMassPercentage": 85.8,
+        "bmi": 26.08,
+        "waistHipRatio": 0.85,
+        "skinfolds": {
+          "chest": 10,
+          "axillary": 12,
+          "triceps": 11,
+          "subscapular": 14,
+          "abdominal": 18,
+          "suprailiac": 12,
+          "thigh": 15
+        },
+        "circumferences": {
+          "waist": 82,
+          "hip": 96,
+          "chest": 104,
+          "rightArm": 39,
+          "leftArm": 38.5,
+          "rightThigh": 60,
+          "leftThigh": 60
+        },
+        "notes": "Ganho consistente de 1.8kg de massa magra nos últimos 3 meses."
+      },
+      {
+        "id": "asmt_mariana_1",
+        "studentId": "std_mariana",
+        "organizationId": "org_default",
+        "date": "2026-08-20",
+        "weightKg": 61.2,
+        "heightCm": 165,
+        "age": 31,
+        "gender": "female",
+        "protocol": "pollock3",
+        "source": "manual_tfive",
+        "bodyFatPercentage": 21.5,
+        "fatMassKg": 13.16,
+        "leanMassKg": 48.04,
+        "leanMassPercentage": 78.5,
+        "bmi": 22.48,
+        "waistHipRatio": 0.72,
+        "skinfolds": {
+          "triceps": 16,
+          "suprailiac": 14,
+          "thigh": 20
+        },
+        "circumferences": {
+          "waist": 68,
+          "hip": 95,
+          "rightArm": 28,
+          "rightThigh": 54
+        },
+        "notes": "Redução de 2.1% de gordura corporal mantendo massa magra."
+      },
+      {
+        "id": "asmt_rodrigo_1",
+        "studentId": "std_rodrigo",
+        "organizationId": "org_default",
+        "date": "2026-08-10",
+        "weightKg": 92,
+        "heightCm": 178,
+        "age": 37,
+        "gender": "male",
+        "protocol": "pollock3",
+        "source": "manual_tfive",
+        "bodyFatPercentage": 26.8,
+        "fatMassKg": 24.66,
+        "leanMassKg": 67.34,
+        "bmi": 29.04,
+        "waistHipRatio": 0.92,
+        "skinfolds": {
+          "chest": 22,
+          "abdominal": 28,
+          "thigh": 24
+        },
+        "circumferences": {
+          "waist": 98,
+          "hip": 106,
+          "rightArm": 36
+        },
+        "notes": "PA aferida antes da avaliação: 125/82 mmHg."
+      },
+      {
+        "id": "asmt_beatriz_1",
+        "studentId": "std_beatriz",
+        "organizationId": "org_default",
+        "date": "2026-08-28",
+        "weightKg": 58.5,
+        "heightCm": 162,
+        "age": 28,
+        "gender": "female",
+        "protocol": "pollock7",
+        "source": "manual_tfive",
+        "bodyFatPercentage": 18.4,
+        "fatMassKg": 10.76,
+        "leanMassKg": 47.74,
+        "bmi": 22.29,
+        "waistHipRatio": 0.69,
+        "skinfolds": {
+          "chest": 8,
+          "axillary": 10,
+          "triceps": 12,
+          "subscapular": 11,
+          "abdominal": 14,
+          "suprailiac": 10,
+          "thigh": 18
+        },
+        "circumferences": {
+          "waist": 65,
+          "hip": 98,
+          "rightThigh": 56,
+          "rightArm": 27
+        },
+        "notes": "Excelente simetria e proporção muscular."
+      },
+      {
+        "id": "asmt_fernando_1",
+        "studentId": "std_fernando",
+        "organizationId": "org_default",
+        "date": "2026-07-15",
+        "weightKg": 79,
+        "heightCm": 175,
+        "age": 41,
+        "gender": "male",
+        "protocol": "pollock3",
+        "source": "manual_tfive",
+        "bodyFatPercentage": 19.5,
+        "fatMassKg": 15.41,
+        "leanMassKg": 63.59,
+        "bmi": 25.8,
+        "waistHipRatio": 0.88,
+        "skinfolds": {
+          "chest": 15,
+          "abdominal": 20,
+          "thigh": 18
+        },
+        "circumferences": {
+          "waist": 86,
+          "hip": 98,
+          "rightArm": 34
+        },
+        "notes": "Avaliação inicial prévia à intervenção postural."
+      }
+    ],
+    "schedule": [
+      {
+        "id": "evt_carlos_today",
+        "studentId": "std_carlos",
+        "organizationId": "org_default",
+        "date": "2026-09-08",
+        "time": "08:00",
+        "durationMinutes": 60,
+        "type": "workout",
+        "routineId": "rt_carlos_abcd",
+        "workoutId": "rw_carlos_a",
+        "status": "scheduled",
+        "notes": "Focar em progressão de carga no primeiro bloco"
+      },
+      {
+        "id": "evt_mariana_today",
+        "studentId": "std_mariana",
+        "organizationId": "org_default",
+        "date": "2026-09-08",
+        "time": "09:30",
+        "durationMinutes": 60,
+        "type": "workout",
+        "routineId": "rt_mariana_ab",
+        "workoutId": "rw_mariana_a",
+        "status": "scheduled",
+        "notes": "Aquecimento articular prévio obrigatório"
+      },
+      {
+        "id": "evt_rodrigo_today",
+        "studentId": "std_rodrigo",
+        "organizationId": "org_default",
+        "date": "2026-09-08",
+        "time": "11:00",
+        "durationMinutes": 60,
+        "type": "workout",
+        "routineId": "rt_rodrigo_funcional",
+        "workoutId": "rw_rodrigo_a",
+        "status": "scheduled",
+        "notes": "Monitorar frequência cardíaca"
+      },
+      {
+        "id": "evt_beatriz_today",
+        "studentId": "std_beatriz",
+        "organizationId": "org_default",
+        "date": "2026-09-08",
+        "time": "18:00",
+        "durationMinutes": 60,
+        "type": "workout",
+        "routineId": "rt_beatriz_gluteos",
+        "workoutId": "rw_bea_a",
+        "status": "scheduled",
+        "notes": "Treino A - Inferiores Pesado"
+      },
+      {
+        "id": "evt_carlos_next",
+        "studentId": "std_carlos",
+        "organizationId": "org_default",
+        "date": "2026-09-10",
+        "time": "08:00",
+        "durationMinutes": 60,
+        "type": "workout",
+        "routineId": "rt_carlos_abcd",
+        "workoutId": "rw_carlos_b",
+        "status": "scheduled",
+        "notes": "Treino B"
+      }
+    ],
+    "scheduleRecurrences": [
+      {
+        "id": "rec_carlos",
+        "studentId": "std_carlos",
+        "organizationId": "org_default",
+        "startDate": "2026-09-01",
+        "periodType": "weekly",
+        "weekdays": [
+          2,
+          4,
+          6
+        ],
+        "defaultTime": "08:00",
+        "defaultDurationMinutes": 60,
+        "defaultRoutineId": "rt_carlos_abcd",
+        "defaultWorkoutId": "rw_carlos_a",
+        "status": "active",
+        "notes": "Atendimento fixo presencial"
+      },
+      {
+        "id": "rec_mariana",
+        "studentId": "std_mariana",
+        "organizationId": "org_default",
+        "startDate": "2026-09-01",
+        "periodType": "weekly",
+        "weekdays": [
+          2,
+          4
+        ],
+        "defaultTime": "09:30",
+        "defaultDurationMinutes": 60,
+        "defaultRoutineId": "rt_mariana_ab",
+        "defaultWorkoutId": "rw_mariana_a",
+        "status": "active",
+        "notes": "Atendimento fixo presencial"
+      }
+    ],
+    "trainingCycles": [
+      {
+        "id": "cyc_carlos_1",
+        "studentId": "std_carlos",
+        "organizationId": "org_default",
+        "name": "Mesociclo de Força e Hipertrofia",
+        "objective": "Ganho de força base e capacidade de trabalho",
+        "startDate": "2026-09-01",
+        "totalWeeks": 12,
+        "status": "current",
+        "routineId": "rt_carlos_abcd",
+        "notes": "Fase preparatória para teste de carga máxima",
+        "blocks": [
+          {
+            "id": "blk_carlos_1",
+            "name": "Bloco 1: Volume Acumulativo",
+            "objective": "Aumentar capacidade de trabalho miofibrilar",
+            "position": 0,
+            "durationWeeks": 4,
+            "startDate": "2026-09-01",
+            "endDate": "2026-09-28",
+            "notes": "RPE alvo 7.5 a 8.5"
+          },
+          {
+            "id": "blk_carlos_2",
+            "name": "Bloco 2: Intensificação",
+            "objective": "Aumentar cargas absolutas (RPE 8.5 - 9.5)",
+            "position": 1,
+            "durationWeeks": 4,
+            "startDate": "2026-09-29",
+            "endDate": "2026-10-26",
+            "notes": "Redução de volume e aumento de intensidade"
+          }
+        ]
+      },
+      {
+        "id": "cyc_mariana_1",
+        "studentId": "std_mariana",
+        "organizationId": "org_default",
+        "name": "Mesociclo de Recomposição",
+        "objective": "Condicionamento e Definição",
+        "startDate": "2026-08-15",
+        "totalWeeks": 8,
+        "status": "current",
+        "routineId": "rt_mariana_ab",
+        "blocks": [
+          {
+            "id": "blk_mariana_1",
+            "name": "Bloco 1: Densidade",
+            "objective": "Pausas curtas e circuitos metabólicos",
+            "position": 0,
+            "durationWeeks": 4,
+            "startDate": "2026-08-15",
+            "endDate": "2026-09-12"
+          }
+        ]
+      }
+    ],
+    "trainingMemories": [
+      {
+        "id": "mem_1",
+        "studentId": "std_carlos",
+        "organizationId": "org_default",
+        "exerciseId": "ex_supino_reto",
+        "exerciseNameSnapshot": "Supino Reto com Barra",
+        "text": "88kg x 8 reps com RPE 8.5 atingido em 06/09 (PR batido!)",
+        "status": "ACTIVE",
+        "createdAt": "2026-09-06T08:20:00Z"
+      },
+      {
+        "id": "mem_2",
+        "studentId": "std_carlos",
+        "organizationId": "org_default",
+        "exerciseId": null,
+        "exerciseNameSnapshot": null,
+        "text": "Atenção na estabilização escapular e pronação do punho esquerdo",
+        "status": "ACTIVE",
+        "createdAt": "2026-09-01T10:00:00Z"
+      },
+      {
+        "id": "mem_3",
+        "studentId": "std_mariana",
+        "organizationId": "org_default",
+        "exerciseId": "ex_leg_press",
+        "exerciseNameSnapshot": "Leg Press 45°",
+        "text": "Progrediu para 140kg x 12 reps sem desconforto patelar",
+        "status": "ACTIVE",
+        "createdAt": "2026-09-03T09:30:00Z"
+      }
+    ],
+    "proposals": [
+      {
+        "id": "prop_carlos",
+        "studentId": "std_carlos",
+        "organizationId": "org_default",
+        "title": "Plano Personal Prime — Semestral 3x/Semana",
+        "status": "accepted",
+        "mode": "single_plan",
+        "planType": "individual",
+        "studentSnapshot": {
+          "name": "Carlos Eduardo Santos",
+          "email": "carlos.santos@email.com",
+          "phone": "(11) 98765-4321"
+        },
+        "trainerSnapshot": {
+          "id": "trainer_owner_1",
+          "organizationId": "org_default",
+          "name": "Personal Master TFIVE",
+          "email": "treinador@tfive.pro",
+          "cref": "012345-G/SP",
+          "phone": "(11) 98888-7777",
+          "slogan": "Performance sem desculpas. Resultados sem limites."
+        },
+        "pricingSnapshot": {
+          "totalMonths": 6,
+          "monthlyValueCents": 120000,
+          "totalValueCents": 720000,
+          "paymentMethod": "credit_card_recurrent"
+        },
+        "participantsSnapshot": [
+          {
+            "name": "Carlos Eduardo Santos",
+            "role": "holder"
+          }
+        ],
+        "conditionsSnapshot": "Inclui 3 sessões semanais presenciais + aplicativo de treino + avaliações mensais.",
+        "validUntil": "2026-09-30",
+        "createdAt": "2026-08-15T14:00:00Z"
+      },
+      {
+        "id": "prop_mariana",
+        "studentId": "std_mariana",
+        "organizationId": "org_default",
+        "title": "Plano Personal Fit — Trimestral 2x/Semana",
+        "status": "accepted",
+        "mode": "single_plan",
+        "planType": "individual",
+        "studentSnapshot": {
+          "name": "Mariana Oliveira Silva",
+          "email": "mariana.silva@email.com",
+          "phone": "(11) 97654-3210"
+        },
+        "trainerSnapshot": {
+          "id": "trainer_owner_1",
+          "organizationId": "org_default",
+          "name": "Personal Master TFIVE",
+          "email": "treinador@tfive.pro",
+          "cref": "012345-G/SP",
+          "phone": "(11) 98888-7777",
+          "slogan": "Performance sem desculpas. Resultados sem limites."
+        },
+        "pricingSnapshot": {
+          "totalMonths": 3,
+          "monthlyValueCents": 90000,
+          "totalValueCents": 270000,
+          "paymentMethod": "pix_monthly"
+        },
+        "participantsSnapshot": [
+          {
+            "name": "Mariana Oliveira Silva",
+            "role": "holder"
+          }
+        ],
+        "conditionsSnapshot": "Inclui 2 sessões semanais presenciais + suporte via aplicativo.",
+        "validUntil": "2026-09-15",
+        "createdAt": "2026-08-20T10:00:00Z"
+      },
+      {
+        "id": "prop_rodrigo",
+        "studentId": "std_rodrigo",
+        "organizationId": "org_default",
+        "title": "Plano Saúde & Bem-Estar — Mensal",
+        "status": "sent",
+        "mode": "single_plan",
+        "planType": "individual",
+        "studentSnapshot": {
+          "name": "Rodrigo Mendonça",
+          "email": "rodrigo.m@email.com",
+          "phone": "(11) 96543-2109"
+        },
+        "trainerSnapshot": {
+          "id": "trainer_owner_1",
+          "organizationId": "org_default",
+          "name": "Personal Master TFIVE",
+          "email": "treinador@tfive.pro",
+          "cref": "012345-G/SP",
+          "phone": "(11) 98888-7777",
+          "slogan": "Performance sem desculpas. Resultados sem limites."
+        },
+        "pricingSnapshot": {
+          "totalMonths": 1,
+          "monthlyValueCents": 95000,
+          "totalValueCents": 95000,
+          "paymentMethod": "credit_card"
+        },
+        "participantsSnapshot": [
+          {
+            "name": "Rodrigo Mendonça",
+            "role": "holder"
+          }
+        ],
+        "conditionsSnapshot": "Acompanhamento adaptado com monitoramento cardiorrespiratório.",
+        "validUntil": "2026-09-20",
+        "createdAt": "2026-09-02T16:00:00Z"
+      }
+    ],
+    "activePlans": [
+      {
+        "id": "plan_carlos_active",
+        "studentId": "std_carlos",
+        "organizationId": "org_default",
+        "proposalId": "prop_carlos",
+        "name": "Personal Prime Semestral (3x/Semana)",
+        "service": "Personal Training Presencial 3x/sem",
+        "frequencyPerWeek": "3x",
+        "durationMonths": 6,
+        "startDate": "2026-09-01",
+        "endDate": "2027-02-28",
+        "originalEndDate": "2027-02-28",
+        "status": "ACTIVE",
+        "originalValueCents": 720000,
+        "discountCents": 0,
+        "finalValueCents": 720000,
+        "pricingSnapshot": {
+          "totalCents": 720000,
+          "monthlyCents": 120000
+        },
+        "participants": [
+          {
+            "id": "part_carlos_1",
+            "studentId": "std_carlos",
+            "nameSnapshot": "Carlos Eduardo Santos",
+            "phoneSnapshot": "(11) 98765-4321",
+            "role": "holder",
+            "status": "ACTIVE",
+            "joinedAt": "2026-09-01"
+          }
+        ],
+        "suspensions": [],
+        "transfers": []
+      },
+      {
+        "id": "plan_mariana_active",
+        "studentId": "std_mariana",
+        "organizationId": "org_default",
+        "proposalId": "prop_mariana",
+        "name": "Personal Fit Trimestral (2x/Semana)",
+        "service": "Personal Training Presencial 2x/sem",
+        "frequencyPerWeek": "2x",
+        "durationMonths": 3,
+        "startDate": "2026-08-25",
+        "endDate": "2026-11-24",
+        "originalEndDate": "2026-11-24",
+        "status": "ACTIVE",
+        "originalValueCents": 270000,
+        "discountCents": 0,
+        "finalValueCents": 270000,
+        "pricingSnapshot": {
+          "totalCents": 270000,
+          "monthlyCents": 90000
+        },
+        "participants": [
+          {
+            "id": "part_mariana_1",
+            "studentId": "std_mariana",
+            "nameSnapshot": "Mariana Oliveira Silva",
+            "phoneSnapshot": "(11) 97654-3210",
+            "role": "holder",
+            "status": "ACTIVE",
+            "joinedAt": "2026-08-25"
+          }
+        ],
+        "suspensions": [],
+        "transfers": []
+      },
+      {
+        "id": "plan_rodrigo_pending",
+        "studentId": "std_rodrigo",
+        "organizationId": "org_default",
+        "proposalId": "prop_rodrigo",
+        "name": "Plano Saúde & Bem-Estar Mensal",
+        "service": "Personal Training 2x/sem",
+        "frequencyPerWeek": "2x",
+        "durationMonths": 1,
+        "startDate": "2026-09-05",
+        "endDate": "2026-10-04",
+        "originalEndDate": "2026-10-04",
+        "status": "PENDING",
+        "originalValueCents": 95000,
+        "discountCents": 0,
+        "finalValueCents": 95000,
+        "pricingSnapshot": {
+          "totalCents": 95000,
+          "monthlyCents": 95000
+        },
+        "participants": [
+          {
+            "id": "part_rodrigo_1",
+            "studentId": "std_rodrigo",
+            "nameSnapshot": "Rodrigo Mendonça",
+            "phoneSnapshot": "(11) 96543-2109",
+            "role": "holder",
+            "status": "ACTIVE",
+            "joinedAt": "2026-09-05"
+          }
+        ],
+        "suspensions": [],
+        "transfers": []
+      }
+    ],
+    "settings": [
+      {
+        "key": "trainer_profile",
+        "value": {
+          "id": "trainer_owner_1",
+          "organizationId": "org_default",
+          "name": "Personal Master TFIVE",
+          "email": "treinador@tfive.pro",
+          "cref": "012345-G/SP",
+          "phone": "(11) 98888-7777",
+          "slogan": "Performance sem desculpas. Resultados sem limites."
+        }
+      },
+      {
+        "key": "app_theme",
+        "value": {
+          "mode": "light",
+          "primaryColor": "indigo"
+        }
+      },
+      {
+        "key": "workout_defaults",
+        "value": {
+          "defaultRestSeconds": 60,
+          "soundAlerts": true
+        }
+      }
+    ]
+  }
+}

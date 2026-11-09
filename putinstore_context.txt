@@ -1,0 +1,1089 @@
+
+--- Line 38: putInStore, ---
+23:   FunctionalBattery,
+24:   EvolutionReport,
+25:   WorkoutTemplate,
+26:   Proposal,
+27:   ProposalTemplate,
+28:   ProposalStatus,
+29:   TrainingCycle,
+30:   TrainingBlock,
+31:   TrainingMemory,
+32:   ActivePlan
+33: } from '../types';
+34: import { INITIAL_EXERCISES } from '../data/exerciseBank';
+35: import { BUILT_IN_FUNCTIONAL_TESTS, BUILT_IN_FUNCTIONAL_BATTERIES } from '../data/functionalTestsBank';
+36: import { 
+37:   getAllFromStore, 
+38:   putInStore, 
+39:   deleteFromStore, 
+40:   seedInitialDataIfNeeded,
+41:   getAllActiveWorkoutStates,
+42:   saveActiveWorkoutState,
+43:   deleteActiveWorkoutState,
+44:   clearAllActiveWorkouts,
+45:   DEFAULT_TRAINER,
+46:   exportDatabaseToJSON,
+47:   importDatabaseFromJSON,
+48:   clearAllDatabase,
+49:   generateId,
+50:   getByIdFromStore,
+51:   normalizeWorkoutRoutine,
+52:   normalizeStudent,
+53:   normalizeWorkoutSession,
+
+--- Line 1293: await putInStore('sessions', completedSession); ---
+1278:     // Save completed session
+1279:     if (DATA_BACKEND === 'supabase') {
+1280:       await getSessionRepository().create(completedSession);
+1281:       const today = new Date().toISOString().split('T')[0];
+1282:       const matchingAppt = schedule.find(
+1283:         a => a.studentId === completedSession.studentId && a.date === today && a.status === 'scheduled'
+1284:       );
+1285:       if (matchingAppt) {
+1286:         const updatedAppt: ScheduleAppointment = { ...matchingAppt, status: 'completed' };
+1287:         await getScheduleRepository().saveAppointment(updatedAppt);
+1288:         setSchedule(prev => prev.map(a => (a.id === updatedAppt.id ? updatedAppt : a)));
+1289:       }
+1290:       await removeLiveWorkoutStateFromSupabase(sessionId);
+1291:     } else {
+1292:       // Save into permanent sessions store
+1293:       await putInStore('sessions', completedSession);
+1294: 
+1295:       // Enqueue for multi-device sync (Push to Firestore)
+1296:       syncService.enqueue('sessions', completedSession.id, 'upsert', completedSession);
+1297: 
+1298:       // Update appointment status if matching today
+1299:       const today = new Date().toISOString().split('T')[0];
+1300:       const matchingAppt = schedule.find(
+1301:         a => a.studentId === completedSession.studentId && a.date === today && a.status === 'scheduled'
+1302:       );
+1303:       if (matchingAppt) {
+1304:         const updatedAppt: ScheduleAppointment = { ...matchingAppt, status: 'completed' };
+1305:         await putInStore('schedule', updatedAppt);
+1306:         syncService.enqueue('schedule', updatedAppt.id, 'upsert', updatedAppt);
+1307:         setSchedule(prev => prev.map(a => (a.id === updatedAppt.id ? updatedAppt : a)));
+1308:       }
+
+--- Line 1305: await putInStore('schedule', updatedAppt); ---
+1290:       await removeLiveWorkoutStateFromSupabase(sessionId);
+1291:     } else {
+1292:       // Save into permanent sessions store
+1293:       await putInStore('sessions', completedSession);
+1294: 
+1295:       // Enqueue for multi-device sync (Push to Firestore)
+1296:       syncService.enqueue('sessions', completedSession.id, 'upsert', completedSession);
+1297: 
+1298:       // Update appointment status if matching today
+1299:       const today = new Date().toISOString().split('T')[0];
+1300:       const matchingAppt = schedule.find(
+1301:         a => a.studentId === completedSession.studentId && a.date === today && a.status === 'scheduled'
+1302:       );
+1303:       if (matchingAppt) {
+1304:         const updatedAppt: ScheduleAppointment = { ...matchingAppt, status: 'completed' };
+1305:         await putInStore('schedule', updatedAppt);
+1306:         syncService.enqueue('schedule', updatedAppt.id, 'upsert', updatedAppt);
+1307:         setSchedule(prev => prev.map(a => (a.id === updatedAppt.id ? updatedAppt : a)));
+1308:       }
+1309:     }
+1310: 
+1311:     // Clear from active workouts
+1312:     await deleteActiveWorkoutState(sessionId);
+1313:     setActiveWorkouts(prev => prev.filter(w => w.sessionId !== sessionId));
+1314: 
+1315:     // Update sessions state
+1316:     setSessions(prev => [completedSession, ...prev]);
+1317: 
+1318:     return completedSession;
+1319:   };
+1320: 
+
+--- Line 1409: await putInStore('students', toSave); ---
+1394: 
+1395:   // Entity CRUD implementations
+1396:   const saveStudent = async (student: Student) => {
+1397:     const toSave: Student = {
+1398:       ...student,
+1399:       updatedAt: new Date().toISOString()
+1400:     };
+1401:     if (DATA_BACKEND === 'supabase') {
+1402:       const exists = students.some(s => s.id === toSave.id);
+1403:       if (exists) {
+1404:         await getStudentRepository().update(toSave.id, toSave);
+1405:       } else {
+1406:         await getStudentRepository().create(toSave);
+1407:       }
+1408:     } else {
+1409:       await putInStore('students', toSave);
+1410:       syncService.enqueue('students', toSave.id, 'upsert', toSave);
+1411:     }
+1412:     setStudents(prev => {
+1413:       const idx = prev.findIndex(s => s.id === toSave.id);
+1414:       if (idx >= 0) {
+1415:         const copy = [...prev];
+1416:         copy[idx] = toSave;
+1417:         return copy;
+1418:       }
+1419:       return [toSave, ...prev];
+1420:     });
+1421:   };
+1422: 
+1423:   const deleteStudent = async (id: string) => {
+1424:     if (DATA_BACKEND === 'supabase') {
+
+--- Line 1443: await putInStore('photos', photo); ---
+1428:       syncService.enqueue('students', id, 'delete');
+1429:     }
+1430:     setStudents(prev => prev.filter(s => s.id !== id));
+1431:     // Clean up student photos from store and state
+1432:     const studentPhotosToDelete = photos.filter(p => p.studentId === id);
+1433:     for (const p of studentPhotosToDelete) {
+1434:       if (DATA_BACKEND !== 'supabase') {
+1435:         await deleteFromStore('photos', p.id);
+1436:         syncService.enqueue('photos', p.id, 'delete');
+1437:       }
+1438:     }
+1439:     setPhotos(prev => prev.filter(p => p.studentId !== id));
+1440:   };
+1441: 
+1442:   const savePhoto = async (photo: StudentPhoto) => {
+1443:     await putInStore('photos', photo);
+1444:     syncService.enqueue('photos', photo.id, 'upsert', photo);
+1445:     setPhotos(prev => {
+1446:       const idx = prev.findIndex(p => p.id === photo.id);
+1447:       if (idx >= 0) {
+1448:         const copy = [...prev];
+1449:         copy[idx] = photo;
+1450:         return copy;
+1451:       }
+1452:       return [photo, ...prev];
+1453:     });
+1454:   };
+1455: 
+1456:   const deletePhoto = async (id: string) => {
+1457:     await deleteFromStore('photos', id);
+1458:     syncService.enqueue('photos', id, 'delete');
+
+--- Line 1479: await putInStore('routines', toSave); ---
+1464:     const existing = routines.find(r => r.id === normalized.id);
+1465:     const version = existing ? (existing.version || 1) + 1 : (normalized.version || 1);
+1466:     const toSave: WorkoutRoutine = {
+1467:       ...normalized,
+1468:       version,
+1469:       updatedAt: new Date().toISOString()
+1470:     };
+1471: 
+1472:     if (DATA_BACKEND === 'supabase') {
+1473:       if (existing) {
+1474:         await getRoutineRepository().update(toSave.id, toSave);
+1475:       } else {
+1476:         await getRoutineRepository().create(toSave);
+1477:       }
+1478:     } else {
+1479:       await putInStore('routines', toSave);
+1480:       syncService.enqueue('routines', toSave.id, 'upsert', toSave);
+1481:     }
+1482:     setRoutines(prev => {
+1483:       const idx = prev.findIndex(r => r.id === toSave.id);
+1484:       if (idx >= 0) {
+1485:         const copy = [...prev];
+1486:         copy[idx] = toSave;
+1487:         return copy;
+1488:       }
+1489:       return [toSave, ...prev];
+1490:     });
+1491:   };
+1492: 
+1493:   const deleteRoutine = async (id: string) => {
+1494:     if (DATA_BACKEND === 'supabase') {
+
+--- Line 1535: await putInStore('routines', duplicatedRoutine); ---
+1520:     });
+1521: 
+1522:     const duplicatedRoutine: WorkoutRoutine = {
+1523:       ...normalized,
+1524:       id: newRoutineId,
+1525:       title: `${normalized.title} (Cópia)`,
+1526:       name: `${normalized.title} (Cópia)`,
+1527:       isArchived: false,
+1528:       status: 'active',
+1529:       version: 1,
+1530:       workouts: duplicatedWorkouts,
+1531:       createdAt: new Date().toISOString(),
+1532:       updatedAt: new Date().toISOString()
+1533:     };
+1534: 
+1535:     await putInStore('routines', duplicatedRoutine);
+1536:     syncService.enqueue('routines', duplicatedRoutine.id, 'upsert', duplicatedRoutine);
+1537:     setRoutines(prev => [duplicatedRoutine, ...prev]);
+1538:     return duplicatedRoutine;
+1539:   };
+1540: 
+1541:   const toggleArchiveRoutine = async (routineId: string) => {
+1542:     const routine = routines.find(r => r.id === routineId);
+1543:     if (!routine) return;
+1544:     const newIsArchived = !routine.isArchived;
+1545:     const updated: WorkoutRoutine = {
+1546:       ...routine,
+1547:       isArchived: newIsArchived,
+1548:       status: newIsArchived ? 'archived' : 'active',
+1549:       updatedAt: new Date().toISOString()
+1550:     };
+
+--- Line 1551: await putInStore('routines', updated); ---
+1536:     syncService.enqueue('routines', duplicatedRoutine.id, 'upsert', duplicatedRoutine);
+1537:     setRoutines(prev => [duplicatedRoutine, ...prev]);
+1538:     return duplicatedRoutine;
+1539:   };
+1540: 
+1541:   const toggleArchiveRoutine = async (routineId: string) => {
+1542:     const routine = routines.find(r => r.id === routineId);
+1543:     if (!routine) return;
+1544:     const newIsArchived = !routine.isArchived;
+1545:     const updated: WorkoutRoutine = {
+1546:       ...routine,
+1547:       isArchived: newIsArchived,
+1548:       status: newIsArchived ? 'archived' : 'active',
+1549:       updatedAt: new Date().toISOString()
+1550:     };
+1551:     await putInStore('routines', updated);
+1552:     syncService.enqueue('routines', updated.id, 'upsert', updated);
+1553:     setRoutines(prev => prev.map(r => r.id === routineId ? updated : r));
+1554:   };
+1555: 
+1556:   const duplicateWorkoutInRoutine = async (routineId: string, workoutId: string): Promise<WorkoutRoutine | null> => {
+1557:     const routine = routines.find(r => r.id === routineId);
+1558:     if (!routine) return null;
+1559:     const normalized = normalizeWorkoutRoutine(routine);
+1560:     const workoutToDuplicate = normalized.workouts.find(w => w.id === workoutId);
+1561:     if (!workoutToDuplicate) return null;
+1562: 
+1563:     const nextLetter = String.fromCharCode(65 + (normalized.workouts.length % 26));
+1564:     const newWorkoutId = generateId('rw');
+1565:     const newWorkout: RoutineWorkout = {
+1566:       ...workoutToDuplicate,
+
+--- Line 1595: await putInStore('workout_templates', toSave); ---
+1580:       ...normalized,
+1581:       workouts: [...normalized.workouts, newWorkout],
+1582:       updatedAt: new Date().toISOString()
+1583:     };
+1584: 
+1585:     await saveRoutine(updatedRoutine);
+1586:     return updatedRoutine;
+1587:   };
+1588: 
+1589:   const saveWorkoutTemplate = async (template: WorkoutTemplate) => {
+1590:     const normalized = normalizeWorkoutTemplate(template);
+1591:     const toSave: WorkoutTemplate = {
+1592:       ...normalized,
+1593:       updatedAt: new Date().toISOString()
+1594:     };
+1595:     await putInStore('workout_templates', toSave);
+1596:     syncService.enqueue('workout_templates', toSave.id, 'upsert', toSave);
+1597:     setWorkoutTemplates(prev => {
+1598:       const idx = prev.findIndex(t => t.id === toSave.id);
+1599:       if (idx >= 0) {
+1600:         const copy = [...prev];
+1601:         copy[idx] = toSave;
+1602:         return copy;
+1603:       }
+1604:       return [toSave, ...prev];
+1605:     });
+1606:   };
+1607: 
+1608:   const deleteWorkoutTemplate = async (id: string) => {
+1609:     await deleteFromStore('workout_templates', id);
+1610:     syncService.enqueue('workout_templates', id, 'delete');
+
+--- Line 1652: await putInStore('assessments', toSave); ---
+1637:   };
+1638: 
+1639:   const saveAssessment = async (assessment: PhysicalAssessment) => {
+1640:     const toSave: PhysicalAssessment = {
+1641:       ...assessment,
+1642:       updatedAt: new Date().toISOString()
+1643:     };
+1644:     if (DATA_BACKEND === 'supabase') {
+1645:       const exists = assessments.some(a => a.id === toSave.id);
+1646:       if (exists) {
+1647:         await getAssessmentRepository().update(toSave.id, toSave);
+1648:       } else {
+1649:         await getAssessmentRepository().create(toSave);
+1650:       }
+1651:     } else {
+1652:       await putInStore('assessments', toSave);
+1653:       syncService.enqueue('assessments', toSave.id, 'upsert', toSave);
+1654:     }
+1655:     setAssessments(prev => {
+1656:       const idx = prev.findIndex(a => a.id === toSave.id);
+1657:       if (idx >= 0) {
+1658:         const copy = [...prev];
+1659:         copy[idx] = toSave;
+1660:         return copy;
+1661:       }
+1662:       return [toSave, ...prev];
+1663:     });
+1664:   };
+1665: 
+1666:   const deleteAssessment = async (id: string) => {
+1667:     if (DATA_BACKEND === 'supabase') {
+
+--- Line 1680: await putInStore('schedule', appointment); ---
+1665: 
+1666:   const deleteAssessment = async (id: string) => {
+1667:     if (DATA_BACKEND === 'supabase') {
+1668:       await getAssessmentRepository().delete(id);
+1669:     } else {
+1670:       await deleteFromStore('assessments', id);
+1671:       syncService.enqueue('assessments', id, 'delete');
+1672:     }
+1673:     setAssessments(prev => prev.filter(a => a.id !== id));
+1674:   };
+1675: 
+1676:   const saveAppointment = async (appointment: ScheduleAppointment) => {
+1677:     if (DATA_BACKEND === 'supabase') {
+1678:       await getScheduleRepository().saveAppointment(appointment);
+1679:     } else {
+1680:       await putInStore('schedule', appointment);
+1681:       syncService.enqueue('schedule', appointment.id, 'upsert', appointment);
+1682:     }
+1683:     setSchedule(prev => {
+1684:       const idx = prev.findIndex(a => a.id === appointment.id);
+1685:       if (idx >= 0) {
+1686:         const copy = [...prev];
+1687:         copy[idx] = appointment;
+1688:         return copy;
+1689:       }
+1690:       return [...prev, appointment];
+1691:     });
+1692:   };
+1693: 
+1694:   const deleteAppointment = async (id: string) => {
+1695:     if (DATA_BACKEND === 'supabase') {
+
+--- Line 1711: await putInStore('schedule_recurrences', recurrence); ---
+1696:       await getScheduleRepository().deleteAppointment(id);
+1697:     } else {
+1698:       await deleteFromStore('schedule', id);
+1699:       syncService.enqueue('schedule', id, 'delete');
+1700:     }
+1701:     setSchedule(prev => prev.filter(a => a.id !== id));
+1702:   };
+1703: 
+1704:   const saveScheduleRecurrence = async (
+1705:     recurrence: ScheduleRecurrence, 
+1706:     options?: { generateAppointments?: boolean }
+1707:   ) => {
+1708:     if (DATA_BACKEND === 'supabase') {
+1709:       await getScheduleRepository().saveRecurrence(recurrence);
+1710:     } else {
+1711:       await putInStore('schedule_recurrences', recurrence);
+1712:       syncService.enqueue('schedule_recurrences', recurrence.id, 'upsert', recurrence);
+1713:     }
+1714:     
+1715:     setScheduleRecurrences(prev => {
+1716:       const idx = prev.findIndex(r => r.id === recurrence.id);
+1717:       if (idx >= 0) {
+1718:         const copy = [...prev];
+1719:         copy[idx] = recurrence;
+1720:         return copy;
+1721:       }
+1722:       return [recurrence, ...prev];
+1723:     });
+1724: 
+1725:     if (options?.generateAppointments !== false) {
+1726:       const generated = materializeAppointmentsFromRecurrence(recurrence, { horizonWeeks: 12 });
+
+--- Line 1746: putInStore('schedule', updatedSchedule[existingIdx]); ---
+1731:         
+1732:         for (const genAppt of generated) {
+1733:           const existingIdx = updatedSchedule.findIndex(a => 
+1734:             a.id === genAppt.id || 
+1735:             (a.studentId === genAppt.studentId && a.date === genAppt.date && a.time === genAppt.time)
+1736:           );
+1737: 
+1738:           if (existingIdx >= 0) {
+1739:             const existing = updatedSchedule[existingIdx];
+1740:             // If already completed or is an exception, do not overwrite
+1741:             if (existing.status === 'completed' || existing.status === 'missed' || existing.isException) {
+1742:               continue;
+1743:             }
+1744:             // Otherwise update
+1745:             updatedSchedule[existingIdx] = { ...genAppt, id: existing.id };
+1746:             putInStore('schedule', updatedSchedule[existingIdx]);
+1747:             syncService.enqueue('schedule', updatedSchedule[existingIdx].id, 'upsert', updatedSchedule[existingIdx]);
+1748:           } else {
+1749:             // Insert new generated
+1750:             updatedSchedule.push(genAppt);
+1751:             putInStore('schedule', genAppt);
+1752:             syncService.enqueue('schedule', genAppt.id, 'upsert', genAppt);
+1753:           }
+1754:         }
+1755: 
+1756:         return updatedSchedule;
+1757:       });
+1758:     }
+1759:   };
+1760: 
+1761:   const deleteScheduleRecurrence = async (
+
+--- Line 1751: putInStore('schedule', genAppt); ---
+1736:           );
+1737: 
+1738:           if (existingIdx >= 0) {
+1739:             const existing = updatedSchedule[existingIdx];
+1740:             // If already completed or is an exception, do not overwrite
+1741:             if (existing.status === 'completed' || existing.status === 'missed' || existing.isException) {
+1742:               continue;
+1743:             }
+1744:             // Otherwise update
+1745:             updatedSchedule[existingIdx] = { ...genAppt, id: existing.id };
+1746:             putInStore('schedule', updatedSchedule[existingIdx]);
+1747:             syncService.enqueue('schedule', updatedSchedule[existingIdx].id, 'upsert', updatedSchedule[existingIdx]);
+1748:           } else {
+1749:             // Insert new generated
+1750:             updatedSchedule.push(genAppt);
+1751:             putInStore('schedule', genAppt);
+1752:             syncService.enqueue('schedule', genAppt.id, 'upsert', genAppt);
+1753:           }
+1754:         }
+1755: 
+1756:         return updatedSchedule;
+1757:       });
+1758:     }
+1759:   };
+1760: 
+1761:   const deleteScheduleRecurrence = async (
+1762:     id: string, 
+1763:     mode: 'single' | 'future' | 'all', 
+1764:     appointmentId?: string, 
+1765:     fromDate?: string
+1766:   ) => {
+
+--- Line 1794: await putInStore('schedule_recurrences', updatedRec); ---
+1779:       for (const appt of toDelete) {
+1780:         await deleteFromStore('schedule', appt.id);
+1781:         syncService.enqueue('schedule', appt.id, 'delete');
+1782:       }
+1783:       setSchedule(prev => prev.filter(a => !(a.recurrenceId === id && a.date >= fromDate && a.status === 'scheduled')));
+1784: 
+1785:       // 2. Update recurrence endDate to day before fromDate
+1786:       const targetRec = scheduleRecurrences.find(r => r.id === id);
+1787:       if (targetRec) {
+1788:         const dayBefore = formatDateToISO(addDaysToDate(fromDate, -1));
+1789:         const updatedRec: ScheduleRecurrence = {
+1790:           ...targetRec,
+1791:           endDate: dayBefore < targetRec.startDate ? targetRec.startDate : dayBefore,
+1792:           updatedAt: new Date().toISOString()
+1793:         };
+1794:         await putInStore('schedule_recurrences', updatedRec);
+1795:         syncService.enqueue('schedule_recurrences', updatedRec.id, 'upsert', updatedRec);
+1796:         setScheduleRecurrences(prev => prev.map(r => r.id === id ? updatedRec : r));
+1797:       }
+1798:       return;
+1799:     }
+1800: 
+1801:     if (mode === 'all') {
+1802:       // Delete all non-completed appointments of this recurrence
+1803:       const toDelete = schedule.filter(a => a.recurrenceId === id && a.status !== 'completed');
+1804:       for (const appt of toDelete) {
+1805:         await deleteFromStore('schedule', appt.id);
+1806:         syncService.enqueue('schedule', appt.id, 'delete');
+1807:       }
+1808:       setSchedule(prev => prev.filter(a => !(a.recurrenceId === id && a.status !== 'completed')));
+1809: 
+
+--- Line 1850: putInStore('schedule', updated); ---
+1835:       return;
+1836:     }
+1837: 
+1838:     if (mode === 'future') {
+1839:       // Update all scheduled appointments from this date onward
+1840:       const updatedList = schedule.map(a => {
+1841:         if (a.recurrenceId === recurrenceId && a.date >= appointment.date && a.status === 'scheduled') {
+1842:           const updated: ScheduleAppointment = {
+1843:             ...a,
+1844:             time: appointment.time,
+1845:             durationMinutes: appointment.durationMinutes,
+1846:             routineId: appointment.routineId,
+1847:             routineTitle: appointment.routineTitle,
+1848:             notes: appointment.notes
+1849:           };
+1850:           putInStore('schedule', updated);
+1851:           syncService.enqueue('schedule', updated.id, 'upsert', updated);
+1852:           return updated;
+1853:         }
+1854:         return a;
+1855:       });
+1856:       setSchedule(updatedList);
+1857: 
+1858:       if (recurrenceChanges) {
+1859:         const targetRec = scheduleRecurrences.find(r => r.id === recurrenceId);
+1860:         if (targetRec) {
+1861:           const updatedRec = { ...targetRec, ...recurrenceChanges, updatedAt: new Date().toISOString() };
+1862:           await putInStore('schedule_recurrences', updatedRec);
+1863:           syncService.enqueue('schedule_recurrences', updatedRec.id, 'upsert', updatedRec);
+1864:           setScheduleRecurrences(prev => prev.map(r => r.id === recurrenceId ? updatedRec : r));
+1865:         }
+
+--- Line 1862: await putInStore('schedule_recurrences', updatedRec); ---
+1847:             routineTitle: appointment.routineTitle,
+1848:             notes: appointment.notes
+1849:           };
+1850:           putInStore('schedule', updated);
+1851:           syncService.enqueue('schedule', updated.id, 'upsert', updated);
+1852:           return updated;
+1853:         }
+1854:         return a;
+1855:       });
+1856:       setSchedule(updatedList);
+1857: 
+1858:       if (recurrenceChanges) {
+1859:         const targetRec = scheduleRecurrences.find(r => r.id === recurrenceId);
+1860:         if (targetRec) {
+1861:           const updatedRec = { ...targetRec, ...recurrenceChanges, updatedAt: new Date().toISOString() };
+1862:           await putInStore('schedule_recurrences', updatedRec);
+1863:           syncService.enqueue('schedule_recurrences', updatedRec.id, 'upsert', updatedRec);
+1864:           setScheduleRecurrences(prev => prev.map(r => r.id === recurrenceId ? updatedRec : r));
+1865:         }
+1866:       }
+1867:       return;
+1868:     }
+1869: 
+1870:     if (mode === 'all') {
+1871:       // Update all non-completed, non-exception appointments
+1872:       const updatedList = schedule.map(a => {
+1873:         if (a.recurrenceId === recurrenceId && a.status !== 'completed' && !a.isException) {
+1874:           const updated: ScheduleAppointment = {
+1875:             ...a,
+1876:             time: appointment.time,
+1877:             durationMinutes: appointment.durationMinutes,
+
+--- Line 1882: putInStore('schedule', updated); ---
+1867:       return;
+1868:     }
+1869: 
+1870:     if (mode === 'all') {
+1871:       // Update all non-completed, non-exception appointments
+1872:       const updatedList = schedule.map(a => {
+1873:         if (a.recurrenceId === recurrenceId && a.status !== 'completed' && !a.isException) {
+1874:           const updated: ScheduleAppointment = {
+1875:             ...a,
+1876:             time: appointment.time,
+1877:             durationMinutes: appointment.durationMinutes,
+1878:             routineId: appointment.routineId,
+1879:             routineTitle: appointment.routineTitle,
+1880:             notes: appointment.notes
+1881:           };
+1882:           putInStore('schedule', updated);
+1883:           syncService.enqueue('schedule', updated.id, 'upsert', updated);
+1884:           return updated;
+1885:         }
+1886:         return a;
+1887:       });
+1888:       setSchedule(updatedList);
+1889: 
+1890:       const targetRec = scheduleRecurrences.find(r => r.id === recurrenceId);
+1891:       if (targetRec) {
+1892:         const updatedRec = { 
+1893:           ...targetRec, 
+1894:           defaultTime: appointment.time,
+1895:           defaultDurationMinutes: appointment.durationMinutes,
+1896:           defaultRoutineId: appointment.routineId,
+1897:           defaultRoutineTitle: appointment.routineTitle,
+
+--- Line 1902: await putInStore('schedule_recurrences', updatedRec); ---
+1887:       });
+1888:       setSchedule(updatedList);
+1889: 
+1890:       const targetRec = scheduleRecurrences.find(r => r.id === recurrenceId);
+1891:       if (targetRec) {
+1892:         const updatedRec = { 
+1893:           ...targetRec, 
+1894:           defaultTime: appointment.time,
+1895:           defaultDurationMinutes: appointment.durationMinutes,
+1896:           defaultRoutineId: appointment.routineId,
+1897:           defaultRoutineTitle: appointment.routineTitle,
+1898:           notes: appointment.notes,
+1899:           ...(recurrenceChanges || {}),
+1900:           updatedAt: new Date().toISOString() 
+1901:         };
+1902:         await putInStore('schedule_recurrences', updatedRec);
+1903:         syncService.enqueue('schedule_recurrences', updatedRec.id, 'upsert', updatedRec);
+1904:         setScheduleRecurrences(prev => prev.map(r => r.id === recurrenceId ? updatedRec : r));
+1905:       }
+1906:     }
+1907:   };
+1908: 
+1909:   const pauseScheduleRecurrence = async (id: string, pausedFrom?: string, pausedUntil?: string) => {
+1910:     const rec = scheduleRecurrences.find(r => r.id === id);
+1911:     if (!rec) return;
+1912: 
+1913:     const todayStr = formatDateToISO(new Date());
+1914:     const pFrom = pausedFrom || todayStr;
+1915:     const pUntil = pausedUntil || null;
+1916: 
+1917:     const updated: ScheduleRecurrence = {
+
+--- Line 1925: await putInStore('schedule_recurrences', updated); ---
+1910:     const rec = scheduleRecurrences.find(r => r.id === id);
+1911:     if (!rec) return;
+1912: 
+1913:     const todayStr = formatDateToISO(new Date());
+1914:     const pFrom = pausedFrom || todayStr;
+1915:     const pUntil = pausedUntil || null;
+1916: 
+1917:     const updated: ScheduleRecurrence = {
+1918:       ...rec,
+1919:       status: 'paused',
+1920:       pausedFrom: pFrom,
+1921:       pausedUntil: pUntil,
+1922:       updatedAt: new Date().toISOString()
+1923:     };
+1924: 
+1925:     await putInStore('schedule_recurrences', updated);
+1926:     syncService.enqueue('schedule_recurrences', updated.id, 'upsert', updated);
+1927:     setScheduleRecurrences(prev => prev.map(r => r.id === id ? updated : r));
+1928: 
+1929:     // Remove future appointments in pause period
+1930:     const toRemove = schedule.filter(a => {
+1931:       if (a.recurrenceId !== id || a.status !== 'scheduled') return false;
+1932:       if (pUntil) {
+1933:         return a.date >= pFrom && a.date <= pUntil;
+1934:       }
+1935:       return a.date >= pFrom;
+1936:     });
+1937: 
+1938:     for (const appt of toRemove) {
+1939:       await deleteFromStore('schedule', appt.id);
+1940:       syncService.enqueue('schedule', appt.id, 'delete');
+
+--- Line 1957: await putInStore('schedule_recurrences', updated); ---
+1942:     setSchedule(prev => prev.filter(a => !toRemove.some(r => r.id === a.id)));
+1943:   };
+1944: 
+1945:   const resumeScheduleRecurrence = async (id: string) => {
+1946:     const rec = scheduleRecurrences.find(r => r.id === id);
+1947:     if (!rec) return;
+1948: 
+1949:     const updated: ScheduleRecurrence = {
+1950:       ...rec,
+1951:       status: 'active',
+1952:       pausedFrom: null,
+1953:       pausedUntil: null,
+1954:       updatedAt: new Date().toISOString()
+1955:     };
+1956: 
+1957:     await putInStore('schedule_recurrences', updated);
+1958:     syncService.enqueue('schedule_recurrences', updated.id, 'upsert', updated);
+1959:     setScheduleRecurrences(prev => prev.map(r => r.id === id ? updated : r));
+1960: 
+1961:     // Regenerate upcoming appointments
+1962:     const todayStr = formatDateToISO(new Date());
+1963:     const generated = materializeAppointmentsFromRecurrence(updated, { fromDate: todayStr, horizonWeeks: 12 });
+1964:     for (const appt of generated) {
+1965:       await putInStore('schedule', appt);
+1966:       syncService.enqueue('schedule', appt.id, 'upsert', appt);
+1967:     }
+1968:     setSchedule(prev => {
+1969:       const merged = [...prev.filter(a => !generated.some(g => g.id === a.id)), ...generated];
+1970:       return merged;
+1971:     });
+1972:   };
+
+--- Line 1965: await putInStore('schedule', appt); ---
+1950:       ...rec,
+1951:       status: 'active',
+1952:       pausedFrom: null,
+1953:       pausedUntil: null,
+1954:       updatedAt: new Date().toISOString()
+1955:     };
+1956: 
+1957:     await putInStore('schedule_recurrences', updated);
+1958:     syncService.enqueue('schedule_recurrences', updated.id, 'upsert', updated);
+1959:     setScheduleRecurrences(prev => prev.map(r => r.id === id ? updated : r));
+1960: 
+1961:     // Regenerate upcoming appointments
+1962:     const todayStr = formatDateToISO(new Date());
+1963:     const generated = materializeAppointmentsFromRecurrence(updated, { fromDate: todayStr, horizonWeeks: 12 });
+1964:     for (const appt of generated) {
+1965:       await putInStore('schedule', appt);
+1966:       syncService.enqueue('schedule', appt.id, 'upsert', appt);
+1967:     }
+1968:     setSchedule(prev => {
+1969:       const merged = [...prev.filter(a => !generated.some(g => g.id === a.id)), ...generated];
+1970:       return merged;
+1971:     });
+1972:   };
+1973: 
+1974:   const endScheduleRecurrence = async (id: string) => {
+1975:     const rec = scheduleRecurrences.find(r => r.id === id);
+1976:     if (!rec) return;
+1977: 
+1978:     const todayStr = formatDateToISO(new Date());
+1979:     const updated: ScheduleRecurrence = {
+1980:       ...rec,
+
+--- Line 1986: await putInStore('schedule_recurrences', updated); ---
+1971:     });
+1972:   };
+1973: 
+1974:   const endScheduleRecurrence = async (id: string) => {
+1975:     const rec = scheduleRecurrences.find(r => r.id === id);
+1976:     if (!rec) return;
+1977: 
+1978:     const todayStr = formatDateToISO(new Date());
+1979:     const updated: ScheduleRecurrence = {
+1980:       ...rec,
+1981:       status: 'ended',
+1982:       endDate: todayStr,
+1983:       updatedAt: new Date().toISOString()
+1984:     };
+1985: 
+1986:     await putInStore('schedule_recurrences', updated);
+1987:     syncService.enqueue('schedule_recurrences', updated.id, 'upsert', updated);
+1988:     setScheduleRecurrences(prev => prev.map(r => r.id === id ? updated : r));
+1989: 
+1990:     // Remove future scheduled appointments
+1991:     const toRemove = schedule.filter(a => a.recurrenceId === id && a.date > todayStr && a.status === 'scheduled');
+1992:     for (const appt of toRemove) {
+1993:       await deleteFromStore('schedule', appt.id);
+1994:       syncService.enqueue('schedule', appt.id, 'delete');
+1995:     }
+1996:     setSchedule(prev => prev.filter(a => !toRemove.some(r => r.id === a.id)));
+1997:   };
+1998: 
+1999:   const copyWeekSchedule = async (sourceMonday: string, targetMonday: string): Promise<{ createdCount: number; skippedCount: number }> => {
+2000:     const sourceStart = parseISODate(sourceMonday);
+2001:     const diffDays = Math.round((parseISODate(targetMonday).getTime() - sourceStart.getTime()) / (1000 * 60 * 60 * 24));
+
+--- Line 2044: await putInStore('schedule', newAppt); ---
+2029: 
+2030:       const newAppt: ScheduleAppointment = {
+2031:         id: generateId(),
+2032:         studentId: appt.studentId,
+2033:         studentName: appt.studentName,
+2034:         studentPhoto: appt.studentPhoto,
+2035:         routineId: appt.routineId,
+2036:         routineTitle: appt.routineTitle,
+2037:         date: targetDate,
+2038:         time: appt.time,
+2039:         durationMinutes: appt.durationMinutes,
+2040:         status: 'scheduled',
+2041:         notes: appt.notes
+2042:       };
+2043: 
+2044:       await putInStore('schedule', newAppt);
+2045:       syncService.enqueue('schedule', newAppt.id, 'upsert', newAppt);
+2046:       newAppointments.push(newAppt);
+2047:       createdCount++;
+2048:     }
+2049: 
+2050:     if (newAppointments.length > 0) {
+2051:       setSchedule(prev => [...prev, ...newAppointments]);
+2052:     }
+2053: 
+2054:     return { createdCount, skippedCount };
+2055:   };
+2056: 
+2057:   const ensureRecurrenceHorizon = async (targetDate: string) => {
+2058:     const activeRecurrences = scheduleRecurrences.filter(r => r.status === 'active');
+2059:     if (activeRecurrences.length === 0) return;
+
+--- Line 2070: await putInStore('schedule', appt); ---
+2055:   };
+2056: 
+2057:   const ensureRecurrenceHorizon = async (targetDate: string) => {
+2058:     const activeRecurrences = scheduleRecurrences.filter(r => r.status === 'active');
+2059:     if (activeRecurrences.length === 0) return;
+2060: 
+2061:     let hasNew = false;
+2062:     const newAppointments: ScheduleAppointment[] = [];
+2063: 
+2064:     for (const rec of activeRecurrences) {
+2065:       if (!rec.endDate || rec.endDate >= targetDate) {
+2066:         const generated = materializeAppointmentsFromRecurrence(rec, { toDate: targetDate });
+2067:         for (const appt of generated) {
+2068:           const exists = schedule.some(a => a.id === appt.id);
+2069:           if (!exists) {
+2070:             await putInStore('schedule', appt);
+2071:             syncService.enqueue('schedule', appt.id, 'upsert', appt);
+2072:             newAppointments.push(appt);
+2073:             hasNew = true;
+2074:           }
+2075:         }
+2076:       }
+2077:     }
+2078: 
+2079:     if (hasNew) {
+2080:       setSchedule(prev => [...prev, ...newAppointments]);
+2081:     }
+2082:   };
+2083: 
+2084:   const saveExercise = async (exercise: Exercise) => {
+2085:     let finalExercise = exercise;
+
+--- Line 2096: await putInStore('exercises', exercise); ---
+2081:     }
+2082:   };
+2083: 
+2084:   const saveExercise = async (exercise: Exercise) => {
+2085:     let finalExercise = exercise;
+2086:     if (DATA_BACKEND === 'supabase') {
+2087:       const exists = exercises.some(e => e.id === exercise.id);
+2088:       if (exists) {
+2089:         await getExerciseRepository().update(exercise.id, exercise);
+2090:         // Supabase returns void on update, but in our repository we might fetch it.
+2091:         // Let's just use the local patch.
+2092:       } else {
+2093:         finalExercise = await getExerciseRepository().create(exercise);
+2094:       }
+2095:     } else {
+2096:       await putInStore('exercises', exercise);
+2097:       syncService.enqueue('exercises', exercise.id, 'upsert', exercise);
+2098:     }
+2099:     setExercises(prev => {
+2100:       const idx = prev.findIndex(e => e.id === finalExercise.id || e.id === exercise.id);
+2101:       if (idx >= 0) {
+2102:         const copy = [...prev];
+2103:         copy[idx] = finalExercise;
+2104:         return copy;
+2105:       }
+2106:       return [finalExercise, ...prev];
+2107:     });
+2108:   };
+2109: 
+2110:   const archiveExercise = async (id: string) => {
+2111:     const target = exercises.find(e => e.id === id);
+
+--- Line 2135: await putInStore('functional_assessments', assessment); ---
+2120:       await archiveExercise(id);
+2121:       return false;
+2122:     }
+2123:     if (DATA_BACKEND === 'supabase') {
+2124:       await getExerciseRepository().delete(id);
+2125:     } else {
+2126:       await deleteFromStore('exercises', id);
+2127:       syncService.enqueue('exercises', id, 'delete');
+2128:     }
+2129:     setExercises(prev => prev.filter(e => e.id !== id));
+2130:     return true;
+2131:   };
+2132: 
+2133:   // Functional Longevity CRUD
+2134:   const saveFunctionalAssessment = async (assessment: FunctionalAssessment) => {
+2135:     await putInStore('functional_assessments', assessment);
+2136:     syncService.enqueue('functional_assessments', assessment.id, 'upsert', assessment);
+2137:     setFunctionalAssessments(prev => {
+2138:       const idx = prev.findIndex(a => a.id === assessment.id);
+2139:       if (idx >= 0) {
+2140:         const copy = [...prev];
+2141:         copy[idx] = assessment;
+2142:         return copy;
+2143:       }
+2144:       return [assessment, ...prev];
+2145:     });
+2146:   };
+2147: 
+2148:   const deleteFunctionalAssessment = async (id: string) => {
+2149:     await deleteFromStore('functional_assessments', id);
+2150:     syncService.enqueue('functional_assessments', id, 'delete');
+
+--- Line 2155: await putInStore('functional_goals', goal); ---
+2140:         const copy = [...prev];
+2141:         copy[idx] = assessment;
+2142:         return copy;
+2143:       }
+2144:       return [assessment, ...prev];
+2145:     });
+2146:   };
+2147: 
+2148:   const deleteFunctionalAssessment = async (id: string) => {
+2149:     await deleteFromStore('functional_assessments', id);
+2150:     syncService.enqueue('functional_assessments', id, 'delete');
+2151:     setFunctionalAssessments(prev => prev.filter(a => a.id !== id));
+2152:   };
+2153: 
+2154:   const saveFunctionalGoal = async (goal: FunctionalGoal) => {
+2155:     await putInStore('functional_goals', goal);
+2156:     syncService.enqueue('functional_goals', goal.id, 'upsert', goal);
+2157:     setFunctionalGoals(prev => {
+2158:       const idx = prev.findIndex(g => g.id === goal.id);
+2159:       if (idx >= 0) {
+2160:         const copy = [...prev];
+2161:         copy[idx] = goal;
+2162:         return copy;
+2163:       }
+2164:       return [goal, ...prev];
+2165:     });
+2166:   };
+2167: 
+2168:   const deleteFunctionalGoal = async (id: string) => {
+2169:     await deleteFromStore('functional_goals', id);
+2170:     syncService.enqueue('functional_goals', id, 'delete');
+
+--- Line 2175: await putInStore('functional_milestones', milestone); ---
+2160:         const copy = [...prev];
+2161:         copy[idx] = goal;
+2162:         return copy;
+2163:       }
+2164:       return [goal, ...prev];
+2165:     });
+2166:   };
+2167: 
+2168:   const deleteFunctionalGoal = async (id: string) => {
+2169:     await deleteFromStore('functional_goals', id);
+2170:     syncService.enqueue('functional_goals', id, 'delete');
+2171:     setFunctionalGoals(prev => prev.filter(g => g.id !== id));
+2172:   };
+2173: 
+2174:   const saveFunctionalMilestone = async (milestone: FunctionalMilestone) => {
+2175:     await putInStore('functional_milestones', milestone);
+2176:     syncService.enqueue('functional_milestones', milestone.id, 'upsert', milestone);
+2177:     setFunctionalMilestones(prev => {
+2178:       const idx = prev.findIndex(m => m.id === milestone.id);
+2179:       if (idx >= 0) {
+2180:         const copy = [...prev];
+2181:         copy[idx] = milestone;
+2182:         return copy;
+2183:       }
+2184:       return [milestone, ...prev];
+2185:     });
+2186:   };
+2187: 
+2188:   const deleteFunctionalMilestone = async (id: string) => {
+2189:     await deleteFromStore('functional_milestones', id);
+2190:     syncService.enqueue('functional_milestones', id, 'delete');
+
+--- Line 2198: await putInStore('functional_tests', test); ---
+2183:       }
+2184:       return [milestone, ...prev];
+2185:     });
+2186:   };
+2187: 
+2188:   const deleteFunctionalMilestone = async (id: string) => {
+2189:     await deleteFromStore('functional_milestones', id);
+2190:     syncService.enqueue('functional_milestones', id, 'delete');
+2191:     setFunctionalMilestones(prev => prev.filter(m => m.id !== id));
+2192:   };
+2193: 
+2194:   const saveFunctionalTest = async (test: FunctionalTest) => {
+2195:     if (DATA_BACKEND === 'supabase') {
+2196:       await getFunctionalTestRepository().save(test);
+2197:     } else {
+2198:       await putInStore('functional_tests', test);
+2199:       syncService.enqueue('functional_tests', test.id, 'upsert', test);
+2200:     }
+2201:     setFunctionalTests(prev => {
+2202:       const idx = prev.findIndex(t => t.id === test.id);
+2203:       if (idx >= 0) {
+2204:         const copy = [...prev];
+2205:         copy[idx] = test;
+2206:         return copy;
+2207:       }
+2208:       return [test, ...prev];
+2209:     });
+2210:   };
+2211: 
+2212:   const deleteFunctionalTest = async (id: string) => {
+2213:     if (DATA_BACKEND === 'supabase') {
+
+--- Line 2226: await putInStore('functional_batteries', battery); ---
+2211: 
+2212:   const deleteFunctionalTest = async (id: string) => {
+2213:     if (DATA_BACKEND === 'supabase') {
+2214:       await getFunctionalTestRepository().delete(id);
+2215:     } else {
+2216:       await deleteFromStore('functional_tests', id);
+2217:       syncService.enqueue('functional_tests', id, 'delete');
+2218:     }
+2219:     setFunctionalTests(prev => prev.filter(t => t.id !== id));
+2220:   };
+2221: 
+2222:   const saveFunctionalBattery = async (battery: FunctionalBattery) => {
+2223:     if (DATA_BACKEND === 'supabase') {
+2224:       await getFunctionalBatteryRepository().save(battery);
+2225:     } else {
+2226:       await putInStore('functional_batteries', battery);
+2227:       syncService.enqueue('functional_batteries', battery.id, 'upsert', battery);
+2228:     }
+2229:     setFunctionalBatteries(prev => {
+2230:       const idx = prev.findIndex(b => b.id === battery.id);
+2231:       if (idx >= 0) {
+2232:         const copy = [...prev];
+2233:         copy[idx] = battery;
+2234:         return copy;
+2235:       }
+2236:       return [battery, ...prev];
+2237:     });
+2238:   };
+2239: 
+2240:   const deleteFunctionalBattery = async (id: string) => {
+2241:     if (DATA_BACKEND === 'supabase') {
+
+--- Line 2573: await putInStore('settings', { key: 'trainer_profile', value: profile }); ---
+2558:       ...targetCycle,
+2559:       status: 'completed',
+2560:       actualEndDate: new Date().toISOString().split('T')[0],
+2561:       notes: conclusionNotes 
+2562:         ? (targetCycle.notes ? `${targetCycle.notes}\n\n[Conclusão]: ${conclusionNotes}` : conclusionNotes)
+2563:         : targetCycle.notes,
+2564:       updatedAt: new Date().toISOString()
+2565:     };
+2566:     await saveTrainingCycle(completed);
+2567:   };
+2568: 
+2569:   const updateTrainerProfile = async (profile: TrainerProfile) => {
+2570:     if (DATA_BACKEND === 'supabase') {
+2571:       await getSettingsRepository().set('trainer_profile', profile);
+2572:     } else {
+2573:       await putInStore('settings', { key: 'trainer_profile', value: profile });
+2574:       syncService.enqueue('settings', 'trainer_profile', 'upsert', { key: 'trainer_profile', value: profile });
+2575:     }
+2576:     setTrainerProfile(profile);
+2577:   };
+2578: 
+2579:   const updateWorkoutSettings = async (partial: Partial<WorkoutSettings>) => {
+2580:     const updated: WorkoutSettings = { ...workoutSettings, ...partial };
+2581:     setWorkoutSettings(updated);
+2582:     if (DATA_BACKEND === 'supabase') {
+2583:       await getSettingsRepository().set('workout_settings', updated);
+2584:     } else {
+2585:       await putInStore('settings', { key: 'workout_settings', value: updated });
+2586:       syncService.enqueue('settings', 'workout_settings', 'upsert', { key: 'workout_settings', value: updated });
+2587:     }
+2588:   };
+
+--- Line 2585: await putInStore('settings', { key: 'workout_settings', value: updated }); ---
+2570:     if (DATA_BACKEND === 'supabase') {
+2571:       await getSettingsRepository().set('trainer_profile', profile);
+2572:     } else {
+2573:       await putInStore('settings', { key: 'trainer_profile', value: profile });
+2574:       syncService.enqueue('settings', 'trainer_profile', 'upsert', { key: 'trainer_profile', value: profile });
+2575:     }
+2576:     setTrainerProfile(profile);
+2577:   };
+2578: 
+2579:   const updateWorkoutSettings = async (partial: Partial<WorkoutSettings>) => {
+2580:     const updated: WorkoutSettings = { ...workoutSettings, ...partial };
+2581:     setWorkoutSettings(updated);
+2582:     if (DATA_BACKEND === 'supabase') {
+2583:       await getSettingsRepository().set('workout_settings', updated);
+2584:     } else {
+2585:       await putInStore('settings', { key: 'workout_settings', value: updated });
+2586:       syncService.enqueue('settings', 'workout_settings', 'upsert', { key: 'workout_settings', value: updated });
+2587:     }
+2588:   };
+2589: 
+2590:   const exportDatabase = async () => {
+2591:     return await exportDatabaseToJSON();
+2592:   };
+2593: 
+2594:   const importDatabase = async (jsonString: string) => {
+2595:     const result = await importDatabaseFromJSON(jsonString);
+2596:     if (result.success) {
+2597:       await refreshData();
+2598:       return true;
+2599:     }
+2600:     return false;

@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <title>TFIVE PRO — Gestão e Performance</title>
+    <meta name="description" content="Sistema Profissional de Gestão e Treino em Tempo Real para Personal Trainer." />
+    
+    <!-- PWA Settings -->
+    <meta name="theme-color" content="#F8F9FA" />
+    <meta name="background-color" content="#F8F9FA" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="TFIVE PRO" />
+    <meta name="application-name" content="TFIVE PRO" />
+    
+    <!-- Favicon & Icons -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="48x48" href="/favicon.png" />
+    <link rel="shortcut icon" href="/favicon.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+  </head>
+  <body class="bg-[#F8F9FA] text-[#1F2937] selection:bg-[#374151] selection:text-white antialiased">
+    <div id="root">
+      <!-- Fast native splash screen (disappears immediately upon React hydration) -->
+      <div style="min-height: 100vh; background-color: #F8F9FA; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+        <div style="display: flex; align-items: baseline; gap: 8px; font-size: 32px; letter-spacing: -0.02em;">
+          <span style="color: #1F2937; font-weight: 900;">TFIVE</span>
+          <span style="color: #4B5563; font-weight: 400; font-size: 26px;">PRO</span>
+        </div>
+      </div>
+    </div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

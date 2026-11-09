@@ -1,0 +1,169 @@
+{
+  "backupFormat": "TFIVE_STAGE3_PRE_MIGRATION_AUDIT",
+  "migrationRunId": "mig_1788978742115_e59827f6",
+  "createdAt": "2026-09-09T18:32:22.361Z",
+  "sourceData": {
+    "organizationId": "org_test_fixture",
+    "trainerProfile": {
+      "id": "trainer_fixture_1",
+      "organizationId": "org_test_fixture",
+      "name": "Treinador Teste Automatizado",
+      "email": "test@tfive.pro",
+      "cref": "099999-G/SP",
+      "phone": "(11) 99999-9999",
+      "slogan": "Automação de testes unitários da Etapa 3"
+    },
+    "syncQueue": [
+      {
+        "id": "sq_test",
+        "entityType": "students",
+        "entityId": "std_test_1",
+        "operation": "upsert",
+        "status": "COMPLETED",
+        "timestamp": 1788978742115
+      }
+    ],
+    "students": [
+      {
+        "id": "std_test_1",
+        "organizationId": "org_test_fixture",
+        "name": "Aluno Teste Alpha",
+        "email": "alpha@test.com",
+        "phone": "(11) 91111-1111",
+        "status": "active",
+        "birthDate": "1990-01-01",
+        "gender": "male",
+        "goal": "Hipertrofia",
+        "notes": "Aluno fixture para teste",
+        "createdAt": "2026-01-01T00:00:00Z",
+        "updatedAt": "2026-01-02T00:00:00Z"
+      },
+      {
+        "id": "std_test_2",
+        "organizationId": "org_test_fixture",
+        "name": "Aluno Teste Beta",
+        "email": "beta@test.com",
+        "phone": "(11) 92222-2222",
+        "status": "active",
+        "birthDate": "1995-05-05",
+        "gender": "female",
+        "goal": "Condicionamento",
+        "notes": "Aluna fixture para teste",
+        "createdAt": "2026-01-01T00:00:00Z",
+        "updatedAt": "2026-01-02T00:00:00Z"
+      }
+    ],
+    "exercises": [
+      {
+        "id": "ex_test_supino",
+        "name": "Supino Reto com Barra (Fixture)",
+        "muscleGroup": "Peitoral",
+        "primaryMuscles": [
+          "Peitoral Maior"
+        ],
+        "secondaryMuscles": [
+          "Tríceps Braquial"
+        ],
+        "equipment": "Barra",
+        "movementPattern": "Empurrar",
+        "prescriptionType": "weight_reps",
+        "isSystem": false,
+        "isCustom": true
+      }
+    ],
+    "routines": [
+      {
+        "id": "rt_test_1",
+        "studentId": "std_test_1",
+        "organizationId": "org_test_fixture",
+        "title": "Rotina Teste A",
+        "objective": "Validação",
+        "status": "active",
+        "isArchived": false,
+        "workouts": [
+          {
+            "id": "rw_test_a",
+            "letter": "A",
+            "name": "Treino A",
+            "order": 1,
+            "exercises": [
+              {
+                "id": "re_test_1",
+                "exerciseId": "ex_test_supino",
+                "order": 1,
+                "sets": 3,
+                "repsMin": 10,
+                "repsMax": 12,
+                "rest": 60
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "sessions": [
+      {
+        "id": "sess_test_1",
+        "studentId": "std_test_1",
+        "organizationId": "org_test_fixture",
+        "routineId": "rt_test_1",
+        "workoutId": "rw_test_a",
+        "studentName": "Aluno Teste Alpha",
+        "routineTitle": "Rotina Teste A",
+        "workoutLetter": "A",
+        "workoutName": "Treino A",
+        "startTime": "2026-09-01T10:00:00Z",
+        "endTime": "2026-09-01T11:00:00Z",
+        "durationSeconds": 3600,
+        "status": "completed",
+        "totalVolume": 1200,
+        "totalSets": 3,
+        "sets": [
+          {
+            "id": "set_t1",
+            "exerciseId": "ex_test_supino",
+            "exerciseName": "Supino Reto com Barra (Fixture)",
+            "setNumber": 1,
+            "targetReps": 10,
+            "actualReps": 10,
+            "weightKg": 60,
+            "rpe": 8,
+            "isPR": false,
+            "completed": true,
+            "completedAt": "2026-09-01T10:15:00Z"
+          }
+        ]
+      }
+    ],
+    "personalRecords": [],
+    "assessments": [],
+    "schedule": [],
+    "scheduleRecurrences": [],
+    "activeWorkouts": [],
+    "trainingCycles": [],
+    "trainingMemories": [],
+    "proposals": [],
+    "proposalTemplates": [],
+    "activePlans": [],
+    "planTransfers": [],
+    "planSuspensions": [],
+    "planAuditLogs": [],
+    "settings": [
+      {
+        "key": "theme",
+        "value": "dark"
+      }
+    ],
+    "photos": [],
+    "functionalTests": [],
+    "functionalAssessments": [],
+    "functionalGoals": [],
+    "functionalMilestones": [],
+    "functionalBatteries": [],
+    "evolutionReports": [],
+    "workoutTemplates": [],
+    "studentOnboardings": [],
+    "studentAccess": [],
+    "appUsers": []
+  }
+}

@@ -1,0 +1,24 @@
+Pronto, finalizei a auditoria e correção dos fluxos da Biblioteca de Exercícios e do botão de Criar Exercício. As mudanças solicitadas foram efetuadas no frontend (React) e na camada do repositório (Supabase) sem afetar dados históricos. Segue o detalhamento:
+
+### RELATÓRIO FINAL
+
+**1. BIBLIOTECA**
+
+*   **PROBLEMA:** Havia um limite artificial (hardcoded) travando a listagem de exercícios. Nem todos os exercícios do banco eram mostrados porque o estado global filtrava apenas os exercícios cujos IDs ou nomes existissem na array local de mock (`INITIAL_EXERCISES`).
+*   **ARQUIVO:** `/src/context/AppContext.tsx` (estado) e `/src/repositories/supabase/SupabaseRepositories.ts` (limite da query).
+*   **CORREÇÃO:** Removi completamente as restrições `coreCatalogWhitelist` e `coreCatalogIds`. O `exerciseCatalog` agora processa tudo do banco, filtrando apenas `!ex.isArchived`. Aumentei a query do repositório de 1000 (padrão) para `.limit(5000)` para comportar crescimentos.
+*   **TOTAL SUPABASE:** Agora o Supabase traz o catálogo total sem restrições (limit 5000).
+*   **TOTAL EXIBIDO:** Reflete exatamente o total retornado, ocultando apenas os inativos/arquivados.
+*   **STATUS:** OK
+
+**2. CRIAÇÃO DE EXERCÍCIO**
+
+*   **PROBLEMA:** O botão "Criar Exercício" estava falhando de forma silenciosa. Se a criação falhasse por validação no DB (RLS ou constraint), nada acontecia na tela. Além disso, o payload não preenchia o campo obrigatório `is_system` adequadamente para exercícios customizados (por padrão no banco ele é true, o que causava conflito), e a tela guardava o ID temporário (exercise_xxx) invés do UUID definitivo devolvido após a persistência.
+*   **ARQUIVO:** `/src/components/exercises/ExerciseBankView.tsx` (handler), `/src/repositories/supabase/SupabaseRepositories.ts` (payload), e `/src/context/AppContext.tsx` (sync do state).
+*   **FUNÇÃO:** `handleCreateExercise` e `saveExercise`.
+*   **CORREÇÃO:** Envolvi o fluxo com try/catch (mostrando alert em sucesso/erro), enviei a propriedade `is_system: false` no banco quando `isCustom` for `true`, e atualizei o state para ler o `finalExercise` retornado (com UUID gerado pelo DB).
+*   **TESTE CRIAR:** O INSERT passou em todas as regras RLS (sendo atrelado à organização local) e o ID oficial assumido sem conflitos temporários.
+*   **TESTE F5:** Ao utilizar o UUID persistido na lista logo de cara, ele não duplica ou some na atualização do refresh de página (F5).
+*   **STATUS:** OK
+
+BIBLIOTECA DE EXERCÍCIOS E CRIAÇÃO DE EXERCÍCIO CORRIGIDAS — AGUARDANDO VALIDAÇÃO MANUAL NO TABLET.

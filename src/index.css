@@ -1,0 +1,108 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg-main: #F7F7F7;
+  --color-surface-card: #FFFFFF;
+  --color-surface-sec: #F1F1F1;
+  --color-surface-strong: #E5E5E5;
+  
+  --color-border-main: #D4D4D4;
+  --color-border-subtle: #E5E5E5;
+
+  --color-text-main: #262626;
+  --color-text-sec: #404040;
+  --color-text-aux: #525252;
+  --color-text-muted: #737373;
+
+  --color-graphite-main: #3F3F46;
+  --color-graphite-dark: #27272A;
+  --color-black-soft: #18181B;
+
+  --color-btn-pri-bg: #27272A;
+  --color-btn-pri-text: #FFFFFF;
+  
+  --color-btn-sec-bg: #FFFFFF;
+  --color-btn-sec-text: #27272A;
+  --color-btn-sec-border: #D4D4D4;
+  
+  --color-btn-disabled-bg: #E5E5E5;
+  --color-btn-disabled-text: #737373;
+}
+
+@layer base {
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background-color: var(--color-bg-main);
+    color: var(--color-text-main);
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+  input, textarea, select {
+    user-select: text;
+  }
+}
+
+.font-display {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Arial', sans-serif;
+  letter-spacing: -0.02em;
+}
+
+.font-mono-nums {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-surface-sec);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-border-main);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-muted);
+}
+
+/* Print styling for High-Quality PDF Reports & Proposals */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 10mm 10mm 12mm 10mm;
+  }
+  body {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    user-select: text;
+  }
+  .no-print {
+    display: none !important;
+  }
+  .print-only {
+    display: block !important;
+  }
+  .print-page-break {
+    page-break-after: always;
+    break-after: page;
+  }
+  .a4-page {
+    page-break-inside: avoid;
+    break-inside: avoid;
+    min-height: 270mm;
+    box-sizing: border-box;
+  }
+  .avoid-break {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+  .print-card {
+    background: #ffffff !important;
+    border: 1px solid #e4e4e7 !important;
+    color: #09090b !important;
+    box-shadow: none !important;
+  }
+}
