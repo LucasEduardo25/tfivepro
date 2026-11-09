@@ -331,7 +331,10 @@ export const WorkoutStoryModal: React.FC<WorkoutStoryModalProps> = ({
           // =================================================================
           <div className="flex-1 min-h-0 flex flex-col md:flex-row overflow-y-auto md:overflow-hidden bg-zinc-950">
             {/* Hidden DOM Renderer para exportação em tamanho físico de 1080x1920 */}
-            <div className="fixed top-0 left-0 -z-50 opacity-0 pointer-events-none" aria-hidden="true">
+            <div
+              aria-hidden="true"
+              style={{ position: 'fixed', top: 0, left: '-1200px', zIndex: 100, pointerEvents: 'none' }}
+            >
               <WorkoutStoryDOMRenderer 
                 ref={rendererRef}
                 session={effectiveSession}
