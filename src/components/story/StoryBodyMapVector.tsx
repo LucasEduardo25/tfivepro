@@ -3,6 +3,8 @@ import { MuscleMap } from '@musclemap/react';
 import type { MuscleMapValues, MuscleGroup } from '@musclemap/core';
 import maleFront from '@musclemap/assets/bodies/male-front.webp?inline';
 import maleBack from '@musclemap/assets/bodies/male-back.webp?inline';
+import femaleFront from '@musclemap/assets/bodies/female-front.webp?inline';
+import femaleBack from '@musclemap/assets/bodies/female-back.webp?inline';
 import { BodyRegionId, MuscleIntensity } from '../common/BodyMap/bodyMapTypes';
 
 export interface StoryBodyMapVectorProps {
@@ -15,6 +17,7 @@ export interface StoryBodyMapVectorProps {
   className?: string;
   showLabels?: boolean;
   view?: 'both' | 'front' | 'back';
+  sex?: 'MALE' | 'FEMALE';
 }
 
 const REGION_TO_GROUPS: Partial<Record<BodyRegionId, MuscleGroup[]>> = {
@@ -66,7 +69,8 @@ export const StoryBodyMapVector: React.FC<StoryBodyMapVectorProps> = ({
   intensities = {},
   className = '',
   showLabels = true,
-  view = 'both'
+  view = 'both',
+  sex = 'MALE'
 }) => {
   const values = useMemo<MuscleMapValues>(() => {
     // Give every anatomical group an explicit score of 0 so untrained
@@ -113,12 +117,12 @@ export const StoryBodyMapVector: React.FC<StoryBodyMapVectorProps> = ({
       <MuscleMap
         values={values}
         view={selectedView}
-        sex="MALE"
+        sex={sex}
         colorModel="LOAD"
         monochromeColor="#3185E8"
         monochromeBaseColor="#D1D5DB"
-        backgroundImageFront={maleFront}
-        backgroundImageBack={maleBack}
+        backgroundImageFront={sex === 'FEMALE' ? femaleFront : maleFront}
+        backgroundImageBack={sex === 'FEMALE' ? femaleBack : maleBack}
         backgroundGrayscale
         backgroundBrightness={1.08}
         backgroundOpacity={0.72}
