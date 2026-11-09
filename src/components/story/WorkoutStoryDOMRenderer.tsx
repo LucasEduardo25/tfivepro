@@ -1,5 +1,5 @@
 import React, { useRef, useImperativeHandle, forwardRef, useMemo } from 'react';
-import { toPng } from 'html-to-image';
+import { toBlob } from 'html-to-image';
 import { WorkoutSession, Exercise } from '../../types';
 import { formatTonnesOrKg, formatWorkoutDuration } from '../../utils/calculations';
 import { analyzeTrainedMuscles } from '../common/BodyMap/bodyMapTypes';
@@ -40,6 +40,7 @@ export interface StoryDOMRendererProps {
   exercises?: Exercise[];
   isExporting?: boolean;
   backgroundImageUrl?: string | null;
+  bodyMapSex?: 'MALE' | 'FEMALE';
 }
 
 export interface StoryDOMRendererRef {
@@ -47,7 +48,7 @@ export interface StoryDOMRendererRef {
 }
 
 export const WorkoutStoryDOMRenderer = forwardRef<StoryDOMRendererRef, StoryDOMRendererProps>(
-  ({ session, templateId, studentName, exercises = [], backgroundImageUrl }, ref) => {
+  ({ session, templateId, studentName, exercises = [], backgroundImageUrl, bodyMapSex = 'MALE' }, ref) => {
     const containerRef = useRef<HTMLDivElement>(null);
 
     // Map any legacy ID to one of the 7 canonical models
@@ -95,18 +96,34 @@ export const WorkoutStoryDOMRenderer = forwardRef<StoryDOMRendererRef, StoryDOMR
         if (!containerRef.current) throw new Error('Container do Story não encontrado');
 
         try {
-          // Wait for fonts to load
-          if (document.fonts) {
-            await document.fonts.ready;
-          }
+          // O renderer usa skipFonts: não é necessário bloquear a exportação
+          // esperando fontes externas. Em dispositivos móveis essa espera pode ficar pendente.
+          const withTimeout = <T,>(promise: Promise<T>, timeoutMs: number, message: string) =>
+            new Promise<T>((resolve, reject) => {
+              const timer = window.setTimeout(() => reject(new Error(message)), timeoutMs);
+              promise.then(
+                (value) => {
+                  window.clearTimeout(timer);
+                  resolve(value);
+                },
+                (error) => {
+                  window.clearTimeout(timer);
+                  reject(error);
+                }
+              );
+            });
 
-          const dataUrl = await toPng(containerRef.current, {
+          // Gera o Blob diretamente, com limite para nunca deixar a interface carregando indefinidamente.
+          const blob = await withTimeout(
+            toBlob(containerRef.current, {
             width: 1080,
             height: 1920,
             canvasWidth: 1080,
             canvasHeight: 1920,
             pixelRatio: 1,
-            cacheBust: true,
+            // Reutiliza imagens já carregadas (incluindo as silhuetas anatômicas locais).
+            // cacheBust=true força novas requisições e pode atrasar a captura em redes móveis.
+            cacheBust: false,
             skipAutoScale: true,
             skipFonts: true,
             fontEmbedCSS: '',
@@ -117,30 +134,17 @@ export const WorkoutStoryDOMRenderer = forwardRef<StoryDOMRendererRef, StoryDOMR
               margin: '0',
               background: 'transparent'
             }
-          });
+            }),
+            45000,
+            'A geração do PNG demorou mais que 45 segundos. Verifique a conexão e tente novamente.'
+          );
 
-          // Convert DataURL to physical PNG Blob
-          const parts = dataUrl.split(',');
-          const header = parts[0];
-          const base64 = parts[1];
-
-          if (!base64) {
-            throw new Error('Erro ao gerar PNG: Data URL vazia');
+          if (!blob) {
+            throw new Error('O navegador não conseguiu gerar o arquivo PNG. Tente novamente.');
           }
-
-          const mime = header.match(/:(.*?);/)?.[1] || 'image/png';
-          const binary = atob(base64);
-          const len = binary.length;
-          const u8arr = new Uint8Array(len);
-
-          for (let i = 0; i < len; i++) {
-            u8arr[i] = binary.charCodeAt(i);
-          }
-
-          const blob = new Blob([u8arr], { type: mime });
 
           if (blob.size === 0) {
-            throw new Error('Blob gerado está vazio (tamanho 0)');
+            throw new Error('O PNG gerado está vazio (tamanho 0).');
           }
 
           return blob;
@@ -271,7 +275,7 @@ export const WorkoutStoryDOMRenderer = forwardRef<StoryDOMRendererRef, StoryDOMR
         case 'clean_card':
         case 'stats_card': {
           return (
-            <div ref={containerRef} className="w-[1080px] h-[1920px] relative overflow-hidden bg-[#F5F4F0] text-[#171717] flex flex-col justify-end p-[88px] select-none" style={backgroundImageUrl ? { backgroundImage: 'url(' + backgroundImageUrl + ')', backgroundSize: 'cover', backgroundPosition: 'center' } : undefined}>
+            <div  className="w-[1080px] h-[1920px] relative overflow-hidden bg-[#F5F4F0] text-[#171717] flex flex-col justify-end p-[88px] select-none" style={backgroundImageUrl ? { backgroundImage: 'url(' + backgroundImageUrl + ')', backgroundSize: 'cover', backgroundPosition: 'center' } : undefined}>
               {backgroundImageUrl ? <div className="absolute inset-0 bg-black/10" /> : <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_30%,#FFFFFF_0%,#F5F4F0_70%)]" />}
               <div className="relative z-10 flex items-center justify-between mb-auto">
                 <span className="text-[30px] font-semibold tracking-[.16em] text-white drop-shadow-[0_2px_12px_rgba(0,0,0,.45)]">TFIVE</span>
@@ -901,117 +905,84 @@ export const WorkoutStoryDOMRenderer = forwardRef<StoryDOMRendererRef, StoryDOMR
         // ====================================================================
         case 'body_map':
           return (
-            <div ref={containerRef} className="w-[1080px] h-[1920px] bg-[#F5F4F0] text-zinc-950 relative overflow-hidden flex flex-col justify-between p-14 pb-16 select-none" style={backgroundImageUrl ? { backgroundImage: 'url(' + backgroundImageUrl + ')', backgroundSize: 'cover', backgroundPosition: 'center' } : undefined}>
-              {/* Header Superior Minimalista com Alpha = 0 no centro para fotografia */}
-              <div className="w-full flex justify-between items-center">
-                <div className="bg-black/60 backdrop-blur-md px-6 py-3 rounded-full border border-white/20 flex items-center gap-3 shadow-xl">
-                  <span className="w-2.5 h-2.5 rounded-full bg-white shadow-xs" />
-                  <span className="font-display font-black tracking-[0.2em] text-lg text-white">
-                    TFIVE PRO.
+            <div
+              className="w-[1080px] h-[1920px] relative overflow-hidden flex flex-col px-16 py-16 text-white select-none"
+              style={{
+                background: 'linear-gradient(180deg, #15191F 0%, #0B0E12 100%)'
+              }}
+            >
+              {/* Identidade discreta no topo */}
+              <div className="w-full flex items-center justify-between shrink-0">
+                <div className="flex items-center gap-4">
+                  <span className="w-3 h-3 rounded-full bg-[#3185E8]" />
+                  <span className="font-display font-black tracking-[0.24em] text-2xl text-white">
+                    TFIVE PRO
                   </span>
                 </div>
-                <div className="bg-black/60 backdrop-blur-md px-6 py-3 rounded-full border border-white/20 font-mono-nums font-bold text-sm tracking-widest text-zinc-300 shadow-xl">
-                  BODY MAP
-                </div>
+                <span className="font-mono-nums text-sm font-bold tracking-[0.3em] text-zinc-400 uppercase">
+                  MAPA ANATÔMICO
+                </span>
               </div>
 
-              {/* Área Central: Amplamente Transparente para a Foto da Sessão (Alpha = 0) */}
+              {/* Título e identificação da sessão */}
+              <div className="mt-16 text-center shrink-0">
+                <span className="font-mono-nums text-sm font-bold tracking-[0.35em] text-[#78AEEB] uppercase">
+                  GRUPAMENTOS MUSCULARES
+                </span>
+                <h2 className="mt-4 text-5xl font-black tracking-tight text-white uppercase">
+                  {workoutName}
+                </h2>
+                <p className="mt-3 text-xl font-semibold tracking-[0.18em] text-zinc-400 uppercase">
+                  {firstName} • {dateStr}
+                </p>
+              </div>
 
-              {/* Painel Translúcido Editorial do Body Map */}
-              <div className="w-full bg-white/96 backdrop-blur-2xl text-zinc-950 border border-white/90 rounded-[44px] p-10 shadow-[0_30px_100px_rgba(0,0,0,0.85)] flex flex-col">
-                {/* Header Superior do Card */}
-                <div className="flex justify-between items-end pb-5 mb-5 border-b border-zinc-200">
-                  <div>
-                    <span className="font-display font-black tracking-[0.2em] text-3xl text-zinc-950 block">
-                      TFIVE PRO
-                    </span>
-                    <span className="text-xs font-mono-nums font-bold tracking-[0.35em] text-zinc-500 uppercase mt-1 block">
-                      MAPA MUSCULAR • BODY MAP
-                    </span>
-                  </div>
-                  <div className="text-right">
-                    <span className="text-xs font-mono-nums font-bold tracking-[0.25em] text-zinc-500 uppercase block">
-                      TREINO
-                    </span>
-                    <span className="text-2xl font-black font-mono-nums text-zinc-950 block leading-tight">
-                      CONCLUÍDO
-                    </span>
-                  </div>
-                </div>
-
-                {/* Silhuetas Anatômicas Grandes Frente e Costas */}
-                <div className="w-full flex items-center justify-center py-2">
+              {/* Anatomia em destaque, sem cartão ou moldura branca */}
+              <div className="flex-1 min-h-0 w-full flex items-center justify-center py-10">
+                <div className="w-full max-w-[920px] mx-auto flex items-center justify-center">
                   <StoryBodyMapVector
                     intensities={muscleAnalysis.intensities}
-                    theme="light"
+                    sex={bodyMapSex}
+                    theme="transparent-dark"
                     className="w-full"
                   />
                 </div>
+              </div>
 
-                {/* Legenda Compacta e Elegante (Substitui botões soltos) */}
-                <div className="mt-4 pt-5 border-t border-zinc-200 flex flex-col gap-3">
-                  {/* Linha de Indicadores de Cor */}
-                  <div className="flex items-center justify-between text-xs font-mono-nums">
-                    <div className="flex items-center gap-6">
-                      <div className="flex items-center gap-2">
-                        <span className="w-3.5 h-3.5 rounded-xs bg-[#3F3F46] border border-[#27272A] inline-block shadow-xs" />
-                        <span className="font-bold text-zinc-900 uppercase tracking-wider">Músculo Primário</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span className="w-3.5 h-3.5 rounded-xs bg-[#A1A1AA] border border-[#71717A] inline-block shadow-xs" />
-                        <span className="font-bold text-zinc-700 uppercase tracking-wider">Secundário</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span className="w-3.5 h-3.5 rounded-xs bg-[#E5E5E5] border border-[#D4D4D8] inline-block" />
-                        <span className="font-bold text-zinc-400 uppercase tracking-wider">Em Repouso</span>
-                      </div>
-                    </div>
-                    <span className="text-[11px] font-bold text-zinc-400 tracking-widest uppercase hidden sm:inline-block">
-                      BIOMETRIA DO TREINO
-                    </span>
+              {/* Legenda simples, sem bloco branco */}
+              <div className="w-full shrink-0 border-t border-white/15 pt-8">
+                <div className="flex items-center justify-center gap-12 text-sm font-mono-nums font-bold tracking-[0.12em] uppercase">
+                  <div className="flex items-center gap-3">
+                    <span className="w-4 h-4 rounded-full bg-[#3185E8]" />
+                    <span className="text-zinc-200">Primário</span>
                   </div>
-
-                  {/* Faixa Editorial com Nomes dos Músculos Trabalhados */}
-                  <div className="bg-zinc-100/90 border border-zinc-200/90 rounded-2xl px-5 py-3.5 flex items-center justify-between gap-4">
-                    <div className="flex items-center gap-3 overflow-hidden">
-                      <span className="text-[11px] font-mono-nums font-black uppercase tracking-[0.2em] text-zinc-500 shrink-0">
-                        FOCO:
-                      </span>
-                      <span className="text-xs font-mono-nums font-black uppercase tracking-wider text-zinc-950 truncate">
-                        {primaryMusclesFormatted.length > 0
-                          ? primaryMusclesFormatted.join(' • ')
-                          : 'TREINO GERAL'}
-                      </span>
-                    </div>
-                    {secondaryMusclesFormatted.length > 0 && (
-                      <div className="flex items-center gap-2 shrink-0 border-l border-zinc-300 pl-4">
-                        <span className="text-[11px] font-mono-nums font-bold uppercase tracking-wider text-zinc-400">
-                          SINERGISTAS:
-                        </span>
-                        <span className="text-xs font-mono-nums font-bold uppercase tracking-wider text-zinc-700">
-                          {secondaryMusclesFormatted.slice(0, 3).join(' • ')}
-                        </span>
-                      </div>
-                    )}
+                  <div className="flex items-center gap-3">
+                    <span className="w-4 h-4 rounded-full bg-[#89B1E1]" />
+                    <span className="text-zinc-300">Secundário</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="w-4 h-4 rounded-full bg-[#D1D5DB]" />
+                    <span className="text-zinc-400">Em repouso</span>
                   </div>
                 </div>
 
-                {/* Rodapé com Assinatura e Telemetria Real */}
-                <div className="flex items-center justify-between pt-5 mt-4 border-t border-zinc-200 text-xs font-mono-nums">
+                <div className="mt-8 flex items-end justify-between border-t border-white/10 pt-6">
                   <div>
-                    <span className="font-bold text-zinc-500 tracking-[0.2em] uppercase block">
-                      {workoutName} • {firstName}
+                    <span className="block text-xs font-mono-nums font-bold tracking-[0.25em] text-zinc-500 uppercase">
+                      RESUMO DA SESSÃO
                     </span>
-                    <span className="font-black text-zinc-950 text-base mt-0.5 block">
-                      {duration} • {volume} • {setsCount} SÉRIES • {exercisesCount} EXERCÍCIOS
+                    <span className="mt-2 block text-xl font-black text-white">
+                      {duration} • {volume}
+                    </span>
+                    <span className="mt-1 block text-sm font-mono-nums font-semibold tracking-wider text-zinc-400 uppercase">
+                      {setsCount} SÉRIES • {exercisesCount} EXERCÍCIOS
                     </span>
                   </div>
-
                   <div className="text-right">
-                    <span className="font-display font-black tracking-[0.2em] text-lg text-zinc-950 block">
+                    <span className="block font-display text-xl font-black tracking-[0.2em] text-white">
                       TFIVE PRO
                     </span>
-                    <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider block">
+                    <span className="mt-1 block text-[11px] font-bold tracking-[0.2em] text-zinc-500 uppercase">
                       PERSONAL TRAINER
                     </span>
                   </div>

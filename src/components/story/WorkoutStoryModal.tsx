@@ -38,7 +38,9 @@ export interface StoryTemplateItem {
 
 export const STORY_TEMPLATES: StoryTemplateItem[] = [
   { id: 'clean_card', number: '01', name: 'WORKOUT CLEAN', slug: 'workout-clean', subtitle: 'Foto, treino e métricas essenciais', description: 'Fotografia em primeiro plano, tipografia refinada e apenas duração e volume.', tag: 'CLEAN' },
-  { id: 'body_map', number: '02', name: 'MAPA ANATÔMICO', slug: 'mapa-anatomico', subtitle: 'Grupamentos musculares trabalhados', description: 'Vistas anatômicas frontal e posterior com músculos primários e secundários destacados.', tag: 'ANATOMIA' }
+  { id: 'body_map', number: '02', name: 'MAPA ANATÔMICO', slug: 'mapa-anatomico', subtitle: 'Grupamentos musculares trabalhados', description: 'Vistas anatômicas frontal e posterior com músculos primários e secundários destacados.', tag: 'ANATOMIA' },
+  { id: 'performance', number: '03', name: 'PERFORMANCE', slug: 'performance', subtitle: 'Destaque para os números do treino', description: 'Uma composição de impacto para destacar volume, duração e desempenho da sessão.', tag: 'DESEMPENHO' },
+  { id: 'resumo_treino', number: '04', name: 'RESUMO DO TREINO', slug: 'resumo-treino', subtitle: 'Visão geral da sessão', description: 'Um resumo editorial e organizado com os principais dados do treino concluído.', tag: 'RESUMO' }
 ];
 
 export const WorkoutStoryModal: React.FC<WorkoutStoryModalProps> = ({
@@ -46,7 +48,7 @@ export const WorkoutStoryModal: React.FC<WorkoutStoryModalProps> = ({
   externalData,
   onClose
 }) => {
-  const { exercises } = useApp();
+  const { exercises, students } = useApp();
 
   const effectiveSession: WorkoutSession = useMemo(() => {
     if (session) return session;
@@ -75,6 +77,7 @@ export const WorkoutStoryModal: React.FC<WorkoutStoryModalProps> = ({
 
   const [viewMode, setViewMode] = useState<ModalViewMode>('preview');
   const [selectedTemplate, setSelectedTemplate] = useState<DOMStoryTemplateId>('clean_card');
+  const [bodyMapSexOverride, setBodyMapSexOverride] = useState<{ studentId: string; sex: 'MALE' | 'FEMALE' } | null>(null);
   const [isExporting, setIsExporting] = useState<boolean>(false);
   const [previewBg, setPreviewBg] = useState<'photo' | 'transparent'>('photo');
   const [photoBackground, setPhotoBackground] = useState<string | null>(null);
@@ -94,6 +97,24 @@ export const WorkoutStoryModal: React.FC<WorkoutStoryModalProps> = ({
   const currentTemplate = useMemo(() => {
     return STORY_TEMPLATES.find(t => t.id === selectedTemplate) || STORY_TEMPLATES[0];
   }, [selectedTemplate]);
+
+  const linkedStudent = useMemo(() => {
+    const studentId = effectiveSession.studentId;
+    return students.find(student =>
+      student.id === studentId ||
+      student.uuid === studentId ||
+      student.legacyId === studentId
+    ) || null;
+  }, [students, effectiveSession.studentId]);
+
+  // O sexo cadastrado no perfil do aluno define automaticamente o modelo anatômico.
+  // A seleção manual continua disponível como substituição temporária para este aluno.
+  const profileBodyMapSex: 'MALE' | 'FEMALE' =
+    linkedStudent?.gender === 'female' ? 'FEMALE' : 'MALE';
+  const bodyMapSex =
+    bodyMapSexOverride?.studentId === effectiveSession.studentId
+      ? bodyMapSexOverride.sex
+      : profileBodyMapSex;
 
   const studentName = effectiveSession.studentName || 'Aluno';
 
@@ -157,10 +178,10 @@ export const WorkoutStoryModal: React.FC<WorkoutStoryModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-2 sm:p-4 overflow-y-auto">
-      <div className="bg-zinc-950 border border-zinc-800 rounded-3xl max-w-6xl w-full my-4 flex flex-col max-h-[96vh] shadow-2xl overflow-hidden text-white">
+      <div className="bg-zinc-950 border border-zinc-800 rounded-3xl max-w-6xl w-full my-4 flex flex-col max-h-[96dvh] shadow-2xl overflow-hidden text-white">
         
         {/* Header Superior */}
-        <div className="p-4 sm:p-5 border-b border-zinc-800 flex items-center justify-between bg-zinc-900/95 shrink-0">
+        <div className="px-3 py-2.5 sm:p-4 border-b border-zinc-800 flex items-center justify-between bg-zinc-900/95 shrink-0">
           <div className="flex items-center gap-3">
             {viewMode === 'preview' ? (
               <button
@@ -263,6 +284,7 @@ export const WorkoutStoryModal: React.FC<WorkoutStoryModalProps> = ({
                         <WorkoutStoryDOMRenderer 
                           session={effectiveSession}
                           templateId={tmpl.id}
+                          bodyMapSex={bodyMapSex}
                           studentName={studentName}
                           exercises={exercises} backgroundImageUrl={photoBackground}
                         />
@@ -307,30 +329,34 @@ export const WorkoutStoryModal: React.FC<WorkoutStoryModalProps> = ({
           // =================================================================
           // MODO PREVIEW: Visualização Direta e Seletor dos 7 Modelos
           // =================================================================
-          <div className="flex-1 flex flex-col md:flex-row overflow-hidden bg-zinc-950">
+          <div className="flex-1 min-h-0 flex flex-col md:flex-row overflow-y-auto md:overflow-hidden bg-zinc-950">
             {/* Hidden DOM Renderer para exportação em tamanho físico de 1080x1920 */}
-            <div className="fixed top-0 left-0 -z-50 opacity-0 pointer-events-none" aria-hidden="true">
+            <div
+              aria-hidden="true"
+              style={{ position: 'fixed', top: 0, left: '-1200px', zIndex: 100, pointerEvents: 'none' }}
+            >
               <WorkoutStoryDOMRenderer 
                 ref={rendererRef}
                 session={effectiveSession}
                 templateId={selectedTemplate}
+                bodyMapSex={bodyMapSex}
                 studentName={studentName}
                 exercises={exercises}
               />
             </div>
 
             {/* Painel Central de Preview */}
-            <div className="flex-1 flex flex-col bg-zinc-900/60 relative overflow-y-auto">
+            <div className="flex-none md:flex-1 min-w-0 min-h-0 flex flex-col bg-zinc-900/60 relative overflow-visible md:overflow-y-auto">
               {/* Seletor Visual Rápido dos 7 Modelos no Topo do Preview */}
-              <div className="p-3 sm:p-4 border-b border-zinc-800 bg-zinc-950/80 backdrop-blur-md sticky top-0 z-20">
-                <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide pb-1">
+              <div className="px-2 py-2 sm:p-3 border-b border-zinc-800 bg-zinc-950/80 backdrop-blur-md sticky top-0 z-20 shrink-0">
+                <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-hide">
                   {STORY_TEMPLATES.map(tmpl => {
                     const isSelected = selectedTemplate === tmpl.id;
                     return (
                       <button
                         key={tmpl.id}
                         onClick={() => setSelectedTemplate(tmpl.id)}
-                        className={`px-3.5 py-2 rounded-xl text-xs font-black whitespace-nowrap transition-all flex items-center gap-2 ${
+                        className={`px-2.5 py-1.5 rounded-lg text-[10px] sm:text-xs font-black whitespace-nowrap transition-all flex items-center gap-1.5 ${
                           isSelected
                             ? 'bg-white text-zinc-950 shadow-md scale-[1.02]'
                             : 'bg-zinc-800/80 text-zinc-400 hover:text-white hover:bg-zinc-800 border border-zinc-700/60'
@@ -347,17 +373,37 @@ export const WorkoutStoryModal: React.FC<WorkoutStoryModalProps> = ({
               </div>
 
               {/* Área do Preview com Toggle de Fundo */}
-              <div className="flex-1 flex flex-col items-center justify-center p-4 sm:p-8">
-                <div className="mb-4 flex items-center gap-3">
+              <div className="flex-none flex flex-col items-center justify-start gap-2 px-2 py-2 sm:p-4">
+                {selectedTemplate === 'body_map' && (
+                  <div className="flex items-center gap-1 rounded-xl border border-zinc-800 bg-zinc-950 p-1">
+                    <button
+                      type="button"
+                      onClick={() => setBodyMapSexOverride({ studentId: effectiveSession.studentId, sex: 'MALE' })}
+                      aria-pressed={bodyMapSex === 'MALE'}
+                      className={`rounded-lg px-3 py-1.5 text-[10px] font-bold uppercase tracking-wide transition-colors ${bodyMapSex === 'MALE' ? 'bg-white text-zinc-950' : 'text-zinc-400 hover:text-white'}`}
+                    >
+                      Masculino
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setBodyMapSexOverride({ studentId: effectiveSession.studentId, sex: 'FEMALE' })}
+                      aria-pressed={bodyMapSex === 'FEMALE'}
+                      className={`rounded-lg px-3 py-1.5 text-[10px] font-bold uppercase tracking-wide transition-colors ${bodyMapSex === 'FEMALE' ? 'bg-white text-zinc-950' : 'text-zinc-400 hover:text-white'}`}
+                    >
+                      Feminino
+                    </button>
+                  </div>
+                )}
+                <div className="flex items-center justify-center gap-2">
                   <input ref={photoInputRef} type="file" accept="image/*" onChange={handlePhotoSelection} className="hidden" />
-                  <button onClick={() => photoInputRef.current?.click()} className="px-4 py-2.5 rounded-xl bg-white text-zinc-900 text-xs font-semibold tracking-wide">ESCOLHER FOTO</button>
-                  {photoBackground && <button onClick={() => setPhotoBackground(null)} className="px-3 py-2.5 rounded-xl border border-zinc-600 text-zinc-300 text-xs">REMOVER FOTO</button>}
+                  <button onClick={() => photoInputRef.current?.click()} className="px-3 py-2 rounded-lg bg-white text-zinc-900 text-[10px] font-bold tracking-wide">ESCOLHER FOTO</button>
+                  {photoBackground && <button onClick={() => setPhotoBackground(null)} className="px-3 py-2 rounded-lg border border-zinc-600 text-zinc-300 text-[10px]">REMOVER FOTO</button>}
                 </div>
                 {/* Controles de Fundo da Prévia */}
-                <div className="mb-6 flex bg-zinc-900 border border-zinc-800 rounded-2xl p-1 shadow-md">
+                <div className="flex bg-zinc-900 border border-zinc-800 rounded-xl p-0.5 shadow-md">
                   <button
                     onClick={() => setPreviewBg('photo')}
-                    className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all flex items-center gap-2 ${
+                    className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all flex items-center gap-1.5 ${
                       previewBg === 'photo'
                         ? 'bg-white text-zinc-950 shadow-xs'
                         : 'text-zinc-400 hover:text-white'
@@ -381,7 +427,7 @@ export const WorkoutStoryModal: React.FC<WorkoutStoryModalProps> = ({
 
                 {/* Canvas do Story na proporção 9:16 */}
                 <div 
-                  className="relative shadow-[0_20px_60px_rgba(0,0,0,0.8)] rounded-2xl overflow-hidden shrink-0 transition-all w-[260px] sm:w-[320px] md:w-[360px] aspect-[9/16] border border-white/10" 
+                  className="relative shadow-[0_12px_36px_rgba(0,0,0,0.55)] rounded-xl overflow-hidden shrink-0 transition-all w-[220px] h-[391px] max-w-full border border-white/10" 
                   style={{ 
                     containerType: 'inline-size',
                     backgroundImage: previewBg === 'photo' && photoBackground ? 'url(' + photoBackground + ')' : 'repeating-conic-gradient(#27272A 0% 25%, transparent 0% 50%)',
@@ -398,11 +444,12 @@ export const WorkoutStoryModal: React.FC<WorkoutStoryModalProps> = ({
                   {/* Renderizador DOM em escala proporcional */}
                   <div 
                     className="absolute top-0 left-0 origin-top-left pointer-events-none" 
-                    style={{ width: 1080, height: 1920, transform: 'scale(calc(100cqw / 1080))' }}
+                    style={{ width: 1080, height: 1920, transform: 'scale(0.2037037)' }}
                   >
                     <WorkoutStoryDOMRenderer 
                       session={effectiveSession}
                       templateId={selectedTemplate}
+                      bodyMapSex={bodyMapSex}
                       studentName={studentName}
                       exercises={exercises}
                     />
@@ -410,15 +457,15 @@ export const WorkoutStoryModal: React.FC<WorkoutStoryModalProps> = ({
                 </div>
 
                 {/* Legenda Informativa */}
-                <p className="text-[11px] font-mono-nums text-zinc-500 uppercase tracking-widest mt-4 text-center">
+                <p className="text-[9px] font-mono-nums text-zinc-500 uppercase tracking-widest mt-1 text-center">
                   1080 × 1920 PX • PNG • PRONTO PARA COMPARTILHAR
                 </p>
               </div>
             </div>
 
             {/* Sidebar Lateral de Ações e Exportação */}
-            <div className="w-full md:w-80 bg-zinc-900 border-t md:border-t-0 md:border-l border-zinc-800 flex flex-col shrink-0 overflow-y-auto z-10">
-              <div className="p-6 border-b border-zinc-800 bg-zinc-950/40">
+            <div className="w-full md:w-80 bg-zinc-900 border-t md:border-t-0 md:border-l border-zinc-800 flex flex-col shrink-0 overflow-visible md:overflow-y-auto z-10">
+              <div className="p-3 sm:p-4 border-b border-zinc-800 bg-zinc-950/40">
                 <div className="flex items-center gap-2 mb-2">
                   <span className="font-mono-nums text-xs font-black text-zinc-400 bg-zinc-800 px-2 py-0.5 rounded border border-zinc-700">
                     {currentTemplate.number}
@@ -435,7 +482,7 @@ export const WorkoutStoryModal: React.FC<WorkoutStoryModalProps> = ({
                 </p>
               </div>
 
-              <div className="p-6 flex-1 flex flex-col justify-between space-y-6">
+              <div className="p-3 sm:p-4 flex-1 flex flex-col justify-between space-y-3">
                 <div className="space-y-4">
                   {/* Nome do Arquivo de Saída */}
                   <div className="bg-zinc-950 p-3.5 rounded-xl border border-zinc-800">
@@ -465,7 +512,7 @@ export const WorkoutStoryModal: React.FC<WorkoutStoryModalProps> = ({
                   <button
                     onClick={() => handleExport('download')}
                     disabled={isExporting}
-                    className="w-full py-4 px-5 rounded-2xl bg-white hover:bg-zinc-200 text-zinc-950 font-black font-display text-sm tracking-wider uppercase transition-all shadow-lg flex items-center justify-center gap-2.5 disabled:opacity-60 disabled:cursor-not-allowed active:scale-[0.98]"
+                    className="w-full py-3 px-4 rounded-xl bg-white hover:bg-zinc-200 text-zinc-950 font-black font-display text-sm tracking-wider uppercase transition-all shadow-lg flex items-center justify-center gap-2.5 disabled:opacity-60 disabled:cursor-not-allowed active:scale-[0.98]"
                   >
                     {isExporting ? (
                       <>
@@ -484,7 +531,7 @@ export const WorkoutStoryModal: React.FC<WorkoutStoryModalProps> = ({
                   <button
                     onClick={() => handleExport('share')}
                     disabled={isExporting}
-                    className="w-full py-3.5 px-5 rounded-2xl bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 hover:border-zinc-600 text-white font-bold text-xs tracking-wider uppercase transition-all flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+                    className="w-full py-2.5 px-4 rounded-xl bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 hover:border-zinc-600 text-white font-bold text-xs tracking-wider uppercase transition-all flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
                   >
                     <Share2 className="w-4 h-4" />
                     <span>COMPARTILHAR</span>

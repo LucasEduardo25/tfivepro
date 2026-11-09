@@ -1,8 +1,10 @@
 import React, { useMemo } from 'react';
 import { MuscleMap } from '@musclemap/react';
 import type { MuscleMapValues, MuscleGroup } from '@musclemap/core';
-import maleFront from '@musclemap/assets/bodies/male-front.webp';
-import maleBack from '@musclemap/assets/bodies/male-back.webp';
+import maleFront from '@musclemap/assets/bodies/male-front.webp?inline';
+import maleBack from '@musclemap/assets/bodies/male-back.webp?inline';
+import femaleFront from '@musclemap/assets/bodies/female-front.webp?inline';
+import femaleBack from '@musclemap/assets/bodies/female-back.webp?inline';
 import { BodyRegionId, MuscleIntensity } from '../common/BodyMap/bodyMapTypes';
 
 export interface StoryBodyMapVectorProps {
@@ -15,6 +17,7 @@ export interface StoryBodyMapVectorProps {
   className?: string;
   showLabels?: boolean;
   view?: 'both' | 'front' | 'back';
+  sex?: 'MALE' | 'FEMALE';
 }
 
 const REGION_TO_GROUPS: Partial<Record<BodyRegionId, MuscleGroup[]>> = {
@@ -57,22 +60,31 @@ const GROUP_LABELS: Partial<Record<MuscleGroup, string>> = {
   QUADS: 'Quadríceps',
   HAMSTRINGS: 'Posterior de coxa',
   CALVES: 'Panturrilhas',
-  ADDUCTORS: 'Adutores'
+  HIP_FLEXORS: 'Flexores do quadril',
+  ADDUCTORS: 'Adutores',
+  ABDUCTORS: 'Abdutores'
 };
 
 export const StoryBodyMapVector: React.FC<StoryBodyMapVectorProps> = ({
   intensities = {},
   className = '',
   showLabels = true,
-  view = 'both'
+  view = 'both',
+  sex = 'MALE'
 }) => {
   const values = useMemo<MuscleMapValues>(() => {
+    // Give every anatomical group an explicit score of 0 so untrained
+    // muscles use the neutral monochrome base instead of exposing the
+    // original colored body photo beneath the SVG muscle paths.
     const result: MuscleMapValues = {};
+    (Object.keys(GROUP_LABELS) as MuscleGroup[]).forEach(group => {
+      result[group] = { score: 0 };
+    });
     (Object.entries(intensities) as [BodyRegionId, MuscleIntensity][]).forEach(([region, intensity]) => {
       const groups = REGION_TO_GROUPS[region] || [];
       groups.forEach(group => {
         if (intensity === 'primary') result[group] = { score: 100 };
-        if (intensity === 'secondary') result[group] = { score: 58 };
+        if (intensity === 'secondary') result[group] = { score: 45 };
       });
     });
     return result;
@@ -105,12 +117,12 @@ export const StoryBodyMapVector: React.FC<StoryBodyMapVectorProps> = ({
       <MuscleMap
         values={values}
         view={selectedView}
-        sex="MALE"
+        sex={sex}
         colorModel="LOAD"
         monochromeColor="#3185E8"
-        monochromeBaseColor="#D7DCE3"
-        backgroundImageFront={maleFront}
-        backgroundImageBack={maleBack}
+        monochromeBaseColor="#D1D5DB"
+        backgroundImageFront={sex === 'FEMALE' ? femaleFront : maleFront}
+        backgroundImageBack={sex === 'FEMALE' ? femaleBack : maleBack}
         backgroundGrayscale
         backgroundBrightness={1.08}
         backgroundOpacity={0.72}
