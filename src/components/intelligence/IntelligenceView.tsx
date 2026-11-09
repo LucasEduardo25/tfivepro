@@ -196,16 +196,21 @@ export const IntelligenceView: React.FC = () => {
         });
       });
 
+      // Uma sessão concluída pode conter séries registradas sem status explícito
+      // ou com exercícios de peso corporal/tempo/distância. Não exigir carga ou
+      // status "completed" para reconhecer que há registros associados à sessão.
       const recentIncomplete = completed.filter(session => now - new Date(session.endTime || session.startTime).getTime() <= 28 * dayMs)
-        .filter(session => !session.sets.some(set => set.status === 'completed' && (
-          Number(set.actualReps || 0) > 0 || Number(set.weightKg || 0) > 0 ||
-          Number((set as any).actualDurationSeconds || 0) > 0 || Number((set as any).actualDistance || 0) > 0
-        )));
+        .filter(session => {
+          const recordedSets = Array.isArray(session.sets) ? session.sets : [];
+          const hasSetRecords = recordedSets.length > 0;
+          const declaredSetCount = Number(session.totalSets || 0);
+          return !hasSetRecords && declaredSetCount <= 0;
+        });
       if (recentIncomplete.length) alerts.push({
         id: student.id + '-incomplete-' + recentIncomplete[0].id, studentId: student.id, studentName: student.name, severity: 'info',
         title: 'Verificar registros de sessão',
-        evidence: recentIncomplete.length + ' sessão(ões) recente(s) sem séries concluídas com métricas reconhecidas.',
-        action: 'Confira se a sessão foi finalizada corretamente ou se o exercício usa um tipo de registro ainda não contemplado.',
+        evidence: recentIncomplete.length + ' sessão(ões) concluída(s) sem séries associadas nem total de séries informado.',
+        action: 'Confira se os exercícios e as séries foram sincronizados para o histórico. Sessões com séries registradas não serão classificadas como incompletas apenas por não terem carga ou status explícito.',
         kind: 'Qualidade dos dados'
       });
     });
