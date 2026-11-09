@@ -7,6 +7,10 @@ import { processWorkoutMuscles } from '../../utils/dynamicMuscleMapping';
 import { StoryBodyMapVector } from './StoryBodyMapVector';
 
 export type DOMStoryTemplateId = 
+  | 'clean_card'
+  | 'stats_card'
+  | 'clean_overlay'
+  | 'stats_overlay'
   | 'frame'
   | 'performance'
   | 'mais_forte'
@@ -47,8 +51,12 @@ export const WorkoutStoryDOMRenderer = forwardRef<StoryDOMRendererRef, StoryDOMR
 
     // Map any legacy ID to one of the 7 canonical models
     const activeModelId = useMemo<
-      'frame' | 'performance' | 'mais_forte' | 'resumo_treino' | 'evolucao' | 'minimal_data' | 'body_map'
+      'clean_card' | 'stats_card' | 'clean_overlay' | 'stats_overlay' | 'frame' | 'performance' | 'mais_forte' | 'resumo_treino' | 'evolucao' | 'minimal_data' | 'body_map'
     >(() => {
+      if (templateId === 'clean_card') return 'clean_card';
+      if (templateId === 'stats_card') return 'stats_card';
+      if (templateId === 'clean_overlay') return 'clean_overlay';
+      if (templateId === 'stats_overlay') return 'stats_overlay';
       if (templateId === 'frame') return 'frame';
       if (
         templateId === 'performance' ||
@@ -259,6 +267,97 @@ export const WorkoutStoryDOMRenderer = forwardRef<StoryDOMRendererRef, StoryDOMR
     // Render the selected template
     const renderContent = () => {
       switch (activeModelId) {
+        case 'clean_card':
+        case 'stats_card': {
+          const isStats = activeModelId === 'stats_card';
+          return (
+            <div className="w-[1080px] h-[1920px] relative overflow-hidden bg-[#101113] text-white flex flex-col justify-between p-[76px] select-none">
+              <div className="absolute top-0 left-0 right-0 h-[14px] bg-[#E11D2E]" />
+              <div className="flex items-center justify-between pt-8">
+                <div className="flex items-center gap-5">
+                  <div className="w-[74px] h-[74px] rounded-[22px] bg-[#E11D2E] flex items-center justify-center text-[38px] font-black">T</div>
+                  <div>
+                    <div className="text-[32px] font-black tracking-[.12em]">TFIVE PRO</div>
+                    <div className="text-[19px] text-zinc-400 tracking-[.2em] font-semibold">TREINO CONCLUÍDO</div>
+                  </div>
+                </div>
+                <div className="text-[20px] text-zinc-400 font-semibold">{dateStr}</div>
+              </div>
+              <div className="mt-20">
+                <div className="text-[24px] text-[#F04452] font-bold tracking-[.22em] mb-5">SESSÃO FINALIZADA</div>
+                <div className="text-[74px] leading-[1.05] font-black tracking-[-.04em] break-words">{workoutName}</div>
+                <div className="text-[34px] text-zinc-400 mt-7 font-medium">{firstName}</div>
+              </div>
+              <div className="mt-16">
+                <div className="grid grid-cols-2 gap-5">
+                  <div className="bg-[#1D1F23] rounded-[28px] p-8 border border-white/5">
+                    <div className="text-[21px] text-zinc-400 font-bold tracking-[.15em]">DURAÇÃO</div>
+                    <div className="text-[66px] font-black mt-4">{duration}</div>
+                  </div>
+                  <div className="bg-[#1D1F23] rounded-[28px] p-8 border border-white/5">
+                    <div className="text-[21px] text-zinc-400 font-bold tracking-[.15em]">VOLUME</div>
+                    <div className="text-[66px] font-black mt-4">{volume}</div>
+                  </div>
+                  <div className="bg-[#1D1F23] rounded-[28px] p-8 border border-white/5">
+                    <div className="text-[21px] text-zinc-400 font-bold tracking-[.15em]">EXERCÍCIOS</div>
+                    <div className="text-[66px] font-black mt-4">{exercisesCount}</div>
+                  </div>
+                  <div className="bg-[#1D1F23] rounded-[28px] p-8 border border-white/5">
+                    <div className="text-[21px] text-zinc-400 font-bold tracking-[.15em]">SÉRIES</div>
+                    <div className="text-[66px] font-black mt-4">{setsCount}</div>
+                  </div>
+                </div>
+                {isStats && exercisesSummaryList.length > 0 && (
+                  <div className="mt-8 bg-[#1D1F23] rounded-[28px] p-8 border border-white/5">
+                    <div className="text-[21px] text-zinc-400 font-bold tracking-[.15em] mb-5">DESTAQUES DO TREINO</div>
+                    {exercisesSummaryList.slice(0, 5).map(item => (
+                      <div key={item.order} className="flex justify-between gap-5 py-4 border-b border-white/10 last:border-0">
+                        <span className="text-[25px] font-bold truncate">{item.name}</span>
+                        <span className="text-[23px] text-zinc-400 whitespace-nowrap">{item.setsCount} séries {item.maxWeightStr ? `· ${item.maxWeightStr}` : ''}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+              <div className="flex items-center justify-between border-t border-white/15 pt-8 mt-12">
+                <div className="text-[20px] text-zinc-500 tracking-[.16em]">DISCIPLINA • CONSTÂNCIA • EVOLUÇÃO</div>
+                <div className="text-[26px] font-black tracking-[.12em]">TFIVE<span className="text-[#E11D2E]">.</span></div>
+              </div>
+            </div>
+          );
+        }
+        case 'clean_overlay':
+        case 'stats_overlay': {
+          const isStats = activeModelId === 'stats_overlay';
+          return (
+            <div className="w-[1080px] h-[1920px] relative overflow-hidden bg-transparent text-white flex flex-col justify-between p-[76px] select-none">
+              <div className="flex items-start justify-between">
+                <div className="drop-shadow-[0_3px_12px_rgba(0,0,0,.9)]">
+                  <div className="text-[42px] font-black tracking-[.12em]">TFIVE<span className="text-[#E11D2E]">.</span></div>
+                  <div className="text-[18px] font-bold tracking-[.2em] text-white/75">TREINO CONCLUÍDO</div>
+                </div>
+                <div className="bg-black/55 rounded-full px-6 py-3 text-[20px] font-bold backdrop-blur-sm">{dateStr}</div>
+              </div>
+              <div className="mt-auto bg-gradient-to-t from-black/90 via-black/75 to-black/0 -mx-[76px] px-[76px] pt-[150px] pb-[64px]">
+                <div className="text-[23px] font-bold tracking-[.2em] text-[#FF5965] mb-4">SESSÃO FINALIZADA</div>
+                <div className="text-[66px] leading-[1.05] font-black tracking-[-.03em] drop-shadow-lg">{workoutName}</div>
+                <div className="text-[30px] text-white/80 mt-5 font-semibold">{firstName}</div>
+                <div className="grid grid-cols-2 gap-x-8 gap-y-7 mt-12">
+                  <div><div className="text-[18px] tracking-[.16em] text-white/65 font-bold">DURAÇÃO</div><div className="text-[54px] font-black">{duration}</div></div>
+                  <div><div className="text-[18px] tracking-[.16em] text-white/65 font-bold">VOLUME</div><div className="text-[54px] font-black">{volume}</div></div>
+                  <div><div className="text-[18px] tracking-[.16em] text-white/65 font-bold">EXERCÍCIOS</div><div className="text-[54px] font-black">{exercisesCount}</div></div>
+                  <div><div className="text-[18px] tracking-[.16em] text-white/65 font-bold">SÉRIES</div><div className="text-[54px] font-black">{setsCount}</div></div>
+                </div>
+                {isStats && exercisesSummaryList.length > 0 && (
+                  <div className="mt-9 pt-6 border-t border-white/25">
+                    {exercisesSummaryList.slice(0, 3).map(item => <div key={item.order} className="flex justify-between gap-4 py-2 text-[20px]"><span className="font-bold truncate">{item.name}</span><span className="text-white/70 whitespace-nowrap">{item.setsCount} séries</span></div>)}
+                  </div>
+                )}
+                <div className="flex justify-end mt-10 text-[24px] font-black tracking-[.14em]">TFIVE PRO</div>
+              </div>
+            </div>
+          );
+        }
         // ====================================================================
         // MODELO 01 — TFIVE FRAME
         // Asymmetric futuristic frame inspired by Card 1 of reference
