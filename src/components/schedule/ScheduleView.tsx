@@ -207,8 +207,9 @@ export const ScheduleView: React.FC<ScheduleViewProps> = ({
       });
     }
 
-    const remaining = 35 - (days.length % 35);
-    if (remaining > 0 && remaining < 7) {
+    // Complete the final calendar row so the month grid always has full weeks.
+    const remaining = (7 - (days.length % 7)) % 7;
+    if (remaining > 0) {
       for (let day = 1; day <= remaining; day++) {
         const nextDate = new Date(year, month, day);
         const dateStr = formatDateToISO(nextDate);
