@@ -179,7 +179,7 @@ export const EvolutionReportsTab: React.FC<EvolutionReportsTabProps> = ({ studen
           <div className="w-16 h-16 rounded-2xl bg-[#F8F9FA] border border-[#E5E7EB] flex items-center justify-center mx-auto mb-4 text-[#374151]">
             <FileText className="w-8 h-8" />
           </div>
-          <h3 className="text-base sm:text-lg font-bold text-white mb-2">
+          <h3 className="text-base sm:text-lg font-bold text-[#1F2937] mb-2">
             Nenhum relatório de evolução criado ainda
           </h3>
           <p className="text-xs sm:text-sm text-[#4B5563] max-w-md mx-auto mb-6">
@@ -214,7 +214,7 @@ export const EvolutionReportsTab: React.FC<EvolutionReportsTabProps> = ({ studen
                     <div className="flex flex-wrap items-center gap-2">
                       <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider flex items-center gap-1 ${
                         isFinalized 
-                          ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30' 
+                          ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30' 
                           : 'bg-amber-500/15 text-amber-400 border border-amber-500/30'
                       }`}>
                         {isFinalized ? <CheckCircle2 className="w-3 h-3" /> : <Clock className="w-3 h-3" />}
