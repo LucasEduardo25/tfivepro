@@ -41,7 +41,6 @@ import { normalizeWorkoutRoutine } from '../../db/indexedDB';
 
 import { Student, WorkoutRoutine, RoutineWorkout, WorkoutSession, PhysicalAssessment, TrainingCycle } from '../../types';
 
-import { StudentAccessControlCard } from "./StudentAccessControlCard";
 import { StudentPlanTab } from "../plans/StudentPlanTab";
 import { StudentPlanSummaryCard } from "../plans/StudentPlanSummaryCard";
 import { ProposalDetailModal } from '../proposals/ProposalDetailModal';
@@ -512,7 +511,6 @@ export const StudentProfileView: React.FC<StudentProfileViewProps> = ({
           ] },
           { id: "management", label: "Gestão", tabs: [
             { id: "plan", label: studentProposalsCount > 0 ? `Planos e contratos (${studentProposalsCount})` : "Planos e contratos" },
-            { id: "access", label: "Acesso TFIVE" },
           ] },
         ];
         const activeGroup = groups.find((group) => group.tabs.some((tab) => tab.id === activeTab)) || groups[0];
@@ -2158,7 +2156,6 @@ export const StudentProfileView: React.FC<StudentProfileViewProps> = ({
       {activeTab === "photos" && <EvolutionPhotosGallery student={student} />}
 
       {/* TAB CONTENT: ACESSO TFIVE (MODO ALUNO - ETAPA 1) */}
-      {activeTab === "access" && <StudentAccessControlCard student={student} />}
 
       {/* Student Edit Profile Modal */}
       {routineToDelete && (
