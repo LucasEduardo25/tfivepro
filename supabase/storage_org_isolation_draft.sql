@@ -219,4 +219,31 @@ using (
   end
 );
 
+
+-- Activation marker consumed by the client. It is written only after all
+-- organization-scoped policies above have been created successfully.
+create table if not exists public.organization_storage_security (
+  key text primary key,
+  enabled boolean not null default false,
+  policy_version integer not null default 0,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+alter table public.organization_storage_security enable row level security;
+drop policy if exists "Authenticated read storage security marker" on public.organization_storage_security;
+create policy "Authenticated read storage security marker"
+on public.organization_storage_security for select to authenticated
+using (true);
+
+revoke all on public.organization_storage_security from public, anon;
+grant select on public.organization_storage_security to authenticated;
+
+insert into public.organization_storage_security (key, enabled, policy_version, updated_at)
+values ('organization_scoped_storage', true, 1, now())
+on conflict (key) do update
+set enabled = excluded.enabled,
+    policy_version = excluded.policy_version,
+    updated_at = excluded.updated_at;
+
 commit;
