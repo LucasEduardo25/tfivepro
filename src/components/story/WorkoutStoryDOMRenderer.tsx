@@ -909,6 +909,26 @@ export const WorkoutStoryDOMRenderer = forwardRef<StoryDOMRendererRef, StoryDOMR
               className="w-[1080px] h-[1920px] relative overflow-hidden text-white select-none"
               style={{ background: 'transparent' }}
             >
+              {/* Indicadores do treino — adicionados sem alterar o Body Map original */}
+              <div className="absolute top-[55px] left-1/2 -translate-x-1/2 w-[860px] grid grid-cols-4 gap-4">
+                <div className="min-w-0 rounded-[22px] px-4 py-5 text-center" style={{ background: 'rgba(12, 14, 18, 0.82)', border: '1px solid rgba(255,255,255,0.16)', backdropFilter: 'blur(18px)', WebkitBackdropFilter: 'blur(18px)' }}>
+                  <span className="block text-[14px] font-bold tracking-[0.16em] text-zinc-400 uppercase">Duração</span>
+                  <span className="block mt-2 text-[29px] leading-none font-black font-mono-nums text-white whitespace-nowrap">{duration}</span>
+                </div>
+                <div className="min-w-0 rounded-[22px] px-4 py-5 text-center" style={{ background: 'rgba(12, 14, 18, 0.82)', border: '1px solid rgba(255,255,255,0.16)', backdropFilter: 'blur(18px)', WebkitBackdropFilter: 'blur(18px)' }}>
+                  <span className="block text-[14px] font-bold tracking-[0.16em] text-zinc-400 uppercase">Volume</span>
+                  <span className="block mt-2 text-[29px] leading-none font-black font-mono-nums text-white whitespace-nowrap">{volume}</span>
+                </div>
+                <div className="min-w-0 rounded-[22px] px-4 py-5 text-center" style={{ background: 'rgba(12, 14, 18, 0.82)', border: '1px solid rgba(255,255,255,0.16)', backdropFilter: 'blur(18px)', WebkitBackdropFilter: 'blur(18px)' }}>
+                  <span className="block text-[14px] font-bold tracking-[0.16em] text-zinc-400 uppercase">Exercícios</span>
+                  <span className="block mt-2 text-[29px] leading-none font-black font-mono-nums text-white">{exercisesCount}</span>
+                </div>
+                <div className="min-w-0 rounded-[22px] px-4 py-5 text-center" style={{ background: 'rgba(12, 14, 18, 0.82)', border: '1px solid rgba(255,255,255,0.16)', backdropFilter: 'blur(18px)', WebkitBackdropFilter: 'blur(18px)' }}>
+                  <span className="block text-[14px] font-bold tracking-[0.16em] text-zinc-400 uppercase">Séries</span>
+                  <span className="block mt-2 text-[29px] leading-none font-black font-mono-nums text-white">{setsCount}</span>
+                </div>
+              </div>
+
               {/* Card compacto para sobreposição na foto */}
               <div
                 className="absolute top-[250px] left-1/2 -translate-x-1/2 w-[860px] rounded-[34px] px-10 pt-9 pb-8 overflow-hidden"
