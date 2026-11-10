@@ -256,11 +256,32 @@ export class SupabaseStudentRepository implements IStudentRepository {
 
   async delete(id: string): Promise<void> {
     const isU = isUUID(id);
-    
-    // Finally delete the student directly. If it fails due to FK, it throws an error 
-    // and preserves data rather than fragmenting it.
+    const orgId = resolveOrgId();
+    const studentUuid = await resolveStudentUuid(id);
+    const { data: studentRow, error: studentReadError } = await fromTable('students')
+      .select('photo_url')
+      .eq(isU ? 'id' : 'legacy_id', id)
+      .eq('organization_id', orgId)
+      .maybeSingle();
+    if (studentReadError) throw studentReadError;
+
+    let evolutionReferences: string[] = [];
+    if (studentUuid) {
+      const { data: photoRows, error: photoReadError } = await supabase
+        .from('student_photos')
+        .select('photo_reference')
+        .eq('organization_id', orgId)
+        .eq('student_id', studentUuid);
+      const missingPhotoTable = (photoReadError as { code?: string } | null)?.code === '42P01' ||
+        (photoReadError as { code?: string } | null)?.code === 'PGRST205';
+      if (photoReadError && !missingPhotoTable) throw photoReadError;
+      evolutionReferences = (photoRows || []).map(row => row.photo_reference);
+    }
+
+    // Remove the student first. If foreign keys reject deletion, preserve all files.
     let query = fromTable('students').delete();
     query = isU ? query.eq('id', id) : query.eq('legacy_id', id);
+    query = query.eq('organization_id', orgId);
     const { error } = await query;
     if (error) {
       if (error.code === '23503') {
@@ -268,6 +289,12 @@ export class SupabaseStudentRepository implements IStudentRepository {
       }
       throw error;
     }
+
+    const references = [
+      ...(studentRow?.photo_url ? [studentRow.photo_url] : []),
+      ...evolutionReferences,
+    ].filter(isOrganizationStorageReference);
+    await Promise.all(references.map(reference => deleteOrganizationImage(reference).catch(() => undefined)));
   }
 }
 
