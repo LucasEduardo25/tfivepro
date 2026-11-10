@@ -90,7 +90,8 @@ import {
   getSettingsRepository,
   getWorkoutTemplateRepository,
   getFunctionalTestRepository,
-  getFunctionalBatteryRepository
+  getFunctionalBatteryRepository,
+  getStudentPhotoRepository
 } from '../repositories/repositoryConfig';
 import { 
   persistLiveWorkoutStateToSupabase, 
@@ -436,6 +437,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         loadedActivePlans,
         loadedFunctionalTests,
         loadedFunctionalBatteries,
+        loadedPhotos,
         savedTrainerProfile,
         savedActiveWorkouts,
         remoteActiveWorkouts,
@@ -452,6 +454,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         getActivePlanRepository().getAll(),
         getFunctionalTestRepository().getAll(),
         getFunctionalBatteryRepository().getAll(),
+        getStudentPhotoRepository().getAll(),
         getSettingsRepository().get<TrainerProfile>('trainer_profile'),
         getAllActiveWorkoutStates(),
         fetchLiveWorkoutsFromSupabaseStrict().catch(() => null),
@@ -503,6 +506,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       setRoutines(loadedRoutines || []);
       setSessions(loadedSessions || []);
       setAssessments(loadedAssessments || []);
+      setPhotos(loadedPhotos || []);
       setSchedule(loadedSchedule || []);
       setScheduleRecurrences(loadedRecurrences || []);
       setTrainingCycles(loadedTrainingCycles || []);
@@ -563,6 +567,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         loadedActivePlans,
         loadedFunctionalTests,
         loadedFunctionalBatteries,
+        loadedPhotos,
         savedTrainerProfile
       ] = await Promise.all([
         getStudentRepository().getAll(),
@@ -577,6 +582,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         getActivePlanRepository().getAll(),
         getFunctionalTestRepository().getAll(),
         getFunctionalBatteryRepository().getAll(),
+        getStudentPhotoRepository().getAll(),
         getSettingsRepository().get<TrainerProfile>('trainer_profile')
       ]);
       setStudents(loadedStudents || []);
@@ -584,6 +590,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       setRoutines(loadedRoutines || []);
       setSessions(loadedSessions || []);
       setAssessments(loadedAssessments || []);
+      setPhotos(loadedPhotos || []);
       setSchedule(loadedSchedule || []);
       setScheduleRecurrences(loadedRecurrences || []);
       setTrainingCycles(loadedTrainingCycles || []);
@@ -1234,18 +1241,22 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const savePhoto = async (photo: StudentPhoto) => {
+    // Persist binary to private Storage and metadata to Postgres before updating UI.
+    const savedPhoto = await getStudentPhotoRepository().save(photo);
     setPhotos(prev => {
-      const idx = prev.findIndex(p => p.id === photo.id);
+      const idx = prev.findIndex(p => p.id === savedPhoto.id);
       if (idx >= 0) {
         const copy = [...prev];
-        copy[idx] = photo;
+        copy[idx] = savedPhoto;
         return copy;
       }
-      return [photo, ...prev];
+      return [savedPhoto, ...prev];
     });
   };
 
   const deletePhoto = async (id: string) => {
+    // Delete from cloud first; retain UI item if the server rejects the operation.
+    await getStudentPhotoRepository().delete(id);
     setPhotos(prev => prev.filter(p => p.id !== id));
   };
 
