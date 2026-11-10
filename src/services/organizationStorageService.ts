@@ -57,12 +57,12 @@ const assertConfigured = (): void => {
   if (!isSupabaseConfigured()) throw new Error('Supabase Storage não está configurado.');
 };
 
-const getOrganizationScope = (): { organizationId: string; role: string; studentId?: string } => {
+const getOrganizationScope = (): { organizationId: string } => {
   const user = authService.getAuthState().user;
   if (!user?.organizationId || !isUuid(user.organizationId)) {
     throw new Error('Organização inválida ou sessão não autenticada.');
   }
-  return { organizationId: user.organizationId, role: user.role, studentId: user.studentId };
+  return { organizationId: user.organizationId };
 };
 
 const assertTrainer = (): { organizationId: string } => {
@@ -145,7 +145,7 @@ export async function uploadOrganizationImage(
 
 /**
  * Returns a short-lived URL only after checking that the reference belongs
- * to the authenticated user's organization (or the student's own folder).
+ * to the authenticated trainer's organization.
  */
 export async function getOrganizationImageUrl(
   reference: string,
@@ -154,20 +154,11 @@ export async function getOrganizationImageUrl(
   assertConfigured();
   await assertStorageIsolationEnabled();
   const { bucket, path } = parseReference(reference);
-  const scope = getOrganizationScope();
-  const segments = path.split('/');
-  const pathOrganizationId = segments[0];
+  const { organizationId } = assertTrainer();
+  const pathOrganizationId = path.split('/')[0];
 
-  if (pathOrganizationId !== scope.organizationId) {
+  if (pathOrganizationId !== organizationId) {
     throw new Error('Acesso negado: arquivo pertence a outra organização.');
-  }
-
-  if (scope.role === 'STUDENT') {
-    if (bucket === 'organization-assets' || !scope.studentId || segments[1] !== scope.studentId) {
-      throw new Error('Acesso negado: aluno não pode acessar este arquivo.');
-    }
-  } else {
-    authService.assertTrainer('visualizar arquivos da organização');
   }
 
   const { data, error } = await supabase.storage.from(bucket).createSignedUrl(path, expiresInSeconds);
