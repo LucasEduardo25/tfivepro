@@ -85,14 +85,18 @@ const fromTable = (table: string): any => {
 // 1. SUPABASE STUDENT REPOSITORY
 // ==============================================================================
 export class SupabaseStudentRepository implements IStudentRepository {
-  private mapStudent(row: any): Student {
+  private async mapStudent(row: any): Promise<Student> {
+    let photo = row.photo_url || undefined;
+    if (photo && isOrganizationStorageReference(photo)) {
+      photo = await getOrganizationImageUrl(photo);
+    }
     return {
       id: row.legacy_id || row.id,
       uuid: row.id,
       legacyId: row.legacy_id || undefined,
       organizationId: row.organization_id,
       name: row.name,
-      photo: row.photo_url || undefined,
+      photo,
       phone: row.phone || undefined,
       email: row.email || undefined,
       goal: row.goal || undefined,
@@ -119,7 +123,7 @@ export class SupabaseStudentRepository implements IStudentRepository {
     if (error) throw error;
     if (!data) return [];
 
-    return data.map((row: any) => this.mapStudent(row));
+    return Promise.all(data.map((row: any) => this.mapStudent(row)));
   }
 
   async getById(id: string): Promise<Student | null> {
@@ -154,13 +158,23 @@ export class SupabaseStudentRepository implements IStudentRepository {
   async create(student: Student): Promise<Student> {
     const { uuid, legacyId } = ensureUUID(student.id);
     const orgId = resolveOrgId(student.organizationId);
+    let photoReference = student.photo || null;
+    let uploadedPhotoReference: string | null = null;
+    if (photoReference?.startsWith('data:image/')) {
+      const upload = await uploadOrganizationImage(dataUrlToImageBlob(photoReference), {
+        kind: 'student-avatar',
+        studentId: uuid,
+      });
+      photoReference = upload.reference;
+      uploadedPhotoReference = photoReference;
+    }
 
     const insertPayload = {
       id: uuid,
       legacy_id: legacyId || null,
       organization_id: orgId,
       name: student.name,
-      photo_url: student.photo || null,
+      photo_url: photoReference,
       phone: student.phone || null,
       email: student.email || null,
       goal: student.goal || null,
@@ -177,14 +191,13 @@ export class SupabaseStudentRepository implements IStudentRepository {
     };
 
     const { data, error } = await fromTable('students').insert(insertPayload).select().single();
-    if (error) throw error;
+    if (error) {
+      if (uploadedPhotoReference) await deleteOrganizationImage(uploadedPhotoReference).catch(() => undefined);
+      throw error;
+    }
 
-    return {
-      ...student,
-      id: data.legacy_id || data.id,
-      createdAt: data.created_at,
-      updatedAt: data.updated_at,
-    };
+    const mapped = await this.mapStudent(data);
+    return { ...student, ...mapped };
   }
 
   async update(id: string, patch: Partial<Student>): Promise<Student> {
@@ -198,7 +211,21 @@ export class SupabaseStudentRepository implements IStudentRepository {
     if (patch.name !== undefined) updatePayload.name = patch.name;
     if (patch.phone !== undefined) updatePayload.phone = patch.phone;
     if (patch.email !== undefined) updatePayload.email = patch.email;
-    if (patch.photo !== undefined) updatePayload.photo_url = patch.photo;
+    let uploadedPhotoReference: string | null = null;
+    if (patch.photo !== undefined) {
+      let photoReference = patch.photo || null;
+      const studentUuid = existing.uuid || (isUUID(id) ? id : await resolveStudentUuid(id));
+      if (photoReference?.startsWith('data:image/')) {
+        if (!studentUuid || !isUUID(studentUuid)) throw new Error('UUID do aluno inválido para salvar a foto de perfil.');
+        const upload = await uploadOrganizationImage(dataUrlToImageBlob(photoReference), {
+          kind: 'student-avatar',
+          studentId: studentUuid,
+        });
+        photoReference = upload.reference;
+        uploadedPhotoReference = photoReference;
+      }
+      updatePayload.photo_url = photoReference;
+    }
     if (patch.goal !== undefined) updatePayload.goal = patch.goal;
     if (patch.notes !== undefined) updatePayload.notes = patch.notes;
     if (patch.studentVisibleNotes !== undefined) updatePayload.student_visible_notes = patch.studentVisibleNotes;
@@ -214,14 +241,17 @@ export class SupabaseStudentRepository implements IStudentRepository {
     let query = fromTable('students').update(updatePayload);
     query = isU ? query.eq('id', id) : query.eq('legacy_id', id);
     const { data, error } = await query.select().single();
-    if (error) throw error;
+    if (error) {
+      if (uploadedPhotoReference) await deleteOrganizationImage(uploadedPhotoReference).catch(() => undefined);
+      throw error;
+    }
 
-    return {
-      ...existing,
-      ...patch,
-      id: data.legacy_id || data.id,
-      updatedAt: data.updated_at,
-    };
+    const mapped = await this.mapStudent(data);
+    if (patch.photo !== undefined && existing.photo && isOrganizationStorageReference(existing.photo) &&
+        existing.photo !== data.photo_url) {
+      await deleteOrganizationImage(existing.photo).catch(() => undefined);
+    }
+    return { ...existing, ...patch, ...mapped, id: data.legacy_id || data.id, updatedAt: data.updated_at };
   }
 
   async delete(id: string): Promise<void> {
