@@ -32,8 +32,8 @@ create policy "Trainers manage organization student photos"
   using (public.is_trainer(organization_id))
   with check (public.is_trainer(organization_id));
 
--- Student self-access is read-only. Confirm with product owner before exposing
--- evolution photos in the student portal; this policy is intentionally omitted
+-- Student self-access is not part of the current product scope.
+-- Only the trainer's organization-scoped policies are created here.
 -- from the initial rollout until that product decision is made.
 
 grant select, insert, update, delete on public.student_photos to authenticated;
