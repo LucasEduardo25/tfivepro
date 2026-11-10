@@ -23,7 +23,7 @@ const BUCKET_BY_KIND: Record<OrganizationImageKind, string> = {
   'assessment-photo': 'assessment-photos',
 };
 
-const MAX_IMAGE_BYTES = 20 * 1024 * 1024;
+const MAX_IMAGE_BYTES_BY_BUCKET: Record<string, number> = {\n  'organization-assets': 10 * 1024 * 1024,\n  'student-avatars': 5 * 1024 * 1024,\n  'assessment-photos': 20 * 1024 * 1024,\n};
 const ALLOWED_IMAGE_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp']);
 
 const isUuid = (value: string): boolean =>
