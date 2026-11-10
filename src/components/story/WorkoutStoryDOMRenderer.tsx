@@ -171,6 +171,14 @@ export const WorkoutStoryDOMRenderer = forwardRef<StoryDOMRendererRef, StoryDOMR
       return new Set(validSets.map(s => s.exerciseId || s.exerciseName)).size;
     }, [validSets]);
 
+    const exerciseNames = useMemo(() => {
+      return Array.from(new Set(
+        validSets
+          .map(s => (s.exerciseName || (s as any).name || '').trim())
+          .filter(Boolean)
+      ));
+    }, [validSets]);
+
     const setsCount = validSets.length || session.totalSets || 0;
 
     const firstName = (studentName || session.studentName || 'Aluno').split(' ')[0].toUpperCase();
@@ -905,10 +913,16 @@ export const WorkoutStoryDOMRenderer = forwardRef<StoryDOMRendererRef, StoryDOMR
         case 'body_map':
           return (
             <div
-              className="w-[1080px] h-[1920px] relative text-white select-none flex flex-col items-center justify-center"
+              className="w-[1080px] h-[1920px] relative text-white select-none flex flex-col items-center"
               style={{ background: 'transparent' }}
             >
-              <div className="w-full h-[1510px] flex items-center justify-center px-6">
+              <div className="w-full pt-16 text-center">
+                <p className="text-[34px] font-bold tracking-[0.22em] text-white uppercase">
+                  TREINO DE {firstName}
+                </p>
+              </div>
+
+              <div className="w-full h-[1120px] flex items-center justify-center px-6">
                 <StoryBodyMapVector
                   intensities={muscleAnalysis.intensities}
                   sex={bodyMapSex}
@@ -918,8 +932,8 @@ export const WorkoutStoryDOMRenderer = forwardRef<StoryDOMRendererRef, StoryDOMR
                 />
               </div>
 
-              <div className="w-full px-10 pb-10 flex items-center justify-center">
-                <div className="flex items-center justify-center gap-10 text-[22px] font-semibold tracking-wide uppercase">
+              <div className="w-full px-10 pb-8 flex items-center justify-center">
+                <div className="flex items-center justify-center gap-10 text-[20px] font-semibold tracking-wide uppercase">
                   <div className="flex items-center gap-3">
                     <span className="w-4 h-4 rounded-full bg-[#3185E8]" />
                     <span className="text-white">Primário</span>
@@ -934,6 +948,22 @@ export const WorkoutStoryDOMRenderer = forwardRef<StoryDOMRendererRef, StoryDOMR
                   </div>
                 </div>
               </div>
+
+              {exerciseNames.length > 0 && (
+                <div className="w-full px-16 pt-5">
+                  <p className="text-center text-[21px] font-bold tracking-[0.22em] text-zinc-300 uppercase mb-5">
+                    Exercícios
+                  </p>
+                  <div className="grid grid-cols-2 gap-x-12 gap-y-3">
+                    {exerciseNames.slice(0, 12).map((name, index) => (
+                      <div key={index} className="flex items-start gap-3 text-[20px] leading-snug text-white">
+                        <span className="text-zinc-400 font-bold">{String(index + 1).padStart(2, '0')}</span>
+                        <span>{name}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           );
 
