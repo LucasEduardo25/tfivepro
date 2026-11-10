@@ -1225,7 +1225,7 @@ export class SupabaseAssessmentRepository implements IAssessmentRepository {
     let uploadedPhotoReferences: string[] = [];
     if (patch.photos !== undefined) {
       const studentUuid = rawExisting.student_id as string;
-      const storedPhotos = await this.storeAssessmentPhotos(patch.photos, studentUuid, isU ? id : (await this.getAssessmentUuid(id)));
+      const storedPhotos = await this.storeAssessmentPhotos(patch.photos, studentUuid, isU ? id : (await this.getAssessmentUuid(id)), existing.photos, rawExisting.photos as PhysicalAssessment['photos']);
       updatePayload.photos = storedPhotos.photos;
       uploadedPhotoReferences = storedPhotos.uploadedReferences;
     }
@@ -1263,13 +1263,17 @@ export class SupabaseAssessmentRepository implements IAssessmentRepository {
     photos: PhysicalAssessment['photos'],
     studentUuid: string,
     assessmentUuid: string,
+    previousResolved?: PhysicalAssessment['photos'],
+    previousStored?: PhysicalAssessment['photos'],
   ): Promise<{ photos: Record<string, string> | null; uploadedReferences: string[] }> {
     if (!photos) return { photos: null, uploadedReferences: [] };
     const result: Record<string, string> = {};
     const uploadedReferences: string[] = [];
     for (const [angle, value] of Object.entries(photos)) {
       if (!value) continue;
-      if (value.startsWith('data:image/')) {
+      if (previousResolved?.[angle as keyof typeof previousResolved] === value && previousStored?.[angle as keyof typeof previousStored]) {
+        result[angle] = previousStored[angle as keyof typeof previousStored] as string;
+      } else if (value.startsWith('data:image/')) {
         const upload = await uploadOrganizationImage(dataUrlToImageBlob(value), {
           kind: 'assessment-photo', studentId: studentUuid, assessmentId: assessmentUuid,
         });
