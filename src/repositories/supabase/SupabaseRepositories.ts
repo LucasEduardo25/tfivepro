@@ -1172,6 +1172,9 @@ export class SupabaseAssessmentRepository implements IAssessmentRepository {
     };
     if (patch.notes !== undefined) updatePayload.notes = patch.notes;
     if (patch.conclusions !== undefined) updatePayload.conclusions = patch.conclusions;
+    if (patch.photos !== undefined) updatePayload.photos = patch.photos;
+    if (patch.skinfolds !== undefined) updatePayload.skinfolds = patch.skinfolds;
+    if (patch.circumferences !== undefined) updatePayload.circumferences = patch.circumferences;
 
     let query = fromTable('assessments').update(updatePayload);
     query = isU ? query.eq('id', id) : query.eq('legacy_id', id);
