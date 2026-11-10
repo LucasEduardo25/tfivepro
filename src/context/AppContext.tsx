@@ -90,7 +90,8 @@ import {
   getSettingsRepository,
   getWorkoutTemplateRepository,
   getFunctionalTestRepository,
-  getFunctionalBatteryRepository
+  getFunctionalBatteryRepository,
+  getStudentPhotoRepository
 } from '../repositories/repositoryConfig';
 import { 
   persistLiveWorkoutStateToSupabase, 
@@ -436,6 +437,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         loadedActivePlans,
         loadedFunctionalTests,
         loadedFunctionalBatteries,
+        loadedPhotos,
         savedTrainerProfile,
         savedActiveWorkouts,
         remoteActiveWorkouts,
@@ -452,6 +454,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         getActivePlanRepository().getAll(),
         getFunctionalTestRepository().getAll(),
         getFunctionalBatteryRepository().getAll(),
+        getStudentPhotoRepository().getAll(),
         getSettingsRepository().get<TrainerProfile>('trainer_profile'),
         getAllActiveWorkoutStates(),
         fetchLiveWorkoutsFromSupabaseStrict().catch(() => null),
@@ -474,12 +477,26 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       if (missingDefaultExercises.length > 0) {
         const exerciseRepository = getExerciseRepository();
         const seededExercises: Exercise[] = [];
-        const batchSize = 15;
 
-        for (let index = 0; index < missingDefaultExercises.length; index += batchSize) {
-          const batch = missingDefaultExercises.slice(index, index + batchSize);
-          const results = await Promise.all(batch.map(exercise => exerciseRepository.create(exercise)));
-          seededExercises.push(...results);
+        // Insert sequentially so a concurrent startup cannot make Promise.all reject
+        // the entire boot when another session inserts the same standard exercise.
+        for (const exercise of missingDefaultExercises) {
+          try {
+            seededExercises.push(await exerciseRepository.create(exercise));
+          } catch (error) {
+            const dbError = error as { code?: string; message?: string; constraint?: string };
+            const isLegacyIdConflict =
+              dbError?.code === '23505' &&
+              (dbError?.constraint === 'exercises_legacy_id_key' ||
+                dbError?.message?.includes('exercises_legacy_id_key'));
+
+            if (!isLegacyIdConflict) throw error;
+
+            // A duplicate is safe only when the canonical exercise can now be read.
+            const existingExercise = await exerciseRepository.getById(exercise.id);
+            if (!existingExercise) throw error;
+            seededExercises.push(existingExercise);
+          }
         }
 
         availableExercises = [...availableExercises, ...seededExercises];
@@ -489,6 +506,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       setRoutines(loadedRoutines || []);
       setSessions(loadedSessions || []);
       setAssessments(loadedAssessments || []);
+      setPhotos(loadedPhotos || []);
       setSchedule(loadedSchedule || []);
       setScheduleRecurrences(loadedRecurrences || []);
       setTrainingCycles(loadedTrainingCycles || []);
@@ -549,6 +567,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         loadedActivePlans,
         loadedFunctionalTests,
         loadedFunctionalBatteries,
+        loadedPhotos,
         savedTrainerProfile
       ] = await Promise.all([
         getStudentRepository().getAll(),
@@ -563,6 +582,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         getActivePlanRepository().getAll(),
         getFunctionalTestRepository().getAll(),
         getFunctionalBatteryRepository().getAll(),
+        getStudentPhotoRepository().getAll(),
         getSettingsRepository().get<TrainerProfile>('trainer_profile')
       ]);
       setStudents(loadedStudents || []);
@@ -570,6 +590,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       setRoutines(loadedRoutines || []);
       setSessions(loadedSessions || []);
       setAssessments(loadedAssessments || []);
+      setPhotos(loadedPhotos || []);
       setSchedule(loadedSchedule || []);
       setScheduleRecurrences(loadedRecurrences || []);
       setTrainingCycles(loadedTrainingCycles || []);
@@ -1220,18 +1241,22 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const savePhoto = async (photo: StudentPhoto) => {
+    // Persist binary to private Storage and metadata to Postgres before updating UI.
+    const savedPhoto = await getStudentPhotoRepository().save(photo);
     setPhotos(prev => {
-      const idx = prev.findIndex(p => p.id === photo.id);
+      const idx = prev.findIndex(p => p.id === savedPhoto.id);
       if (idx >= 0) {
         const copy = [...prev];
-        copy[idx] = photo;
+        copy[idx] = savedPhoto;
         return copy;
       }
-      return [photo, ...prev];
+      return [savedPhoto, ...prev];
     });
   };
 
   const deletePhoto = async (id: string) => {
+    // Delete from cloud first; retain UI item if the server rejects the operation.
+    await getStudentPhotoRepository().delete(id);
     setPhotos(prev => prev.filter(p => p.id !== id));
   };
 
