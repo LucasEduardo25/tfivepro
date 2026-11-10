@@ -1125,7 +1125,7 @@ export class SupabaseAssessmentRepository implements IAssessmentRepository {
     if (error) throw error;
     if (!data) return [];
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return data.map((a: any) => this.mapAssessment(a));
+    return Promise.all(data.map((a: any) => this.mapAssessment(a)));
   }
 
   async getByStudentId(studentId: string): Promise<PhysicalAssessment[]> {
@@ -1142,7 +1142,7 @@ export class SupabaseAssessmentRepository implements IAssessmentRepository {
     if (error) throw error;
     if (!data) return [];
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return data.map((a: any) => this.mapAssessment(a));
+    return Promise.all(data.map((a: any) => this.mapAssessment(a)));
   }
 
   async getById(id: string): Promise<PhysicalAssessment | null> {
@@ -1164,6 +1164,12 @@ export class SupabaseAssessmentRepository implements IAssessmentRepository {
     }
 
     const orgId = resolveOrgId((assessment as any).organizationId);
+    const storedPhotos = await this.storeAssessmentPhotos(assessment.photos, stdUuid, uuid);
+    const storedOriginalImage = assessment.originalImageUrl?.startsWith('data:image/')
+      ? (await uploadOrganizationImage(dataUrlToImageBlob(assessment.originalImageUrl), {
+          kind: 'assessment-photo', studentId: stdUuid, assessmentId: uuid,
+        })).reference
+      : assessment.originalImageUrl || null;
 
     const { data, error } = await fromTable('assessments')
       .insert({
@@ -1183,14 +1189,20 @@ export class SupabaseAssessmentRepository implements IAssessmentRepository {
         bmi: assessment.bmi,
         skinfolds: (assessment.skinfolds as unknown as Record<string, unknown>) || null,
         circumferences: (assessment.circumferences as unknown as Record<string, unknown>) || null,
-        photos: (assessment.photos as unknown as Record<string, unknown>) || null,
+        photos: (storedPhotos.photos as unknown as Record<string, unknown>) || null,
+        original_image_url: storedOriginalImage,
         notes: assessment.notes || null,
         conclusions: assessment.conclusions || null,
       })
       .select()
       .single();
 
-    if (error) throw error;
+    if (error) {
+      for (const reference of storedPhotos.uploadedReferences) {
+        await deleteOrganizationImage(reference).catch(() => undefined);
+      }
+      throw error;
+    }
     return this.mapAssessment(data);
   }
 
@@ -1199,19 +1211,36 @@ export class SupabaseAssessmentRepository implements IAssessmentRepository {
     if (!existing) throw new Error(`Assessment ${id} not found`);
 
     const isU = isUUID(id);
+    const { data: rawExisting, error: rawError } = await fromTable('assessments')
+      .select('photos, original_image_url, student_id')
+      .eq(isU ? 'id' : 'legacy_id', id)
+      .maybeSingle();
+    if (rawError) throw rawError;
+    if (!rawExisting) throw new Error(`Assessment ${id} not found`);
     const updatePayload: Record<string, unknown> = {
       updated_at: new Date().toISOString(),
     };
     if (patch.notes !== undefined) updatePayload.notes = patch.notes;
     if (patch.conclusions !== undefined) updatePayload.conclusions = patch.conclusions;
-    if (patch.photos !== undefined) updatePayload.photos = patch.photos;
+    let uploadedPhotoReferences: string[] = [];
+    if (patch.photos !== undefined) {
+      const studentUuid = rawExisting.student_id as string;
+      const storedPhotos = await this.storeAssessmentPhotos(patch.photos, studentUuid, isU ? id : (await this.getAssessmentUuid(id)));
+      updatePayload.photos = storedPhotos.photos;
+      uploadedPhotoReferences = storedPhotos.uploadedReferences;
+    }
     if (patch.skinfolds !== undefined) updatePayload.skinfolds = patch.skinfolds;
     if (patch.circumferences !== undefined) updatePayload.circumferences = patch.circumferences;
 
     let query = fromTable('assessments').update(updatePayload);
     query = isU ? query.eq('id', id) : query.eq('legacy_id', id);
     const { data, error } = await query.select().single();
-    if (error) throw error;
+    if (error) {
+      for (const reference of uploadedPhotoReferences) {
+        await deleteOrganizationImage(reference).catch(() => undefined);
+      }
+      throw error;
+    }
     return this.mapAssessment(data);
   }
 
@@ -1223,8 +1252,46 @@ export class SupabaseAssessmentRepository implements IAssessmentRepository {
     if (error) throw error;
   }
 
+  private async getAssessmentUuid(id: string): Promise<string> {
+    const { data, error } = await fromTable('assessments').select('id').eq('legacy_id', id).maybeSingle();
+    if (error) throw error;
+    if (!data?.id) throw new Error('UUID da avaliação não encontrado.');
+    return data.id;
+  }
+
+  private async storeAssessmentPhotos(
+    photos: PhysicalAssessment['photos'],
+    studentUuid: string,
+    assessmentUuid: string,
+  ): Promise<{ photos: Record<string, string> | null; uploadedReferences: string[] }> {
+    if (!photos) return { photos: null, uploadedReferences: [] };
+    const result: Record<string, string> = {};
+    const uploadedReferences: string[] = [];
+    for (const [angle, value] of Object.entries(photos)) {
+      if (!value) continue;
+      if (value.startsWith('data:image/')) {
+        const upload = await uploadOrganizationImage(dataUrlToImageBlob(value), {
+          kind: 'assessment-photo', studentId: studentUuid, assessmentId: assessmentUuid,
+        });
+        result[angle] = upload.reference;
+        uploadedReferences.push(upload.reference);
+      } else {
+        result[angle] = value;
+      }
+    }
+    return { photos: result, uploadedReferences };
+  }
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private mapAssessment(row: any): PhysicalAssessment {
+  private async mapAssessment(row: any): Promise<PhysicalAssessment> {
+    const photos = row.photos ? await Promise.all(Object.entries(row.photos as Record<string, string>).map(async ([angle, reference]) => [
+      angle,
+      isOrganizationStorageReference(reference) ? await getOrganizationImageUrl(reference) : reference,
+    ] as const)) : [];
+    const resolvedPhotos = photos.length ? Object.fromEntries(photos) as PhysicalAssessment['photos'] : undefined;
+    const originalImageUrl = row.original_image_url
+      ? (isOrganizationStorageReference(row.original_image_url) ? await getOrganizationImageUrl(row.original_image_url) : row.original_image_url)
+      : undefined;
     return {
       id: row.legacy_id || row.id,
       studentId: row.students ? (row.students.legacy_id || row.students.id) : row.student_id,
@@ -1240,9 +1307,10 @@ export class SupabaseAssessmentRepository implements IAssessmentRepository {
       bmi: Number(row.bmi),
       skinfolds: row.skinfolds || undefined,
       circumferences: row.circumferences || undefined,
-      photos: row.photos || undefined,
+      photos: resolvedPhotos,
       notes: row.notes || undefined,
       conclusions: row.conclusions || undefined,
+      originalImageUrl,
       updatedAt: row.updated_at,
     };
   }
