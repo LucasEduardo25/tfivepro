@@ -110,12 +110,9 @@ class AuthService {
   }
 
   /**
-   * Sincroniza usuário do Supabase Auth com profiles, organization_members e student_access
-   * REGRAS FUNDAMENTAIS:
-   * 1. OWNER / TRAINER: continua utilizando exatamente o TFIVE PRO profissional atual.
-   * 2. STUDENT: identificado por student_access (auth.uid() -> student_id + organization_id).
-   * 3. Validação estrita: enabled = true e status = 'ACTIVE'.
-   * 4. NÃO utilizar organization_members como requisito de identidade do aluno.
+   * Sincroniza exclusivamente contas administrativas OWNER/TRAINER.
+   * O workspace é provisionado pelo RPC seguro e a identidade é confirmada
+   * exclusivamente por uma membership administrativa ativa.
    */
   public async syncSupabaseUser(authUser: { id: string; email?: string; user_metadata?: Record<string, unknown> }): Promise<AppUser | null> {
     try {
