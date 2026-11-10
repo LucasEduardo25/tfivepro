@@ -6,7 +6,7 @@
 - `savePhoto` only updates React state; it does not write to Supabase or IndexedDB.
 - `refreshData` does not load photos from a repository.
 - Consequently, evolution photos are not durable across sign-outs/devices in the SaaS flow.
-- Student profile photos are currently written into `students.photo_url` as supplied, which can be a large data URL.
+- O repositório de alunos converte fotos de perfil data URL em uploads no bucket privado `student-avatars` e resolve referências `storage://` em URLs assinadas.
 - O Storage service está conectado à galeria de fotos de evolução. O seletor de foto do perfil e o fluxo de fotos de avaliação física ainda usam seus caminhos antigos e exigem integração separada.
 
 ## Proposed persistence contract
@@ -27,7 +27,7 @@
 2. Apply this schema only to an isolated Supabase staging project.
 3. O repositório Supabase já foi implementado e registrado em `repositoryConfig`; `refreshData` e `reloadDataSilently` carregam as fotos, enquanto `savePhoto/deletePhoto` persistem no servidor.
 4. O fluxo da galeria já faz upload para Storage e resolução de URLs assinadas; a gravação falha com mensagem explícita enquanto a migration e as policies não estiverem instaladas.
-5. Integrate profile and physical-assessment image flows separately; do not assume they share the same identifiers or lifecycle.
+5. Validar separadamente o ciclo de vida das fotos de perfil e das fotos de avaliação física, incluindo edição, remoção e migração de data URLs existentes.
 6. Test with two trainer accounts and a student account; confirm cross-organization reads, writes, deletes, and signed URL generation are denied.
 7. Only then plan migration/rollout to the shared Supabase project with backup and explicit approval.
 
