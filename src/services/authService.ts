@@ -125,22 +125,35 @@ class AuthService {
    * 3. Validação estrita: enabled = true e status = 'ACTIVE'.
    * 4. NÃO utilizar organization_members como requisito de identidade do aluno.
    */
-  public async syncSupabaseUser(authUser: { id: string; email?: string }): Promise<AppUser | null> {
+  public async syncSupabaseUser(authUser: { id: string; email?: string; user_metadata?: Record<string, unknown> }): Promise<AppUser | null> {
     try {
-      // O nome do workspace é mantido localmente durante o redirecionamento OAuth.
-      // O RPC valida auth.uid() no servidor e cria a organização apenas para esta conta.
+      // Provisiona o workspace somente após autenticação confirmada.
+      // O servidor valida auth.uid(), confirmação do e-mail e convites de aluno.
       if (typeof window !== 'undefined') {
         const pendingWorkspace = localStorage.getItem('tfive_pending_google_workspace');
-        if (pendingWorkspace) {
+        const metadataWorkspace = authUser.user_metadata?.organization_name;
+        const requestedWorkspace =
+          pendingWorkspace ||
+          (typeof metadataWorkspace === 'string' ? metadataWorkspace.trim() : '');
+
+        if (requestedWorkspace) {
           const pendingFullName = localStorage.getItem('tfive_pending_google_full_name');
+          const metadataFullName =
+            authUser.user_metadata?.full_name ??
+            authUser.user_metadata?.name;
+          const requestedFullName =
+            pendingFullName ||
+            (typeof metadataFullName === 'string' ? metadataFullName : null);
+
           const { error: provisionError } = await (supabase as any).rpc(
             'provision_google_trainer_workspace',
             {
-              p_organization_name: pendingWorkspace,
-              p_full_name: pendingFullName || null
+              p_organization_name: requestedWorkspace,
+              p_full_name: requestedFullName
             }
           );
           if (provisionError) throw new TransientAuthError(provisionError.message);
+
           localStorage.removeItem('tfive_pending_google_workspace');
           localStorage.removeItem('tfive_pending_google_full_name');
         }
