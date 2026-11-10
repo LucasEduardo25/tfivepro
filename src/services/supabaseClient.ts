@@ -24,7 +24,7 @@ export const supabase: SupabaseClient<Database> = createClient<Database>(supabas
   auth: {
     persistSession: true,
     autoRefreshToken: true,
-    detectSessionInUrl: false,
+    detectSessionInUrl: true,
     storageKey: 'tfive_supabase_auth_v1',
   },
 });
