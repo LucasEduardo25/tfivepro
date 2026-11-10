@@ -899,76 +899,38 @@ export const WorkoutStoryDOMRenderer = forwardRef<StoryDOMRendererRef, StoryDOMR
           );
 
         // ====================================================================
-        // MODELO 07 — BODY MAP
-        // Redesenhado completamente: silhuetas anatômicas ampliadas frente/costas,
-        // escala monocromática estrita (#3F3F46, #A1A1AA, #E5E5E5), legenda compacta e elegante
+        // MODELO 07 — BODY MAP ISOLADO
+        // Apenas silhuetas anatômicas e legenda, em PNG com fundo transparente.
         // ====================================================================
         case 'body_map':
           return (
             <div
-              className="w-[1080px] h-[1920px] relative overflow-hidden text-white select-none"
+              className="w-[1080px] h-[1920px] relative text-white select-none flex flex-col items-center justify-center"
               style={{ background: 'transparent' }}
             >
-              {/* Card compacto para sobreposição na foto */}
-              <div
-                className="absolute top-[250px] left-1/2 -translate-x-1/2 w-[860px] rounded-[34px] px-10 pt-9 pb-8 overflow-hidden"
-                style={{
-                  background: 'rgba(12, 14, 18, 0.82)',
-                  border: '1px solid rgba(255,255,255,0.16)',
-                  boxShadow: '0 18px 60px rgba(0,0,0,0.28)',
-                  backdropFilter: 'blur(18px)',
-                  WebkitBackdropFilter: 'blur(18px)'
-                }}
-              >
-                <div className="flex items-center justify-between border-b border-white/10 pb-5">
-                  <div>
-                    <span className="block text-[16px] font-bold tracking-[0.24em] text-zinc-400 uppercase">
-                      TFIVE PRO
-                    </span>
-                    <span className="block mt-1 text-[13px] font-semibold tracking-[0.2em] text-zinc-500 uppercase">
-                      MAPA MUSCULAR
-                    </span>
+              <div className="w-full h-[1510px] flex items-center justify-center px-6">
+                <StoryBodyMapVector
+                  intensities={muscleAnalysis.intensities}
+                  sex={bodyMapSex}
+                  theme="transparent-dark"
+                  showLabels={false}
+                  className="w-full"
+                />
+              </div>
+
+              <div className="w-full px-10 pb-10 flex items-center justify-center">
+                <div className="flex items-center justify-center gap-10 text-[22px] font-semibold tracking-wide uppercase">
+                  <div className="flex items-center gap-3">
+                    <span className="w-4 h-4 rounded-full bg-[#3185E8]" />
+                    <span className="text-white">Primário</span>
                   </div>
-                  <span className="text-[15px] font-mono-nums font-semibold tracking-wider text-zinc-400">
-                    {dateStr}
-                  </span>
-                </div>
-
-                <div className="pt-6 text-center">
-                  <h2 className="text-[34px] leading-tight font-black tracking-tight text-white uppercase">
-                    {workoutName}
-                  </h2>
-                  <p className="mt-2 text-[21px] font-semibold tracking-[0.12em] text-zinc-300 uppercase">
-                    {firstName}
-                  </p>
-                </div>
-
-                <div className="w-full h-[590px] mt-5 flex items-center justify-center overflow-hidden">
-                  <div className="w-full flex items-center justify-center">
-                    <StoryBodyMapVector
-                      intensities={muscleAnalysis.intensities}
-                      sex={bodyMapSex}
-                      theme="transparent-dark"
-                      showLabels={false}
-                      className="w-full"
-                    />
+                  <div className="flex items-center gap-3">
+                    <span className="w-4 h-4 rounded-full bg-[#89B1E1]" />
+                    <span className="text-white">Secundário</span>
                   </div>
-                </div>
-
-                <div className="mt-2 pt-5 border-t border-white/10">
-                  <div className="flex items-center justify-center gap-8 text-[14px] font-semibold tracking-wide uppercase">
-                    <div className="flex items-center gap-2.5">
-                      <span className="w-3 h-3 rounded-full bg-[#3185E8]" />
-                      <span className="text-zinc-200">Primário</span>
-                    </div>
-                    <div className="flex items-center gap-2.5">
-                      <span className="w-3 h-3 rounded-full bg-[#89B1E1]" />
-                      <span className="text-zinc-300">Secundário</span>
-                    </div>
-                    <div className="flex items-center gap-2.5">
-                      <span className="w-3 h-3 rounded-full bg-[#D1D5DB]" />
-                      <span className="text-zinc-400">Repouso</span>
-                    </div>
+                  <div className="flex items-center gap-3">
+                    <span className="w-4 h-4 rounded-full bg-[#D1D5DB]" />
+                    <span className="text-white">Repouso</span>
                   </div>
                 </div>
               </div>
