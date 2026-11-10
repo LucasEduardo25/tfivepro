@@ -1,6 +1,6 @@
 import React from 'react';
 import { BodyRegionId, MuscleIntensity } from './bodyMapTypes';
-import { generate3DDefsMarkup, get3DRegionAttrs } from './body3DShaders';
+import { get3DRegionAttrs } from './body3DShaders';
 
 export interface MaleBodySvgProps {
   intensities: Record<BodyRegionId, MuscleIntensity>;
@@ -24,7 +24,7 @@ export const MaleBodySvg: React.FC<MaleBodySvgProps> = ({
       fill: attrs.fill,
       stroke: attrs.stroke,
       strokeWidth: attrs.strokeWidth,
-      filter: attrs.filter,
+      filter: 'none',
       transition: 'all 0.2s ease-in-out'
     };
   };
@@ -59,10 +59,12 @@ export const MaleBodySvg: React.FC<MaleBodySvgProps> = ({
             Frente
           </div>
           <svg
+            width="200"
+            height="420"
             viewBox="0 0 200 420"
             className="w-full h-auto select-none"
+            style={{ width: "100%", height: "auto", display: "block" }}
             aria-label="Mapa Muscular Masculino - Frente"
-            style={{ filter: `url(#${prefix}-silhouette-shadow)` }}
           >
             {/* 0. BASE CORPORAL INTEGRADA (Cabeça, Pescoço, Articulações, Mãos, Pés) */}
             <g id="male-front-structure">
