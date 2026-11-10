@@ -25,8 +25,8 @@
 
 1. Verify the exact `organizations` and `students` foreign-key definitions in the target schema.
 2. Apply this schema only to an isolated Supabase staging project.
-3. Implement a Supabase repository and include it in `refreshData` and `savePhoto/deletePhoto`.
-4. Integrate upload and signed-URL resolution into the evolution gallery.
+3. O repositório Supabase já foi implementado e registrado em `repositoryConfig`; `refreshData` e `reloadDataSilently` carregam as fotos, enquanto `savePhoto/deletePhoto` persistem no servidor.
+4. O fluxo da galeria já faz upload para Storage e resolução de URLs assinadas; a gravação falha com mensagem explícita enquanto a migration e as policies não estiverem instaladas.
 5. Integrate profile and physical-assessment image flows separately; do not assume they share the same identifiers or lifecycle.
 6. Test with two trainer accounts and a student account; confirm cross-organization reads, writes, deletes, and signed URL generation are denied.
 7. Only then plan migration/rollout to the shared Supabase project with backup and explicit approval.
