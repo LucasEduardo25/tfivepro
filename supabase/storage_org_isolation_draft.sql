@@ -93,24 +93,14 @@ using (
   end
 );
 
--- Student avatars: trainers manage their organization; a student may read only
--- their own avatar when student_access authorizes that exact student UUID.
+-- Student avatars are private and readable only by trainers in the owning organization.
 create policy "TFIVE read organization student avatars"
 on storage.objects for select to authenticated
 using (
   bucket_id = 'student-avatars'
   and case
     when (storage.foldername(name))[1] ~* '^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$'
-    then (
-      public.is_trainer(((storage.foldername(name))[1])::uuid)
-      or (
-        (storage.foldername(name))[2] ~* '^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{12}$'
-        and public.is_authorized_student(
-          ((storage.foldername(name))[1])::uuid,
-          ((storage.foldername(name))[2])::uuid
-        )
-      )
-    )
+    then public.is_trainer(((storage.foldername(name))[1])::uuid)
     else false
   end
 );
