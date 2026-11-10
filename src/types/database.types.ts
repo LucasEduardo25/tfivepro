@@ -2057,6 +2057,29 @@ export interface Database {
           updated_at?: string;
         };
       };
+      organization_storage_security: {
+        Row: {
+          key: string;
+          enabled: boolean;
+          policy_version: number;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          key: string;
+          enabled?: boolean;
+          policy_version?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          key?: string;
+          enabled?: boolean;
+          policy_version?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
       student_photos: {
         Row: {
           id: string;
