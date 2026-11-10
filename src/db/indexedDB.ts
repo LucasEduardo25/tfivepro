@@ -32,7 +32,6 @@ import {
   StudentOnboarding,
   OnboardingGlobalConfig,
   AppUser,
-  StudentAccess,
   DEFAULT_STUDENT_PERMISSIONS,
   ActivePlan,
   FamilyPlanParticipant,
@@ -940,26 +939,7 @@ export async function getDB(): Promise<IDBDatabase> {
             onbStore.createIndex('status', 'status', { unique: false });
             onbStore.createIndex('createdAt', 'createdAt', { unique: false });
           }
-          if (!db.objectStoreNames.contains('student_access')) {
-            const saStore = db.createObjectStore('student_access', { keyPath: 'id' });
-            saStore.createIndex('studentId', 'studentId', { unique: false });
-            saStore.createIndex('organizationId', 'organizationId', { unique: false });
-            saStore.createIndex('status', 'status', { unique: false });
-            saStore.createIndex('authUid', 'authUid', { unique: false });
-          } else {
-            try {
-              const upgradeTx = (event.target as IDBOpenDBRequest)?.transaction;
-              if (upgradeTx) {
-                const existingSaStore = upgradeTx.objectStore('student_access');
-                if (existingSaStore.indexNames.contains('studentId')) {
-                  existingSaStore.deleteIndex('studentId');
-                }
-                existingSaStore.createIndex('studentId', 'studentId', { unique: false });
-              }
-            } catch (upgradeSaErr) {
-              console.warn('TFIVE PRO: aviso na migração do índice student_access:', upgradeSaErr);
-            }
-          }
+          // O armazenamento legado student_access não é mais criado nem utilizado pelo aplicativo.
           if (!db.objectStoreNames.contains('app_users')) {
             const usrStore = db.createObjectStore('app_users', { keyPath: 'id' });
             usrStore.createIndex('authUid', 'authUid', { unique: true });
@@ -1509,7 +1489,6 @@ export interface TFIVEBackupPayload {
     proposalTemplates?: ProposalTemplate[];
     trainingCycles?: TrainingCycle[];
     studentOnboardings?: StudentOnboarding[];
-    studentAccess?: StudentAccess[];
     appUsers?: AppUser[];
     activePlans?: ActivePlan[];
     planTransfers?: PlanTransfer[];
@@ -1545,7 +1524,6 @@ export async function exportDatabaseToJSON(): Promise<string> {
     const workoutTemplates = await getAllFromStore<WorkoutTemplate>('workout_templates');
     const proposalTemplates = await getAllFromStore<ProposalTemplate>('proposal_templates');
     const studentOnboardings = await getAllFromStore<StudentOnboarding>('student_onboardings');
-    const studentAccess = await getAllFromStore<StudentAccess>('student_access');
     const appUsers = await getAllFromStore<AppUser>('app_users');
     const planTransfers = await getAllFromStore<PlanTransfer>('plan_transfers');
     const planSuspensions = await getAllFromStore<PlanSuspension>('plan_suspensions');
@@ -1594,7 +1572,6 @@ export async function exportDatabaseToJSON(): Promise<string> {
   const proposalTemplates = await getAllFromStore<ProposalTemplate>('proposal_templates');
   const trainingCycles = await getAllFromStore<TrainingCycle>('training_cycles');
   const studentOnboardings = await getAllFromStore<StudentOnboarding>('student_onboardings');
-  const studentAccess = await getAllFromStore<StudentAccess>('student_access');
   const appUsers = await getAllFromStore<AppUser>('app_users');
   const activePlans = await getAllFromStore<ActivePlan>('active_plans');
   const planTransfers = await getAllFromStore<PlanTransfer>('plan_transfers');
@@ -1628,7 +1605,6 @@ export async function exportDatabaseToJSON(): Promise<string> {
       proposalTemplates,
       trainingCycles,
       studentOnboardings,
-      studentAccess,
       appUsers,
       activePlans,
       planTransfers,
@@ -1783,11 +1759,6 @@ export async function importDatabaseFromJSON(jsonString: string): Promise<{ succ
     if (Array.isArray(studentOnboardings)) {
       await clearStore('student_onboardings');
       for (const item of studentOnboardings) await putInStore('student_onboardings', normalizeStudentOnboarding(item));
-    }
-    const studentAccess = payloadData.studentAccess || payloadData.student_access;
-    if (Array.isArray(studentAccess)) {
-      await clearStore('student_access');
-      for (const item of studentAccess) await putInStore('student_access', item);
     }
     const appUsers = payloadData.appUsers || payloadData.app_users;
     if (Array.isArray(appUsers)) {
@@ -2563,60 +2534,6 @@ export async function saveOnboardingGlobalConfigToDb(config: OnboardingGlobalCon
 }
 
 // ==========================================
-// TFIVE PRO — MODO ALUNO: PERSISTÊNCIA & VÍNCULO (ETAPA 1)
-// ==========================================
-
-export async function getStudentAccessByStudentId(studentId: string): Promise<StudentAccess | null> {
-  try {
-    const list = await getAllFromStore<StudentAccess>('student_access');
-    return list.find(a => a.studentId === studentId) || null;
-  } catch (err) {
-    recordSanitizedError('getStudentAccessByStudentId_error', err);
-    return null;
-  }
-}
-
-export async function saveStudentAccessToDb(access: StudentAccess): Promise<void> {
-  try {
-    const targetId = access.id || `access_${access.studentId}`;
-    const all = await getAllFromStore<StudentAccess>('student_access');
-    
-    // Remove registros duplicados/conflitantes com o mesmo studentId para garantir integridade
-    const conflicting = all.filter(a => a.studentId === access.studentId && a.id !== targetId);
-    for (const conf of conflicting) {
-      await deleteFromStore('student_access', conf.id).catch(() => {});
-    }
-
-    await putInStore('student_access', { ...access, id: targetId });
-  } catch (err: any) {
-    // Recuperação de emergência contra erros de chave única em navegadores com índice pré-existente
-    if (err?.message?.includes('uniqueness') || err?.name === 'ConstraintError') {
-      try {
-        const all = await getAllFromStore<StudentAccess>('student_access');
-        const toClean = all.filter(a => a.studentId === access.studentId);
-        for (const item of toClean) {
-          await deleteFromStore('student_access', item.id).catch(() => {});
-        }
-        await putInStore('student_access', { ...access, id: `access_${access.studentId}` });
-        return;
-      } catch (recoveryErr) {
-        console.warn('Falha na recuperação de chave única em student_access:', recoveryErr);
-      }
-    }
-    recordSanitizedError('saveStudentAccessToDb_error', err);
-    throw err;
-  }
-}
-
-export async function getAllStudentAccessFromDb(): Promise<StudentAccess[]> {
-  try {
-    return await getAllFromStore<StudentAccess>('student_access');
-  } catch (err) {
-    recordSanitizedError('getAllStudentAccessFromDb_error', err);
-    return [];
-  }
-}
-
 export async function getAppUserByAuthUidFromDb(authUid: string): Promise<AppUser | null> {
   try {
     const list = await getAllFromStore<AppUser>('app_users');
@@ -2681,26 +2598,6 @@ export async function runIdempotentOrganizationMigration(): Promise<{
   } catch (err) {
     recordSanitizedError('runIdempotentOrganizationMigration_error', err);
     return { migratedCount: 0, alreadyMigratedCount: 0, totalRecordsChecked: 0 };
-  }
-}
-
-/**
- * Isolamento de Cache no Logout (Requisitos 17 e 18):
- * Quando um aluno faz logout, qualquer estado temporário ou de sessão em cache
- * associado àquele studentId é expurgado do dispositivo.
- * O cache de outros contextos não é afetado e dados do Personal são mantidos.
- */
-export async function purgeStudentSessionCache(studentId: string): Promise<void> {
-  try {
-    if (!studentId) return;
-    const active = await getAllFromStore<any>('active_workouts');
-    for (const act of active) {
-      if (act.studentId === studentId) {
-        await deleteFromStore('active_workouts', act.sessionId);
-      }
-    }
-  } catch (err) {
-    recordSanitizedError('purgeStudentSessionCache_error', err);
   }
 }
 
