@@ -977,7 +977,6 @@ export const WorkoutStoryDOMRenderer = forwardRef<StoryDOMRendererRef, StoryDOMR
                   </div>
                 </div>
               </div>
-              </div>
             </div>
           );
 
