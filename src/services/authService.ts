@@ -132,12 +132,17 @@ class AuthService {
       if (typeof window !== 'undefined') {
         const pendingWorkspace = localStorage.getItem('tfive_pending_google_workspace');
         if (pendingWorkspace) {
+          const pendingFullName = localStorage.getItem('tfive_pending_google_full_name');
           const { error: provisionError } = await (supabase as any).rpc(
             'provision_google_trainer_workspace',
-            { p_organization_name: pendingWorkspace }
+            {
+              p_organization_name: pendingWorkspace,
+              p_full_name: pendingFullName || null
+            }
           );
           if (provisionError) throw new TransientAuthError(provisionError.message);
           localStorage.removeItem('tfive_pending_google_workspace');
+          localStorage.removeItem('tfive_pending_google_full_name');
         }
       }
       // 1. Verifica se o usuário é OWNER ou TRAINER em organization_members
@@ -328,16 +333,20 @@ class AuthService {
    * Inicia autenticação Google. No cadastro, guarda o nome do workspace
    * para provisioná-lo após o retorno do OAuth, com validação server-side.
    */
-  public async signInWithGoogle(organizationName?: string): Promise<void> {
+  public async signInWithGoogle(organizationName?: string, fullName?: string): Promise<void> {
     if (typeof window === 'undefined') {
       throw new Error('A autenticação com Google só pode ser iniciada no navegador.');
     }
 
     const pendingKey = 'tfive_pending_google_workspace';
+    const pendingNameKey = 'tfive_pending_google_full_name';
     if (organizationName?.trim()) {
       localStorage.setItem(pendingKey, organizationName.trim());
+      if (fullName?.trim()) localStorage.setItem(pendingNameKey, fullName.trim());
+      else localStorage.removeItem(pendingNameKey);
     } else {
       localStorage.removeItem(pendingKey);
+      localStorage.removeItem(pendingNameKey);
     }
 
     const { error } = await supabase.auth.signInWithOAuth({
