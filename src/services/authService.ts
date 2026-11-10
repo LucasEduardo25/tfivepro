@@ -359,6 +359,7 @@ class AuthService {
 
     if (error) {
       localStorage.removeItem(pendingKey);
+      localStorage.removeItem(pendingNameKey);
       throw new Error(this.translateAuthError(error.message));
     }
   }
