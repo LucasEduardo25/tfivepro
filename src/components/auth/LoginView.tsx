@@ -44,7 +44,8 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
     setLoading(true);
     try {
       await authService.signInWithGoogle(
-        mode === 'signup' ? organizationName.trim() : undefined
+        mode === 'signup' ? organizationName.trim() : undefined,
+        mode === 'signup' ? fullName.trim() : undefined
       );
     } catch (err: any) {
       setErrorMessage(err?.message || 'Não foi possível iniciar o acesso com Google.');
