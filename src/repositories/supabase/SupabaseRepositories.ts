@@ -1165,11 +1165,15 @@ export class SupabaseAssessmentRepository implements IAssessmentRepository {
 
     const orgId = resolveOrgId((assessment as any).organizationId);
     const storedPhotos = await this.storeAssessmentPhotos(assessment.photos, stdUuid, uuid);
-    const storedOriginalImage = assessment.originalImageUrl?.startsWith('data:image/')
-      ? (await uploadOrganizationImage(dataUrlToImageBlob(assessment.originalImageUrl), {
-          kind: 'assessment-photo', studentId: stdUuid, assessmentId: uuid,
-        })).reference
-      : assessment.originalImageUrl || null;
+    let uploadedOriginalImageReference: string | null = null;
+    let storedOriginalImage = assessment.originalImageUrl || null;
+    if (assessment.originalImageUrl?.startsWith('data:image/')) {
+      const upload = await uploadOrganizationImage(dataUrlToImageBlob(assessment.originalImageUrl), {
+        kind: 'assessment-photo', studentId: stdUuid, assessmentId: uuid,
+      });
+      storedOriginalImage = upload.reference;
+      uploadedOriginalImageReference = upload.reference;
+    }
 
     const { data, error } = await fromTable('assessments')
       .insert({
@@ -1198,7 +1202,7 @@ export class SupabaseAssessmentRepository implements IAssessmentRepository {
       .single();
 
     if (error) {
-      for (const reference of storedPhotos.uploadedReferences) {
+      for (const reference of [...storedPhotos.uploadedReferences, ...(uploadedOriginalImageReference ? [uploadedOriginalImageReference] : [])]) {
         await deleteOrganizationImage(reference).catch(() => undefined);
       }
       throw error;
@@ -1223,6 +1227,19 @@ export class SupabaseAssessmentRepository implements IAssessmentRepository {
     if (patch.notes !== undefined) updatePayload.notes = patch.notes;
     if (patch.conclusions !== undefined) updatePayload.conclusions = patch.conclusions;
     let uploadedPhotoReferences: string[] = [];
+    if (patch.originalImageUrl !== undefined && patch.originalImageUrl !== existing.originalImageUrl) {
+      if (patch.originalImageUrl?.startsWith('data:image/')) {
+        const upload = await uploadOrganizationImage(dataUrlToImageBlob(patch.originalImageUrl), {
+          kind: 'assessment-photo',
+          studentId: rawExisting.student_id as string,
+          assessmentId: isU ? id : await this.getAssessmentUuid(id),
+        });
+        updatePayload.original_image_url = upload.reference;
+        uploadedPhotoReferences.push(upload.reference);
+      } else {
+        updatePayload.original_image_url = patch.originalImageUrl || null;
+      }
+    }
     if (patch.photos !== undefined) {
       const studentUuid = rawExisting.student_id as string;
       const storedPhotos = await this.storeAssessmentPhotos(patch.photos, studentUuid, isU ? id : (await this.getAssessmentUuid(id)), existing.photos, rawExisting.photos as PhysicalAssessment['photos']);
