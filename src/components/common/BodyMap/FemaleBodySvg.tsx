@@ -1,6 +1,6 @@
 import React from 'react';
 import { BodyRegionId, MuscleIntensity } from './bodyMapTypes';
-import { generate3DDefsMarkup, get3DRegionAttrs } from './body3DShaders';
+import { get3DRegionAttrs } from './body3DShaders';
 
 export interface FemaleBodySvgProps {
   intensities: Record<BodyRegionId, MuscleIntensity>;
@@ -24,7 +24,7 @@ export const FemaleBodySvg: React.FC<FemaleBodySvgProps> = ({
       fill: attrs.fill,
       stroke: attrs.stroke,
       strokeWidth: attrs.strokeWidth,
-      filter: attrs.filter,
+      filter: 'none',
       transition: 'all 0.2s ease-in-out'
     };
   };
@@ -43,13 +43,7 @@ export const FemaleBodySvg: React.FC<FemaleBodySvgProps> = ({
   };
 
   return (
-    <div className={`flex items-start justify-center gap-6 sm:gap-10 md:gap-14 w-full ${className}`}>
-      {/* Defs SVG com filtros de glow */}
-      <svg width="0" height="0" className="absolute hidden" aria-hidden="true">
-        <g dangerouslySetInnerHTML={{ __html: generate3DDefsMarkup(prefix, accentColor) }} />
-      </svg>
-
-      {/* ================================================================== */}
+    <div className={`flex items-start justify-center gap-6 sm:gap-10 md:gap-14 w-full ${className}`}>{/* ================================================================== */}
       {/* 1. VISTA FRONTAL FEMININA — MAPA MUSCULAR FITNESS VETORIAL         */}
       {/* ================================================================== */}
       {(view === 'both' || view === 'front') && (
@@ -59,10 +53,15 @@ export const FemaleBodySvg: React.FC<FemaleBodySvgProps> = ({
             Frente
           </div>
           <svg
+            width="200"
+            height="420"
+            width="200"
+            height="420"
             viewBox="0 0 200 420"
             className="w-full h-auto select-none"
+            style={{ width: "100%", height: "auto", display: "block" }}
+            style={{ width: "100%", height: "auto", display: "block" }}
             aria-label="Mapa Muscular Feminino - Frente"
-            style={{ filter: `url(#${prefix}-silhouette-shadow)` }}
           >
             {/* 0. BASE ESTRUTURAL FEMININA */}
             <g id="female-front-structure">
@@ -265,10 +264,12 @@ export const FemaleBodySvg: React.FC<FemaleBodySvgProps> = ({
             Costas
           </div>
           <svg
+            width="200"
+            height="420"
             viewBox="0 0 200 420"
             className="w-full h-auto select-none"
+            style={{ width: "100%", height: "auto", display: "block" }}
             aria-label="Mapa Muscular Feminino - Costas"
-            style={{ filter: `url(#${prefix}-silhouette-shadow)` }}
           >
             {/* 0. BASE POSTERIOR FEMININA */}
             <g id="female-back-structure">
