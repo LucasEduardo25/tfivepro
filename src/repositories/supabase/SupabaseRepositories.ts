@@ -1254,11 +1254,10 @@ export class SupabaseAssessmentRepository implements IAssessmentRepository {
 export class SupabaseStudentPhotoRepository {
   async getAll(organizationId?: string): Promise<StudentPhoto[]> {
     const orgId = resolveOrgId(organizationId);
-    const { data, error } = await supabase
-      .from('student_photos')
-      .select('*, students(id, legacy_id)')
-      .eq('organization_id', orgId)
-      .order('photo_date', { ascending: false });
+    const [{ data, error }, { data: studentRows, error: studentsError }] = await Promise.all([
+      supabase.from('student_photos').select('*').eq('organization_id', orgId).order('photo_date', { ascending: false }),
+      supabase.from('students').select('id, legacy_id').eq('organization_id', orgId),
+    ]);
     if (error) {
       const dbError = error as { code?: string; message?: string };
       const tableNotInstalled = dbError.code === '42P01' || dbError.code === 'PGRST205' ||
@@ -1269,6 +1268,8 @@ export class SupabaseStudentPhotoRepository {
       }
       throw error;
     }
+    if (studentsError) throw studentsError;
+    const studentIdByUuid = new Map((studentRows || []).map(row => [row.id, row.legacy_id || row.id]));
     const rows = data || [];
     return Promise.all(rows.map(async (row: any) => {
       const reference = row.photo_reference as string;
@@ -1278,7 +1279,7 @@ export class SupabaseStudentPhotoRepository {
       }
       return {
         id: row.id,
-        studentId: row.students?.legacy_id || row.students?.id || row.student_id,
+        studentId: studentIdByUuid.get(row.student_id) || row.student_id,
         photoUrl,
         category: row.category as StudentPhoto['category'],
         date: row.photo_date,
@@ -1330,7 +1331,7 @@ export class SupabaseStudentPhotoRepository {
         notes: photo.notes || null,
         updated_at: new Date().toISOString(),
       }, { onConflict: 'id' })
-      .select('*, students(id, legacy_id)')
+      .select('*')
       .single();
 
     if (error) {
@@ -1342,7 +1343,7 @@ export class SupabaseStudentPhotoRepository {
       : reference;
     return {
       id: data.id,
-      studentId: data.students?.legacy_id || data.students?.id || photo.studentId,
+      studentId: photo.studentId,
       photoUrl: signedUrl,
       category: data.category,
       date: data.photo_date,
