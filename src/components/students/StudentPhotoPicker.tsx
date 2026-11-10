@@ -60,7 +60,7 @@ export const StudentPhotoPicker: React.FC<StudentPhotoPickerProps> = ({
         <label className="text-xs font-bold text-white uppercase tracking-wider block">
           {label}
         </label>
-        <span className="text-[10px] text-[#4B5563]">JPG, PNG ou WEBP (100% Local)</span>
+        <span className="text-[10px] text-[#4B5563]">JPG, PNG ou WEBP (nuvem privada)</span>
       </div>
 
       <div className="flex flex-col sm:flex-row items-center gap-4">
@@ -129,8 +129,8 @@ export const StudentPhotoPicker: React.FC<StudentPhotoPickerProps> = ({
 
           <p className="text-[11px] text-[#4B5563] leading-relaxed">
             {photoUrl 
-              ? 'Foto salva localmente no dispositivo. Redimensionamento otimizado para o perfil e relatórios.'
-              : 'Adicione uma foto do aluno para identificação visual nas listas, treinos e capa do relatório.'}
+              ? 'Foto sincronizada com segurança na nuvem. Redimensionamento otimizado para o perfil e relatórios.'
+              : 'Adicione uma foto do aluno para identificação visual nas listas, treinos e capa do relatório. O arquivo será armazenado na nuvem privada da sua organização.'}
           </p>
         </div>
       </div>
