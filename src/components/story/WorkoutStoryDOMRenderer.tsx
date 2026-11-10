@@ -906,85 +906,69 @@ export const WorkoutStoryDOMRenderer = forwardRef<StoryDOMRendererRef, StoryDOMR
         case 'body_map':
           return (
             <div
-              className="w-[1080px] h-[1920px] relative overflow-hidden flex flex-col px-16 py-16 text-white select-none"
-              style={{
-                background: 'transparent'
-              }}
+              className="w-[1080px] h-[1920px] relative overflow-hidden text-white select-none"
+              style={{ background: 'transparent' }}
             >
-              {/* Identidade discreta no topo */}
-              <div className="w-full flex items-center justify-between shrink-0">
-                <div className="flex items-center gap-4">
-                  <span className="w-3 h-3 rounded-full bg-[#3185E8]" />
-                  <span className="font-display font-black tracking-[0.24em] text-2xl text-white">
-                    TFIVE PRO
-                  </span>
-                </div>
-                <span className="font-mono-nums text-sm font-bold tracking-[0.3em] text-zinc-400 uppercase">
-                  MAPA ANATÔMICO
-                </span>
-              </div>
-
-              {/* Título e identificação da sessão */}
-              <div className="mt-16 text-center shrink-0">
-                <span className="font-mono-nums text-sm font-bold tracking-[0.35em] text-[#78AEEB] uppercase">
-                  GRUPAMENTOS MUSCULARES
-                </span>
-                <h2 className="mt-4 text-5xl font-black tracking-tight text-white uppercase">
-                  {workoutName}
-                </h2>
-                <p className="mt-3 text-xl font-semibold tracking-[0.18em] text-zinc-400 uppercase">
-                  {firstName} • {dateStr}
-                </p>
-              </div>
-
-              {/* Anatomia em destaque, sem cartão ou moldura branca */}
-              <div className="flex-1 min-h-0 w-full flex items-center justify-center py-10">
-                <div className="w-full max-w-[920px] mx-auto flex items-center justify-center">
-                  <StoryBodyMapVector
-                    intensities={muscleAnalysis.intensities}
-                    sex={bodyMapSex}
-                    theme="transparent-dark"
-                    className="w-full"
-                  />
-                </div>
-              </div>
-
-              {/* Legenda simples, sem bloco branco */}
-              <div className="w-full shrink-0 border-t border-white/15 pt-8">
-                <div className="flex items-center justify-center gap-12 text-sm font-mono-nums font-bold tracking-[0.12em] uppercase">
-                  <div className="flex items-center gap-3">
-                    <span className="w-4 h-4 rounded-full bg-[#3185E8]" />
-                    <span className="text-zinc-200">Primário</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <span className="w-4 h-4 rounded-full bg-[#89B1E1]" />
-                    <span className="text-zinc-300">Secundário</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <span className="w-4 h-4 rounded-full bg-[#D1D5DB]" />
-                    <span className="text-zinc-400">Em repouso</span>
-                  </div>
-                </div>
-
-                <div className="mt-8 flex items-end justify-between border-t border-white/10 pt-6">
+              {/* Card compacto para sobreposição na foto */}
+              <div
+                className="absolute top-[250px] left-1/2 -translate-x-1/2 w-[860px] rounded-[34px] px-10 pt-9 pb-8 overflow-hidden"
+                style={{
+                  background: 'rgba(12, 14, 18, 0.82)',
+                  border: '1px solid rgba(255,255,255,0.16)',
+                  boxShadow: '0 18px 60px rgba(0,0,0,0.28)',
+                  backdropFilter: 'blur(18px)',
+                  WebkitBackdropFilter: 'blur(18px)'
+                }}
+              >
+                <div className="flex items-center justify-between border-b border-white/10 pb-5">
                   <div>
-                    <span className="block text-xs font-mono-nums font-bold tracking-[0.25em] text-zinc-500 uppercase">
-                      RESUMO DA SESSÃO
-                    </span>
-                    <span className="mt-2 block text-xl font-black text-white">
-                      {duration} • {volume}
-                    </span>
-                    <span className="mt-1 block text-sm font-mono-nums font-semibold tracking-wider text-zinc-400 uppercase">
-                      {setsCount} SÉRIES • {exercisesCount} EXERCÍCIOS
-                    </span>
-                  </div>
-                  <div className="text-right">
-                    <span className="block font-display text-xl font-black tracking-[0.2em] text-white">
+                    <span className="block text-[16px] font-bold tracking-[0.24em] text-zinc-400 uppercase">
                       TFIVE PRO
                     </span>
-                    <span className="mt-1 block text-[11px] font-bold tracking-[0.2em] text-zinc-500 uppercase">
-                      PERSONAL TRAINER
+                    <span className="block mt-1 text-[13px] font-semibold tracking-[0.2em] text-zinc-500 uppercase">
+                      MAPA MUSCULAR
                     </span>
+                  </div>
+                  <span className="text-[15px] font-mono-nums font-semibold tracking-wider text-zinc-400">
+                    {dateStr}
+                  </span>
+                </div>
+
+                <div className="pt-6 text-center">
+                  <h2 className="text-[34px] leading-tight font-black tracking-tight text-white uppercase">
+                    {workoutName}
+                  </h2>
+                  <p className="mt-2 text-[21px] font-semibold tracking-[0.12em] text-zinc-300 uppercase">
+                    {firstName}
+                  </p>
+                </div>
+
+                <div className="w-full h-[590px] mt-5 flex items-center justify-center overflow-hidden">
+                  <div className="w-full flex items-center justify-center">
+                    <StoryBodyMapVector
+                      intensities={muscleAnalysis.intensities}
+                      sex={bodyMapSex}
+                      theme="transparent-dark"
+                      showLabels={false}
+                      className="w-full"
+                    />
+                  </div>
+                </div>
+
+                <div className="mt-2 pt-5 border-t border-white/10">
+                  <div className="flex items-center justify-center gap-8 text-[14px] font-semibold tracking-wide uppercase">
+                    <div className="flex items-center gap-2.5">
+                      <span className="w-3 h-3 rounded-full bg-[#3185E8]" />
+                      <span className="text-zinc-200">Primário</span>
+                    </div>
+                    <div className="flex items-center gap-2.5">
+                      <span className="w-3 h-3 rounded-full bg-[#89B1E1]" />
+                      <span className="text-zinc-300">Secundário</span>
+                    </div>
+                    <div className="flex items-center gap-2.5">
+                      <span className="w-3 h-3 rounded-full bg-[#D1D5DB]" />
+                      <span className="text-zinc-400">Repouso</span>
+                    </div>
                   </div>
                 </div>
               </div>
