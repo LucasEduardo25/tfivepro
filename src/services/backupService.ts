@@ -26,7 +26,7 @@ import {
   PlanAuditLog,
   TrainingMemory
 } from '../types';
-import { StudentAccess, AppUser } from '../types/auth';
+import { AppUser } from '../types/auth';
 import { 
   getAllFromStore, 
   putInStore, 
@@ -69,7 +69,6 @@ export interface BackupMetadata {
   planTransfersCount?: number;
   planSuspensionsCount?: number;
   planAuditLogsCount?: number;
-  studentAccessCount?: number;
   appUsersCount?: number;
   trainingMemoriesCount?: number;
   appVersion: string;
@@ -103,7 +102,6 @@ export interface BackupDataPayload {
   planTransfers?: PlanTransfer[];
   planSuspensions?: PlanSuspension[];
   planAuditLogs?: PlanAuditLog[];
-  studentAccess?: StudentAccess[];
   appUsers?: AppUser[];
   trainingMemories?: TrainingMemory[];
 }
@@ -209,7 +207,6 @@ export async function createFullBackup(): Promise<{
     planTransfers,
     planSuspensions,
     planAuditLogs,
-    studentAccess,
     appUsers,
     trainingMemories
   ] = await Promise.all([
@@ -238,7 +235,6 @@ export async function createFullBackup(): Promise<{
     getAllFromStore<PlanTransfer>('plan_transfers'),
     getAllFromStore<PlanSuspension>('plan_suspensions'),
     getAllFromStore<PlanAuditLog>('plan_audit_logs'),
-    getAllFromStore<StudentAccess>('student_access'),
     getAllFromStore<AppUser>('app_users'),
     getAllFromStore<TrainingMemory>('training_memories')
   ]);
@@ -295,7 +291,6 @@ export async function createFullBackup(): Promise<{
     planTransfers,
     planSuspensions,
     planAuditLogs,
-    studentAccess,
     appUsers,
     trainingMemories
   };
@@ -327,7 +322,6 @@ export async function createFullBackup(): Promise<{
     planTransfersCount: (planTransfers || []).length,
     planSuspensionsCount: (planSuspensions || []).length,
     planAuditLogsCount: (planAuditLogs || []).length,
-    studentAccessCount: (studentAccess || []).length,
     appUsersCount: (appUsers || []).length,
     trainingMemoriesCount: (trainingMemories || []).length,
     appVersion: '5.3',
@@ -504,7 +498,6 @@ function buildMetadataFromData(data: BackupDataPayload): BackupMetadata {
     planTransfersCount: Array.isArray(data.planTransfers) ? data.planTransfers.length : 0,
     planSuspensionsCount: Array.isArray(data.planSuspensions) ? data.planSuspensions.length : 0,
     planAuditLogsCount: Array.isArray(data.planAuditLogs) ? data.planAuditLogs.length : 0,
-    studentAccessCount: Array.isArray(data.studentAccess) ? data.studentAccess.length : 0,
     appUsersCount: Array.isArray(data.appUsers) ? data.appUsers.length : 0,
     trainingMemoriesCount: Array.isArray(data.trainingMemories) ? data.trainingMemories.length : 0,
     appVersion: '5.3',
@@ -557,7 +550,6 @@ export async function restoreFullBackup(dataPayload: BackupDataPayload): Promise
     planTransfers: await getAllFromStore<PlanTransfer>('plan_transfers'),
     planSuspensions: await getAllFromStore<PlanSuspension>('plan_suspensions'),
     planAuditLogs: await getAllFromStore<PlanAuditLog>('plan_audit_logs'),
-    studentAccess: await getAllFromStore<StudentAccess>('student_access'),
     appUsers: await getAllFromStore<AppUser>('app_users'),
     trainingMemories: await getAllFromStore<TrainingMemory>('training_memories')
   };
@@ -590,7 +582,6 @@ export async function restoreFullBackup(dataPayload: BackupDataPayload): Promise
       planTransfers = [],
       planSuspensions = [],
       planAuditLogs = [],
-      studentAccess = [],
       appUsers = [],
       trainingMemories = []
     } = dataPayload;
@@ -741,14 +732,6 @@ export async function restoreFullBackup(dataPayload: BackupDataPayload): Promise
       if (item && item.id) await putInStore('plan_audit_logs', item);
     }
 
-    // Clear and restore student access
-    if (studentAccess.length > 0) {
-      await clearStore('student_access');
-      for (const item of studentAccess) {
-        if (item && item.id) await putInStore('student_access', item);
-      }
-    }
-
     // Clear and restore app users
     if (appUsers.length > 0) {
       await clearStore('app_users');
@@ -863,9 +846,6 @@ export async function restoreFullBackup(dataPayload: BackupDataPayload): Promise
 
       await clearStore('evolution_reports');
       for (const item of rollbackSnapshot.evolutionReports) await putInStore('evolution_reports', item);
-
-      await clearStore('student_access');
-      for (const item of rollbackSnapshot.studentAccess) await putInStore('student_access', item);
 
       await clearStore('app_users');
       for (const item of rollbackSnapshot.appUsers) await putInStore('app_users', item);
