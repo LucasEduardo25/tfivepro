@@ -114,6 +114,11 @@ begin
     raise exception 'Informe o nome do espaço de trabalho.';
   end if;
 
+  -- Serializa callbacks simultâneos do retorno OAuth para evitar workspaces duplicados.
+  perform pg_catalog.pg_advisory_xact_lock(
+    pg_catalog.hashtextextended(v_user_id::text, 0)
+  );
+
   if char_length(v_org_name) > 80 then
     raise exception 'O nome do espaço de trabalho deve ter no máximo 80 caracteres.';
   end if;
