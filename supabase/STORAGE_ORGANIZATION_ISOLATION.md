@@ -22,7 +22,7 @@ O primeiro segmento é sempre o UUID da organização. IDs legados de aluno não
 - exclusão limitada à organização autenticada;
 - conversão controlada de data URL legado para Blob.
 
-O serviço ainda não está conectado aos formulários/repositórios existentes. Isso é intencional: os campos atuais armazenam data URLs e os componentes esperam URLs prontas. Ligar o upload antes de implementar resolução de referências assinadas e migração dos dados quebraria imagens existentes.
+O serviço já está integrado ao fluxo de fotos de evolução: o repositório converte data URLs em Blob, envia os arquivos para `assessment-photos` e mantém `storage://` como referência persistente. Na leitura, gera URLs assinadas. A integração ainda depende da migration `student_photos` e das policies Storage, que permanecem em rascunho e não foram executadas no Supabase compartilhado.
 
 ## Pré-requisitos antes de ativar o SQL
 
