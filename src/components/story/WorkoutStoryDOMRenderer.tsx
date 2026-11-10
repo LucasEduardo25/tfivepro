@@ -571,17 +571,17 @@ export const WorkoutStoryDOMRenderer = forwardRef<StoryDOMRendererRef, StoryDOMR
                 <div className="bg-black/60 backdrop-blur-lg px-8 py-5 rounded-full border border-white/20 w-fit flex items-center gap-8 shadow-xl">
                   <div className="flex items-center gap-2.5">
                     <span className="text-2xl font-black font-mono-nums text-white">{duration}</span>
-                    <span className="text-xs font-mono-nums font-bold text-zinc-400 uppercase">Duração</span>
+                    <span className="text-xs font-mono-nums font-bold text-white uppercase">Duração</span>
                   </div>
                   <span className="w-1 h-1 rounded-full bg-zinc-500" />
                   <div className="flex items-center gap-2.5">
                     <span className="text-2xl font-black font-mono-nums text-white">{volume}</span>
-                    <span className="text-xs font-mono-nums font-bold text-zinc-400 uppercase">Volume</span>
+                    <span className="text-xs font-mono-nums font-bold text-white uppercase">Volume</span>
                   </div>
                   <span className="w-1 h-1 rounded-full bg-zinc-500" />
                   <div className="flex items-center gap-2.5">
                     <span className="text-2xl font-black font-mono-nums text-white">{exercisesCount}</span>
-                    <span className="text-xs font-mono-nums font-bold text-zinc-400 uppercase">Exercícios</span>
+                    <span className="text-xs font-mono-nums font-bold text-white uppercase">Exercícios</span>
                   </div>
                 </div>
 
@@ -924,32 +924,23 @@ export const WorkoutStoryDOMRenderer = forwardRef<StoryDOMRendererRef, StoryDOMR
                   <span className="block mt-2 text-[29px] leading-none font-black font-mono-nums text-white">{exercisesCount}</span>
                 </div>
                 <div className="min-w-0 rounded-[22px] px-4 py-5 text-center" style={{ background: 'rgba(12, 14, 18, 0.82)', border: '1px solid rgba(255,255,255,0.16)', backdropFilter: 'blur(18px)', WebkitBackdropFilter: 'blur(18px)' }}>
-                  <span className="block text-[14px] font-bold tracking-[0.16em] text-zinc-400 uppercase">Séries</span>
+                  <span className="block text-[14px] font-bold tracking-[0.16em] text-white uppercase">Séries</span>
                   <span className="block mt-2 text-[29px] leading-none font-black font-mono-nums text-white">{setsCount}</span>
                 </div>
               </div>
 
-              {/* Card compacto para sobreposição na foto */}
-              <div
-                className="absolute top-[250px] left-1/2 -translate-x-1/2 w-[860px] rounded-[34px] px-10 pt-9 pb-8 overflow-hidden"
-                style={{
-                  background: 'rgba(12, 14, 18, 0.82)',
-                  border: '1px solid rgba(255,255,255,0.16)',
-                  boxShadow: '0 18px 60px rgba(0,0,0,0.28)',
-                  backdropFilter: 'blur(18px)',
-                  WebkitBackdropFilter: 'blur(18px)'
-                }}
-              >
-                <div className="flex items-center justify-between border-b border-white/10 pb-5">
+              {/* Conteúdo do Body Map sem card ou fundo — anatomia original preservada */}
+              <div className="absolute top-[250px] left-1/2 -translate-x-1/2 w-[860px] overflow-hidden">
+                <div className="flex items-center justify-between pb-5">
                   <div>
-                    <span className="block text-[16px] font-bold tracking-[0.24em] text-zinc-400 uppercase">
+                    <span className="block text-[16px] font-bold tracking-[0.24em] text-white uppercase">
                       TFIVE PRO
                     </span>
-                    <span className="block mt-1 text-[13px] font-semibold tracking-[0.2em] text-zinc-500 uppercase">
+                    <span className="block mt-1 text-[13px] font-semibold tracking-[0.2em] text-white uppercase">
                       MAPA MUSCULAR
                     </span>
                   </div>
-                  <span className="text-[15px] font-mono-nums font-semibold tracking-wider text-zinc-400">
+                  <span className="text-[15px] font-mono-nums font-semibold tracking-wider text-white">
                     {dateStr}
                   </span>
                 </div>
@@ -958,7 +949,7 @@ export const WorkoutStoryDOMRenderer = forwardRef<StoryDOMRendererRef, StoryDOMR
                   <h2 className="text-[34px] leading-tight font-black tracking-tight text-white uppercase">
                     {workoutName}
                   </h2>
-                  <p className="mt-2 text-[21px] font-semibold tracking-[0.12em] text-zinc-300 uppercase">
+                  <p className="mt-2 text-[21px] font-semibold tracking-[0.12em] text-white uppercase">
                     {firstName}
                   </p>
                 </div>
@@ -975,19 +966,19 @@ export const WorkoutStoryDOMRenderer = forwardRef<StoryDOMRendererRef, StoryDOMR
                   </div>
                 </div>
 
-                <div className="mt-2 pt-5 border-t border-white/10">
+                <div className="mt-2 pt-5">
                   <div className="flex items-center justify-center gap-8 text-[14px] font-semibold tracking-wide uppercase">
                     <div className="flex items-center gap-2.5">
                       <span className="w-3 h-3 rounded-full bg-[#3185E8]" />
-                      <span className="text-zinc-200">Primário</span>
+                      <span className="text-white">Primário</span>
                     </div>
                     <div className="flex items-center gap-2.5">
                       <span className="w-3 h-3 rounded-full bg-[#89B1E1]" />
-                      <span className="text-zinc-300">Secundário</span>
+                      <span className="text-white">Secundário</span>
                     </div>
                     <div className="flex items-center gap-2.5">
                       <span className="w-3 h-3 rounded-full bg-[#D1D5DB]" />
-                      <span className="text-zinc-400">Repouso</span>
+                      <span className="text-white">Repouso</span>
                     </div>
                   </div>
                 </div>
