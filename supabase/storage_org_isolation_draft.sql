@@ -156,24 +156,14 @@ using (
   end
 );
 
--- Assessment photos are private. Trainers manage files in their organization;
--- students can read only their own assessment-photo folder.
+-- Assessment photos are private and readable only by trainers in the owning organization.
 create policy "TFIVE read organization assessment photos"
 on storage.objects for select to authenticated
 using (
   bucket_id = 'assessment-photos'
   and case
     when (storage.foldername(name))[1] ~* '^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$'
-    then (
-      public.is_trainer(((storage.foldername(name))[1])::uuid)
-      or (
-        (storage.foldername(name))[2] ~* '^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{12}$'
-        and public.is_authorized_student(
-          ((storage.foldername(name))[1])::uuid,
-          ((storage.foldername(name))[2])::uuid
-        )
-      )
-    )
+    then public.is_trainer(((storage.foldername(name))[1])::uuid)
     else false
   end
 );
