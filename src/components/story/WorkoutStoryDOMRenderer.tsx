@@ -944,10 +944,10 @@ export const WorkoutStoryDOMRenderer = forwardRef<StoryDOMRendererRef, StoryDOMR
                     </p>
                   </div>
 
-                  <div className="flex-1 h-[390px] flex items-center justify-center overflow-hidden">
+                  <div className="flex-1 h-[470px] flex items-center justify-center overflow-visible">
                     <div
                       className="w-[900px] shrink-0 flex items-center justify-center"
-                      style={{ transform: 'scale(0.72)', transformOrigin: 'center center' }}
+                      style={{ transform: 'scale(0.62)', transformOrigin: 'center center' }}
                     >
                       <StoryBodyMapVector
                         intensities={muscleAnalysis.intensities}
