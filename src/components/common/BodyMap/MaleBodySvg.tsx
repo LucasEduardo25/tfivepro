@@ -43,13 +43,7 @@ export const MaleBodySvg: React.FC<MaleBodySvgProps> = ({
   };
 
   return (
-    <div className={`flex items-start justify-center gap-6 sm:gap-10 md:gap-14 w-full ${className}`}>
-      {/* Defs SVG com filtros de glow */}
-      <svg width="0" height="0" className="absolute hidden" aria-hidden="true">
-        <g dangerouslySetInnerHTML={{ __html: generate3DDefsMarkup(prefix, accentColor) }} />
-      </svg>
-
-      {/* ================================================================== */}
+    <div className={`flex items-start justify-center gap-6 sm:gap-10 md:gap-14 w-full ${className}`}>{/* ================================================================== */}
       {/* 1. VISTA FRONTAL MASCULINA — MAPA MUSCULAR FITNESS VETORIAL       */}
       {/* ================================================================== */}
       {(view === 'both' || view === 'front') && (
@@ -61,8 +55,11 @@ export const MaleBodySvg: React.FC<MaleBodySvgProps> = ({
           <svg
             width="200"
             height="420"
+            width="200"
+            height="420"
             viewBox="0 0 200 420"
             className="w-full h-auto select-none"
+            style={{ width: "100%", height: "auto", display: "block" }}
             style={{ width: "100%", height: "auto", display: "block" }}
             aria-label="Mapa Muscular Masculino - Frente"
           >
@@ -281,10 +278,12 @@ export const MaleBodySvg: React.FC<MaleBodySvgProps> = ({
             Costas
           </div>
           <svg
+            width="200"
+            height="420"
             viewBox="0 0 200 420"
             className="w-full h-auto select-none"
+            style={{ width: "100%", height: "auto", display: "block" }}
             aria-label="Mapa Muscular Masculino - Costas"
-            style={{ filter: `url(#${prefix}-silhouette-shadow)` }}
           >
             {/* 0. BASE POSTERIOR INTEGRADA */}
             <g id="male-back-structure">
