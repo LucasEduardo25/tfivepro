@@ -29,7 +29,6 @@ import { LoginView } from './components/auth/LoginView';
 import { DATA_BACKEND } from './utils/constants';
 import { OfflineConnectivityBanner } from './components/common/OfflineConnectivityBanner';
 import { PWAUpdateNotification } from './components/pwa/PWAUpdateNotification';
-import { StudentAppShell } from './components/student/StudentAppShell';
 import { IntelligenceView } from './components/intelligence/IntelligenceView';
 
 const MainContent: React.FC = () => {
@@ -283,21 +282,6 @@ export default function App() {
 
   if (DATA_BACKEND === 'supabase' && !authState.isAuthenticated) {
     return <LoginView />;
-  }
-
-  // MODO ALUNO: Fundação segura, mobile-first e estritamente isolada (Etapa 1)
-  if (authState.role === 'STUDENT' && authState.studentId) {
-    return (
-      <GlobalErrorBoundary>
-        <StudentAppShell 
-          onExitPreview={
-            authState.user?.authUid?.startsWith('auth_std_') 
-              ? () => authService.switchToTrainer() 
-              : undefined
-          }
-        />
-      </GlobalErrorBoundary>
-    );
   }
 
   return (
