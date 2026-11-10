@@ -17,7 +17,6 @@ interface LoginViewProps {
 
 export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
   const [mode, setMode] = useState<'login' | 'signup'>('login');
-  const [selectedRole, setSelectedRole] = useState<'TRAINER' | 'STUDENT'>('TRAINER');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
@@ -77,25 +76,7 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
 
     try {
       if (mode === 'login') {
-        const user = await authService.loginWithSupabase(email, password);
-        
-        if (selectedRole === 'TRAINER' && user.role === 'STUDENT') {
-          await authService.logout();
-          setErrorMessage('Sua conta não possui permissão de Treinador. Selecione "SOU ALUNO" para entrar.');
-          setLoading(false);
-          return;
-        }
-        
-        if (selectedRole === 'STUDENT' && user.role !== 'STUDENT') {
-          // If a trainer tries to login as student via this screen directly, we could handle it, 
-          // but authService will load them as TRAINER and route them to trainer dashboard.
-          // To strictly enforce the student experience, they should use "Acessar como Aluno" from dashboard.
-          // We will just let the normal flow happen, or throw.
-          // For simplicity, let's allow it but they go to trainer dashboard anyway, OR we can throw.
-          // Let's just enforce selectedRole === 'STUDENT' requires user.role === 'STUDENT' for clarity.
-          // Actually, let's not block trainers from logging in just because they misclicked, 
-          // but we will enforce the trainer restriction as requested.
-        }
+        await authService.loginWithSupabase(email, password);
 
         setSuccessMessage('Autenticado com sucesso! Carregando workspace...');
         if (onLoginSuccess) {
@@ -173,34 +154,6 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
         )}
 
         
-        {/* Seleção de perfil apenas no login; cadastro público é exclusivo para treinadores. */}
-        {mode === 'login' && (
-          <div className="flex bg-[#F3F4F6] p-1 rounded-xl mb-6">
-            <button
-              type="button"
-              onClick={() => setSelectedRole('TRAINER')}
-              className={`flex-1 py-2 text-xs font-bold uppercase tracking-wider rounded-lg transition-all ${
-                selectedRole === 'TRAINER'
-                  ? 'bg-white text-[#111827] shadow-sm'
-                  : 'text-[#6B7280] hover:text-[#374151]'
-              }`}
-            >
-              SOU TREINADOR
-            </button>
-            <button
-              type="button"
-              onClick={() => setSelectedRole('STUDENT')}
-              className={`flex-1 py-2 text-xs font-bold uppercase tracking-wider rounded-lg transition-all ${
-                selectedRole === 'STUDENT'
-                  ? 'bg-white text-[#111827] shadow-sm'
-                  : 'text-[#6B7280] hover:text-[#374151]'
-              }`}
-            >
-              SOU ALUNO
-            </button>
-          </div>
-        )}
-
         {/* Formulário de Login / Cadastro */}
 
         <form onSubmit={handleSubmit} className="space-y-4">
