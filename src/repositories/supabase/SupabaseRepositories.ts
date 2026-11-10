@@ -1229,7 +1229,16 @@ export class SupabaseStudentPhotoRepository {
       .select('*, students(id, legacy_id)')
       .eq('organization_id', orgId)
       .order('photo_date', { ascending: false });
-    if (error) throw error;
+    if (error) {
+      const dbError = error as { code?: string; message?: string };
+      const tableNotInstalled = dbError.code === '42P01' || dbError.code === 'PGRST205' ||
+        dbError.message?.includes('student_photos');
+      if (tableNotInstalled) {
+        console.warn('[TFIVE] Tabela student_photos ainda não instalada; galeria inicia vazia até a migration aprovada.');
+        return [];
+      }
+      throw error;
+    }
     const rows = data || [];
     return Promise.all(rows.map(async (row: any) => {
       const reference = row.photo_reference as string;
@@ -1254,6 +1263,12 @@ export class SupabaseStudentPhotoRepository {
     const studentUuid = await resolveStudentUuid(photo.studentId);
     if (!studentUuid || !isUUID(studentUuid)) {
       throw new Error('Não foi possível localizar o UUID do aluno. A foto não foi salva.');
+    }
+
+    // Fail before uploading when the metadata migration has not been installed.
+    const { error: schemaError } = await supabase.from('student_photos').select('id').limit(1);
+    if (schemaError) {
+      throw new Error('Persistência de fotos ainda não ativada no banco. A migration de fotos e as políticas Storage precisam ser aplicadas em staging antes do uso.');
     }
 
     let reference = photo.photoUrl;
