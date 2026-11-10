@@ -125,8 +125,39 @@ class AuthService {
    * 3. Validação estrita: enabled = true e status = 'ACTIVE'.
    * 4. NÃO utilizar organization_members como requisito de identidade do aluno.
    */
-  public async syncSupabaseUser(authUser: { id: string; email?: string }): Promise<AppUser | null> {
+  public async syncSupabaseUser(authUser: { id: string; email?: string; user_metadata?: Record<string, unknown> }): Promise<AppUser | null> {
     try {
+      // Provisiona o workspace somente após autenticação confirmada.
+      // O servidor valida auth.uid(), confirmação do e-mail e convites de aluno.
+      if (typeof window !== 'undefined') {
+        const pendingWorkspace = localStorage.getItem('tfive_pending_google_workspace');
+        const metadataWorkspace = authUser.user_metadata?.organization_name;
+        const requestedWorkspace =
+          pendingWorkspace ||
+          (typeof metadataWorkspace === 'string' ? metadataWorkspace.trim() : '');
+
+        if (requestedWorkspace) {
+          const pendingFullName = localStorage.getItem('tfive_pending_google_full_name');
+          const metadataFullName =
+            authUser.user_metadata?.full_name ??
+            authUser.user_metadata?.name;
+          const requestedFullName =
+            pendingFullName ||
+            (typeof metadataFullName === 'string' ? metadataFullName : null);
+
+          const { error: provisionError } = await (supabase as any).rpc(
+            'provision_google_trainer_workspace',
+            {
+              p_organization_name: requestedWorkspace,
+              p_full_name: requestedFullName
+            }
+          );
+          if (provisionError) throw new TransientAuthError(provisionError.message);
+
+          localStorage.removeItem('tfive_pending_google_workspace');
+          localStorage.removeItem('tfive_pending_google_full_name');
+        }
+      }
       // 1. Verifica se o usuário é OWNER ou TRAINER em organization_members
       const { data: member, error: memberErr } = await (supabase as any)
         .from('organization_members')
@@ -312,15 +343,61 @@ class AuthService {
   }
 
   /**
+   * Inicia autenticação Google. No cadastro, guarda o nome do workspace
+   * para provisioná-lo após o retorno do OAuth, com validação server-side.
+   */
+  public async signInWithGoogle(organizationName?: string, fullName?: string): Promise<void> {
+    if (typeof window === 'undefined') {
+      throw new Error('A autenticação com Google só pode ser iniciada no navegador.');
+    }
+
+    const pendingKey = 'tfive_pending_google_workspace';
+    const pendingNameKey = 'tfive_pending_google_full_name';
+    if (organizationName?.trim()) {
+      localStorage.setItem(pendingKey, organizationName.trim());
+      if (fullName?.trim()) localStorage.setItem(pendingNameKey, fullName.trim());
+      else localStorage.removeItem(pendingNameKey);
+    } else {
+      localStorage.removeItem(pendingKey);
+      localStorage.removeItem(pendingNameKey);
+    }
+
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: window.location.origin,
+        queryParams: { prompt: 'select_account' },
+      },
+    });
+
+    if (error) {
+      localStorage.removeItem(pendingKey);
+      localStorage.removeItem(pendingNameKey);
+      throw new Error(this.translateAuthError(error.message));
+    }
+  }
+
+  /**
    * Cadastro oficial via Supabase Auth
    */
-  public async signUpWithSupabase(email: string, password: string, fullName: string) {
+  public async signUpWithSupabase(
+    email: string,
+    password: string,
+    fullName: string,
+    organizationName: string
+  ) {
+    const normalizedOrganizationName = organizationName.trim();
+    if (!normalizedOrganizationName) {
+      throw new Error('Informe o nome do seu espaço de trabalho.');
+    }
+
     const { data, error } = await supabase.auth.signUp({
       email: email.trim(),
       password,
       options: {
         data: {
           full_name: fullName.trim(),
+          organization_name: normalizedOrganizationName,
         },
       },
     });
