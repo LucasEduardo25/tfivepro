@@ -33,6 +33,7 @@ import {
   SupabaseWorkoutTemplateRepository,
   SupabaseFunctionalTestRepository,
   SupabaseFunctionalBatteryRepository,
+  SupabaseStudentPhotoRepository,
 } from './supabase/SupabaseRepositories';
 import { isSupabaseConfigured } from '../services/supabaseClient';
 import { DATA_BACKEND as APP_DATA_BACKEND } from '../utils/constants';
@@ -61,6 +62,7 @@ const supabaseWorkoutTemplateRepo = new SupabaseWorkoutTemplateRepository();
 const supabaseTrainingMemoriesRepo = new SupabaseTrainingMemoriesRepository();
 const supabaseFunctionalTestRepo = new SupabaseFunctionalTestRepository();
 const supabaseFunctionalBatteryRepo = new SupabaseFunctionalBatteryRepository();
+const supabaseStudentPhotoRepo = new SupabaseStudentPhotoRepository();
 
 export function getStudentRepository(): IStudentRepository {
   return supabaseStudentRepo;
@@ -118,3 +120,7 @@ export function getFunctionalBatteryRepository() {
   return supabaseFunctionalBatteryRepo;
 }
 
+
+export function getStudentPhotoRepository(): SupabaseStudentPhotoRepository {
+  return supabaseStudentPhotoRepo;
+}
