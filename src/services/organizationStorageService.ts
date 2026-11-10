@@ -23,7 +23,11 @@ const BUCKET_BY_KIND: Record<OrganizationImageKind, string> = {
   'assessment-photo': 'assessment-photos',
 };
 
-const MAX_IMAGE_BYTES_BY_BUCKET: Record<string, number> = {\n  'organization-assets': 10 * 1024 * 1024,\n  'student-avatars': 5 * 1024 * 1024,\n  'assessment-photos': 20 * 1024 * 1024,\n};
+const MAX_IMAGE_BYTES_BY_BUCKET: Record<string, number> = {
+  'organization-assets': 10 * 1024 * 1024,
+  'student-avatars': 5 * 1024 * 1024,
+  'assessment-photos': 20 * 1024 * 1024,
+};
 const ALLOWED_IMAGE_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp']);
 
 const isUuid = (value: string): boolean =>
@@ -103,11 +107,13 @@ export async function uploadOrganizationImage(
   if (!ALLOWED_IMAGE_TYPES.has(file.type)) {
     throw new Error('Formato de imagem não permitido. Use JPG, PNG ou WEBP.');
   }
-  if (file.size <= 0 || file.size > MAX_IMAGE_BYTES) {
-    throw new Error('A imagem deve ter até 20 MB.');
-  }
 
   const bucket = BUCKET_BY_KIND[options.kind];
+  const maxBytes = MAX_IMAGE_BYTES_BY_BUCKET[bucket];
+  if (file.size <= 0 || file.size > maxBytes) {
+    const maxMb = Math.round(maxBytes / (1024 * 1024));
+    throw new Error(`A imagem deve ter até ${maxMb} MB para este tipo de arquivo.`);
+  }
   const path = buildPath(options, extensionFor(file.type));
   if (path.split('/')[0] !== organizationId) {
     throw new Error('Tentativa de gravar arquivo fora da organização autenticada.');
