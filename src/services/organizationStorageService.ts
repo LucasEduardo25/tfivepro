@@ -42,6 +42,17 @@ const extensionFor = (mimeType: string): string => {
   }
 };
 
+const assertStorageIsolationEnabled = async (): Promise<void> => {
+  const { data, error } = await supabase
+    .from('organization_storage_security')
+    .select('enabled')
+    .eq('key', 'organization_scoped_storage')
+    .maybeSingle();
+  if (error || data?.enabled !== true) {
+    throw new Error('Armazenamento em nuvem bloqueado até a ativação das políticas de isolamento por organização no Supabase.');
+  }
+};
+
 const assertConfigured = (): void => {
   if (!isSupabaseConfigured()) throw new Error('Supabase Storage não está configurado.');
 };
@@ -102,6 +113,7 @@ export async function uploadOrganizationImage(
   options: OrganizationImageUploadOptions,
 ): Promise<OrganizationImageUploadResult> {
   assertConfigured();
+  await assertStorageIsolationEnabled();
   const { organizationId } = assertTrainer();
 
   if (!ALLOWED_IMAGE_TYPES.has(file.type)) {
@@ -140,6 +152,7 @@ export async function getOrganizationImageUrl(
   expiresInSeconds = 60 * 60,
 ): Promise<string> {
   assertConfigured();
+  await assertStorageIsolationEnabled();
   const { bucket, path } = parseReference(reference);
   const scope = getOrganizationScope();
   const segments = path.split('/');
@@ -166,6 +179,7 @@ export async function getOrganizationImageUrl(
 /** Deletes only files in the current trainer's organization. */
 export async function deleteOrganizationImage(reference: string): Promise<void> {
   assertConfigured();
+  await assertStorageIsolationEnabled();
   const { organizationId } = assertTrainer();
   const { bucket, path } = parseReference(reference);
 
