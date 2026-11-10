@@ -2,7 +2,7 @@
 
 ## Estado
 
-Este material é uma preparação de implementação. O SQL em `storage_org_isolation_draft.sql` **não é uma migration ativa e não foi executado**. O Supabase é compartilhado pelo preview e pela produção; executar DDL nele afetaria ambos.
+Este material é uma preparação de implementação. O SQL em `storage_org_isolation_draft.sql` **não é uma migration ativa e não foi executado**. Ele também cria um marcador de ativação; o cliente bloqueia uploads, downloads assinados e exclusões até esse marcador existir com a versão correta. O Supabase é compartilhado pelo preview e pela produção; executar DDL nele afetaria ambos.
 
 ## Padrão de caminhos
 
@@ -32,7 +32,8 @@ O serviço já está integrado ao fluxo de fotos de evolução: o repositório c
 4. Atualizar os campos `students.photo_url`, `assessments.photos` e `assessments.original_image_url` (se existir) para armazenar referências `storage://...`.
 5. Implementar resolução de referências para URLs assinadas em todos os componentes e relatórios/exportações.
 6. Fazer backup e validar em projeto Supabase de staging isolado.
-7. Somente depois, executar a migration em janela aprovada; não executar diretamente no Supabase compartilhado preview/produção sem autorização.
+7. Aplicar primeiro a migration de `student_photos` e depois o script Storage completo (que cria o marcador somente após as policies); validar as operações com duas organizações em staging.
+8. Somente depois, planejar a janela aprovada para o projeto compartilhado; não executar diretamente no Supabase preview/produção sem backup e autorização.
 
 ## Pontos de atenção
 
