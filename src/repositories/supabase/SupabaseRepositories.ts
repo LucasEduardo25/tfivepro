@@ -1271,8 +1271,14 @@ export class SupabaseAssessmentRepository implements IAssessmentRepository {
     const uploadedReferences: string[] = [];
     for (const [angle, value] of Object.entries(photos)) {
       if (!value) continue;
-      if (previousResolved?.[angle as keyof typeof previousResolved] === value && previousStored?.[angle as keyof typeof previousStored]) {
-        result[angle] = previousStored[angle as keyof typeof previousStored] as string;
+      const previousResolvedValue = previousResolved
+        ? (previousResolved as Record<string, string>)[angle]
+        : undefined;
+      const previousStoredValue = previousStored
+        ? (previousStored as Record<string, string>)[angle]
+        : undefined;
+      if (previousResolvedValue === value && previousStoredValue) {
+        result[angle] = previousStoredValue;
       } else if (value.startsWith('data:image/')) {
         const upload = await uploadOrganizationImage(dataUrlToImageBlob(value), {
           kind: 'assessment-photo', studentId: studentUuid, assessmentId: assessmentUuid,
