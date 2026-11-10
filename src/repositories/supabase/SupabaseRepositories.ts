@@ -212,7 +212,7 @@ export class SupabaseStudentRepository implements IStudentRepository {
     if (patch.phone !== undefined) updatePayload.phone = patch.phone;
     if (patch.email !== undefined) updatePayload.email = patch.email;
     let uploadedPhotoReference: string | null = null;
-    if (patch.photo !== undefined) {
+    if (patch.photo !== undefined && patch.photo !== existing.photo) {
       let photoReference = patch.photo || null;
       const studentUuid = existing.uuid || (isUUID(id) ? id : await resolveStudentUuid(id));
       if (photoReference?.startsWith('data:image/')) {
