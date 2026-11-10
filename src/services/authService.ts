@@ -44,7 +44,14 @@ class AuthService {
       try {
         const { data: { session } } = await supabase.auth.getSession();
         if (session?.user) {
-          await this.syncSupabaseUser(session.user);
+          try {
+            await this.syncSupabaseUser(session.user);
+          } catch (err) {
+            if (err instanceof SecurityViolationError) {
+              await supabase.auth.signOut().catch(() => {});
+            }
+            throw err;
+          }
         } else {
           this.currentUser = null;
           this.saveSessionToStorage(null);
@@ -60,8 +67,11 @@ class AuthService {
               if (this.currentUser?.authUid === newSession.user.id) return; // mesmo usuário já carregado
               try {
                 await this.syncSupabaseUser(newSession.user);
-              } catch {
-                /* erro já registrado e estado tratado em syncSupabaseUser */
+              } catch (err) {
+                if (err instanceof SecurityViolationError) {
+                  // Sessões autenticadas sem membership administrativa são encerradas.
+                  await supabase.auth.signOut().catch(() => {});
+                }
               }
             } else if (event === 'SIGNED_OUT') {
               this.currentUser = null;
@@ -240,12 +250,18 @@ class AuthService {
       throw new Error('Não foi possível autenticar o usuário.');
     }
 
-    const synced = await this.syncSupabaseUser(data.user);
-    if (!synced) {
-      throw new Error('Usuário autenticado, mas nenhum perfil ou organização foi encontrado no Supabase. Execute o script de bootstrap!');
+    try {
+      const synced = await this.syncSupabaseUser(data.user);
+      if (!synced) {
+        throw new SecurityViolationError('Conta sem vínculo ativo de Personal Trainer ou OWNER no TFIVE PRO.');
+      }
+      return synced;
+    } catch (err) {
+      if (err instanceof SecurityViolationError) {
+        await supabase.auth.signOut().catch(() => {});
+      }
+      throw err;
     }
-
-    return synced;
   }
 
   /**
