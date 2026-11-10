@@ -32,7 +32,6 @@ import {
   StudentOnboarding,
   OnboardingGlobalConfig,
   AppUser,
-  DEFAULT_STUDENT_PERMISSIONS,
   ActivePlan,
   FamilyPlanParticipant,
   PlanTransfer,
@@ -939,7 +938,6 @@ export async function getDB(): Promise<IDBDatabase> {
             onbStore.createIndex('status', 'status', { unique: false });
             onbStore.createIndex('createdAt', 'createdAt', { unique: false });
           }
-          // O armazenamento legado student_access não é mais criado nem utilizado pelo aplicativo.
           if (!db.objectStoreNames.contains('app_users')) {
             const usrStore = db.createObjectStore('app_users', { keyPath: 'id' });
             usrStore.createIndex('authUid', 'authUid', { unique: true });
@@ -1542,7 +1540,7 @@ export async function exportDatabaseToJSON(): Promise<string> {
         functionalMilestones, functionalBatteries,
         evolutionReports, workoutTemplates,
         proposals, proposalTemplates, trainingCycles,
-        studentOnboardings, studentAccess,
+        studentOnboardings,
         appUsers, activePlans, planTransfers,
         planSuspensions, planAuditLogs,
         trainingMemories
