@@ -35,6 +35,8 @@ import { ISettingsRepository } from '../interfaces/ISettingsRepository';
 import { IWorkoutTemplateRepository } from '../interfaces/IWorkoutTemplateRepository';
 import { WorkoutTemplate } from '../../types';
 import { supabase } from '../../services/supabaseClient';
+import { StudentPhoto } from '../../types';
+import { uploadOrganizationImage, getOrganizationImageUrl, deleteOrganizationImage, dataUrlToImageBlob, isOrganizationStorageReference } from '../../services/organizationStorageService';
 import { authService } from '../../services/authService';
 import { isUUID, resolveStudentUuid, resolveRoutineUuid } from '../../utils/supabaseHelpers';
 
@@ -1213,6 +1215,117 @@ export class SupabaseAssessmentRepository implements IAssessmentRepository {
       conclusions: row.conclusions || undefined,
       updatedAt: row.updated_at,
     };
+  }
+}
+
+// ==============================================================================
+// EVOLUTION PHOTO REPOSITORY — metadata in Postgres, binaries in private Storage
+// ==============================================================================
+export class SupabaseStudentPhotoRepository {
+  async getAll(organizationId?: string): Promise<StudentPhoto[]> {
+    const orgId = resolveOrgId(organizationId);
+    const { data, error } = await supabase
+      .from('student_photos')
+      .select('*, students(id, legacy_id)')
+      .eq('organization_id', orgId)
+      .order('photo_date', { ascending: false });
+    if (error) throw error;
+    const rows = data || [];
+    return Promise.all(rows.map(async (row: any) => {
+      const reference = row.photo_reference as string;
+      let photoUrl = reference;
+      if (isOrganizationStorageReference(reference)) {
+        photoUrl = await getOrganizationImageUrl(reference);
+      }
+      return {
+        id: row.id,
+        studentId: row.students?.legacy_id || row.students?.id || row.student_id,
+        photoUrl,
+        category: row.category as StudentPhoto['category'],
+        date: row.photo_date,
+        notes: row.notes || undefined,
+        createdAt: row.created_at,
+      };
+    }));
+  }
+
+  async save(photo: StudentPhoto): Promise<StudentPhoto> {
+    const orgId = resolveOrgId();
+    const studentUuid = await resolveStudentUuid(photo.studentId);
+    if (!studentUuid || !isUUID(studentUuid)) {
+      throw new Error('Não foi possível localizar o UUID do aluno. A foto não foi salva.');
+    }
+
+    let reference = photo.photoUrl;
+    let uploadedReference: string | null = null;
+    if (!isOrganizationStorageReference(reference)) {
+      if (!reference.startsWith('data:image/')) {
+        throw new Error('A foto precisa ser enviada novamente antes de salvar na nuvem.');
+      }
+      const blob = dataUrlToImageBlob(reference);
+      const upload = await uploadOrganizationImage(blob, {
+        kind: 'assessment-photo',
+        studentId: studentUuid,
+        assessmentId: crypto.randomUUID(),
+      });
+      reference = upload.reference;
+      uploadedReference = reference;
+    }
+
+    const photoId = isUUID(photo.id) ? photo.id : crypto.randomUUID();
+    const { data, error } = await supabase
+      .from('student_photos')
+      .upsert({
+        id: photoId,
+        organization_id: orgId,
+        student_id: studentUuid,
+        photo_reference: reference,
+        category: photo.category,
+        photo_date: photo.date,
+        notes: photo.notes || null,
+        updated_at: new Date().toISOString(),
+      }, { onConflict: 'id' })
+      .select('*, students(id, legacy_id)')
+      .single();
+
+    if (error) {
+      if (uploadedReference) await deleteOrganizationImage(uploadedReference).catch(() => undefined);
+      throw error;
+    }
+    const signedUrl = isOrganizationStorageReference(reference)
+      ? await getOrganizationImageUrl(reference)
+      : reference;
+    return {
+      id: data.id,
+      studentId: data.students?.legacy_id || data.students?.id || photo.studentId,
+      photoUrl: signedUrl,
+      category: data.category,
+      date: data.photo_date,
+      notes: data.notes || undefined,
+      createdAt: data.created_at,
+    };
+  }
+
+  async delete(id: string): Promise<void> {
+    if (!isUUID(id)) throw new Error('Identificador de foto inválido.');
+    const orgId = resolveOrgId();
+    const { data, error: readError } = await supabase
+      .from('student_photos')
+      .select('photo_reference')
+      .eq('id', id)
+      .eq('organization_id', orgId)
+      .maybeSingle();
+    if (readError) throw readError;
+    if (!data) return;
+    const { error } = await supabase
+      .from('student_photos')
+      .delete()
+      .eq('id', id)
+      .eq('organization_id', orgId);
+    if (error) throw error;
+    if (isOrganizationStorageReference(data.photo_reference)) {
+      await deleteOrganizationImage(data.photo_reference);
+    }
   }
 }
 
