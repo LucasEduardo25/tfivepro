@@ -909,59 +909,54 @@ export const WorkoutStoryDOMRenderer = forwardRef<StoryDOMRendererRef, StoryDOMR
               className="w-[1080px] h-[1920px] relative overflow-hidden text-white select-none"
               style={{ background: 'transparent' }}
             >
-              {/* Card horizontal com área anatômica protegida contra cortes */}
+              {/* Card compacto para sobreposição na foto */}
               <div
-                className="absolute top-[250px] left-1/2 -translate-x-1/2 w-[980px] rounded-[30px] px-7 py-7"
+                className="absolute top-[250px] left-1/2 -translate-x-1/2 w-[860px] rounded-[34px] px-10 pt-9 pb-8 overflow-hidden"
                 style={{
-                  background: 'rgba(12, 14, 18, 0.84)',
+                  background: 'rgba(12, 14, 18, 0.82)',
                   border: '1px solid rgba(255,255,255,0.16)',
                   boxShadow: '0 18px 60px rgba(0,0,0,0.28)',
                   backdropFilter: 'blur(18px)',
                   WebkitBackdropFilter: 'blur(18px)'
                 }}
               >
-                <div className="flex items-center justify-between border-b border-white/10 pb-4">
+                <div className="flex items-center justify-between border-b border-white/10 pb-5">
                   <div>
-                    <span className="block text-[15px] font-bold tracking-[0.24em] text-zinc-400 uppercase">
+                    <span className="block text-[16px] font-bold tracking-[0.24em] text-zinc-400 uppercase">
                       TFIVE PRO
                     </span>
-                    <span className="block mt-1 text-[12px] font-semibold tracking-[0.2em] text-zinc-500 uppercase">
+                    <span className="block mt-1 text-[13px] font-semibold tracking-[0.2em] text-zinc-500 uppercase">
                       MAPA MUSCULAR
                     </span>
                   </div>
-                  <span className="text-[14px] font-mono-nums font-semibold tracking-wider text-zinc-400">
+                  <span className="text-[15px] font-mono-nums font-semibold tracking-wider text-zinc-400">
                     {dateStr}
                   </span>
                 </div>
 
-                <div className="flex items-center gap-5 pt-4">
-                  <div className="w-[245px] shrink-0">
-                    <h2 className="text-[31px] leading-[1.08] font-black tracking-tight text-white uppercase break-words">
-                      {workoutName}
-                    </h2>
-                    <p className="mt-3 text-[19px] font-semibold tracking-[0.12em] text-zinc-300 uppercase">
-                      {firstName}
-                    </p>
-                  </div>
+                <div className="pt-6 text-center">
+                  <h2 className="text-[34px] leading-tight font-black tracking-tight text-white uppercase">
+                    {workoutName}
+                  </h2>
+                  <p className="mt-2 text-[21px] font-semibold tracking-[0.12em] text-zinc-300 uppercase">
+                    {firstName}
+                  </p>
+                </div>
 
-                  <div className="flex-1 min-h-[540px] flex items-center justify-center overflow-visible py-3">
-                    <div
-                      className="w-[900px] shrink-0 flex items-center justify-center"
-                      style={{ transform: 'scale(0.54)', transformOrigin: 'center center' }}
-                    >
-                      <StoryBodyMapVector
-                        intensities={muscleAnalysis.intensities}
-                        sex={bodyMapSex}
-                        theme="transparent-dark"
-                        showLabels={false}
-                        className="w-full"
-                      />
-                    </div>
+                <div className="w-full h-[590px] mt-5 flex items-center justify-center overflow-hidden">
+                  <div className="w-full flex items-center justify-center">
+                    <StoryBodyMapVector
+                      intensities={muscleAnalysis.intensities}
+                      sex={bodyMapSex}
+                      theme="transparent-dark"
+                      showLabels={false}
+                      className="w-full"
+                    />
                   </div>
                 </div>
 
-                <div className="mt-3 pt-4 border-t border-white/10">
-                  <div className="flex items-center justify-center gap-8 text-[13px] font-semibold tracking-wide uppercase">
+                <div className="mt-2 pt-5 border-t border-white/10">
+                  <div className="flex items-center justify-center gap-8 text-[14px] font-semibold tracking-wide uppercase">
                     <div className="flex items-center gap-2.5">
                       <span className="w-3 h-3 rounded-full bg-[#3185E8]" />
                       <span className="text-zinc-200">Primário</span>
