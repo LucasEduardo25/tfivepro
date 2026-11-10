@@ -173,32 +173,34 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
         )}
 
         
-        {/* Toggle Treinador / Aluno */}
-        <div className="flex bg-[#F3F4F6] p-1 rounded-xl mb-6">
-          <button
-            type="button"
-            onClick={() => setSelectedRole('TRAINER')}
-            className={`flex-1 py-2 text-xs font-bold uppercase tracking-wider rounded-lg transition-all ${
-              selectedRole === 'TRAINER' 
-                ? 'bg-white text-[#111827] shadow-sm' 
-                : 'text-[#6B7280] hover:text-[#374151]'
-            }`}
-          >
-            SOU TREINADOR
-          </button>
-          <button
-            type="button"
-            onClick={() => setSelectedRole('STUDENT')}
-            className={`flex-1 py-2 text-xs font-bold uppercase tracking-wider rounded-lg transition-all ${
-              selectedRole === 'STUDENT' 
-                ? 'bg-white text-[#111827] shadow-sm' 
-                : 'text-[#6B7280] hover:text-[#374151]'
-            }`}
-          >
-            SOU ALUNO
-          </button>
-        </div>
-        
+        {/* Seleção de perfil apenas no login; cadastro público é exclusivo para treinadores. */}
+        {mode === 'login' && (
+          <div className="flex bg-[#F3F4F6] p-1 rounded-xl mb-6">
+            <button
+              type="button"
+              onClick={() => setSelectedRole('TRAINER')}
+              className={`flex-1 py-2 text-xs font-bold uppercase tracking-wider rounded-lg transition-all ${
+                selectedRole === 'TRAINER'
+                  ? 'bg-white text-[#111827] shadow-sm'
+                  : 'text-[#6B7280] hover:text-[#374151]'
+              }`}
+            >
+              SOU TREINADOR
+            </button>
+            <button
+              type="button"
+              onClick={() => setSelectedRole('STUDENT')}
+              className={`flex-1 py-2 text-xs font-bold uppercase tracking-wider rounded-lg transition-all ${
+                selectedRole === 'STUDENT'
+                  ? 'bg-white text-[#111827] shadow-sm'
+                  : 'text-[#6B7280] hover:text-[#374151]'
+              }`}
+            >
+              SOU ALUNO
+            </button>
+          </div>
+        )}
+
         {/* Formulário de Login / Cadastro */}
 
         <form onSubmit={handleSubmit} className="space-y-4">
