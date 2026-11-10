@@ -91,11 +91,17 @@ export const EvolutionPhotosGallery: React.FC<EvolutionPhotosGalleryProps> = ({ 
       createdAt: new Date().toISOString()
     };
 
-    await savePhoto(photoToSave);
-    setShowAddModal(false);
-    setNewPhotoData('');
-    setNewNotes('');
-    setNewDate(new Date().toISOString().split('T')[0]);
+    try {
+      await savePhoto(photoToSave);
+      setShowAddModal(false);
+      setNewPhotoData('');
+      setNewNotes('');
+      setNewDate(new Date().toISOString().split('T')[0]);
+      setErrorMessage(null);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Não foi possível salvar a foto na nuvem.';
+      setErrorMessage(message);
+    }
   };
 
   const beforePhoto = studentPhotos.find(p => p.id === beforePhotoId);
