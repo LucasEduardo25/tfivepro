@@ -19,7 +19,7 @@
 
 ## Database draft
 
-`STUDENT_PHOTOS_PERSISTENCE_DRAFT.sql` proposes the metadata table and trainer-only RLS. It is not an active migration and has not been executed. Student self-read is deliberately not enabled until the product access decision is explicit.
+`STUDENT_PHOTOS_PERSISTENCE_DRAFT.sql` proposes the metadata table and trainer-only RLS. It is not an active migration and has not been executed. Student self-access is outside the current product scope; only trainer accounts may read these files.
 
 ## Required before rollout
 
@@ -28,7 +28,7 @@
 3. O repositório Supabase já foi implementado e registrado em `repositoryConfig`; `refreshData` e `reloadDataSilently` carregam as fotos, enquanto `savePhoto/deletePhoto` persistem no servidor.
 4. O fluxo da galeria já faz upload para Storage e resolução de URLs assinadas; a gravação falha com mensagem explícita enquanto a migration e as policies não estiverem instaladas.
 5. Validar separadamente o ciclo de vida das fotos de perfil e das fotos de avaliação física, incluindo edição, remoção e migração de data URLs existentes.
-6. Test with two trainer accounts and a student account; confirm cross-organization reads, writes, deletes, and signed URL generation are denied.
+6. Test with two trainer accounts and an account without an active trainer membership; confirm cross-organization reads, writes, deletes, and signed URL generation are denied.
 7. Only then plan migration/rollout to the shared Supabase project with backup and explicit approval.
 
 ## Status
