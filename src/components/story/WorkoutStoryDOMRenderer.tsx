@@ -916,45 +916,39 @@ export const WorkoutStoryDOMRenderer = forwardRef<StoryDOMRendererRef, StoryDOMR
               className="w-[1080px] h-[1920px] relative text-white select-none flex flex-col items-center"
               style={{ background: 'transparent' }}
             >
-              <div className="w-full pt-16 text-center">
-                <p className="text-[34px] font-bold tracking-[0.22em] text-white uppercase">
-                  TREINO DE {firstName}
-                </p>
+              <div className="w-full h-[1190px] flex items-center justify-center px-14">
+                <div className="w-[88%] -translate-x-7">
+                  <StoryBodyMapVector
+                    intensities={muscleAnalysis.intensities}
+                    sex={bodyMapSex}
+                    theme="transparent-dark"
+                    showLabels={false}
+                    className="w-full"
+                  />
+                </div>
               </div>
 
-              <div className="w-full h-[1120px] flex items-center justify-center px-6">
-                <StoryBodyMapVector
-                  intensities={muscleAnalysis.intensities}
-                  sex={bodyMapSex}
-                  theme="transparent-dark"
-                  showLabels={false}
-                  className="w-full"
-                />
-              </div>
-
-              <div className="w-full px-10 pb-8 flex items-center justify-center">
-                <div className="flex items-center justify-center gap-10 text-[20px] font-semibold tracking-wide uppercase">
-                  <div className="flex items-center gap-3">
-                    <span className="w-4 h-4 rounded-full bg-[#3185E8]" />
-                    <span className="text-white">Primário</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <span className="w-4 h-4 rounded-full bg-[#89B1E1]" />
-                    <span className="text-white">Secundário</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <span className="w-4 h-4 rounded-full bg-[#D1D5DB]" />
-                    <span className="text-white">Repouso</span>
-                  </div>
+              <div className="w-[560px] grid grid-cols-2 gap-x-12 gap-y-7 pb-8">
+                <div className="flex items-center gap-4">
+                  <span className="w-5 h-5 shrink-0 rounded-full bg-[#3185E8]" />
+                  <span className="text-[23px] font-semibold tracking-wide text-white uppercase">Primário</span>
+                </div>
+                <div className="flex items-center gap-4">
+                  <span className="w-5 h-5 shrink-0 rounded-full bg-[#89B1E1]" />
+                  <span className="text-[23px] font-semibold tracking-wide text-white uppercase">Secundário</span>
+                </div>
+                <div className="flex items-center gap-4">
+                  <span className="w-5 h-5 shrink-0 rounded-full bg-[#D1D5DB]" />
+                  <span className="text-[23px] font-semibold tracking-wide text-white uppercase">Repouso</span>
                 </div>
               </div>
 
               {exerciseNames.length > 0 && (
-                <div className="w-full px-16 pt-5">
-                  <p className="text-center text-[21px] font-bold tracking-[0.22em] text-zinc-300 uppercase mb-5">
+                <div className="w-full px-24 pt-8">
+                  <p className="text-center text-[21px] font-bold tracking-[0.22em] text-zinc-300 uppercase mb-6">
                     Exercícios
                   </p>
-                  <div className="grid grid-cols-2 gap-x-12 gap-y-3">
+                  <div className="grid grid-cols-2 gap-x-14 gap-y-4">
                     {exerciseNames.slice(0, 12).map((name, index) => (
                       <div key={index} className="flex items-start gap-3 text-[20px] leading-snug text-white">
                         <span className="text-zinc-400 font-bold">{String(index + 1).padStart(2, '0')}</span>
