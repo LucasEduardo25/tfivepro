@@ -88,7 +88,8 @@ execute function public.handle_new_trainer_signup();
 -- Google OAuth não permite enviar user_metadata customizado no signInWithOAuth.
 -- Este RPC conclui o onboarding após o retorno do Google, validando auth.uid().
 create or replace function public.provision_google_trainer_workspace(
-  p_organization_name text
+  p_organization_name text,
+  p_full_name text default null
 )
 returns uuid
 language plpgsql
@@ -151,6 +152,7 @@ begin
   select
     u.email,
     coalesce(
+      nullif(btrim(p_full_name), ''),
       nullif(btrim(u.raw_user_meta_data ->> 'full_name'), ''),
       nullif(btrim(u.raw_user_meta_data ->> 'name'), ''),
       nullif(split_part(coalesce(u.email, ''), '@', 1), ''),
@@ -198,5 +200,5 @@ begin
 end;
 $$;
 
-revoke all on function public.provision_google_trainer_workspace(text) from public, anon;
-grant execute on function public.provision_google_trainer_workspace(text) to authenticated;
+revoke all on function public.provision_google_trainer_workspace(text, text) from public, anon;
+grant execute on function public.provision_google_trainer_workspace(text, text) to authenticated;
