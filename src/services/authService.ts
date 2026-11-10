@@ -127,6 +127,19 @@ class AuthService {
    */
   public async syncSupabaseUser(authUser: { id: string; email?: string }): Promise<AppUser | null> {
     try {
+      // O nome do workspace é mantido localmente durante o redirecionamento OAuth.
+      // O RPC valida auth.uid() no servidor e cria a organização apenas para esta conta.
+      if (typeof window !== 'undefined') {
+        const pendingWorkspace = localStorage.getItem('tfive_pending_google_workspace');
+        if (pendingWorkspace) {
+          const { error: provisionError } = await (supabase as any).rpc(
+            'provision_google_trainer_workspace',
+            { p_organization_name: pendingWorkspace }
+          );
+          if (provisionError) throw new TransientAuthError(provisionError.message);
+          localStorage.removeItem('tfive_pending_google_workspace');
+        }
+      }
       // 1. Verifica se o usuário é OWNER ou TRAINER em organization_members
       const { data: member, error: memberErr } = await (supabase as any)
         .from('organization_members')
@@ -309,6 +322,36 @@ class AuthService {
     }
 
     return synced;
+  }
+
+  /**
+   * Inicia autenticação Google. No cadastro, guarda o nome do workspace
+   * para provisioná-lo após o retorno do OAuth, com validação server-side.
+   */
+  public async signInWithGoogle(organizationName?: string): Promise<void> {
+    if (typeof window === 'undefined') {
+      throw new Error('A autenticação com Google só pode ser iniciada no navegador.');
+    }
+
+    const pendingKey = 'tfive_pending_google_workspace';
+    if (organizationName?.trim()) {
+      localStorage.setItem(pendingKey, organizationName.trim());
+    } else {
+      localStorage.removeItem(pendingKey);
+    }
+
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: window.location.origin,
+        queryParams: { prompt: 'select_account' },
+      },
+    });
+
+    if (error) {
+      localStorage.removeItem(pendingKey);
+      throw new Error(this.translateAuthError(error.message));
+    }
   }
 
   /**
