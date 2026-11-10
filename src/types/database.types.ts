@@ -2057,64 +2057,6 @@ export interface Database {
           updated_at?: string;
         };
       };
-      organization_storage_security: {
-        Row: {
-          key: string;
-          enabled: boolean;
-          policy_version: number;
-          created_at: string;
-          updated_at: string;
-        };
-        Insert: {
-          key: string;
-          enabled?: boolean;
-          policy_version?: number;
-          created_at?: string;
-          updated_at?: string;
-        };
-        Update: {
-          key?: string;
-          enabled?: boolean;
-          policy_version?: number;
-          created_at?: string;
-          updated_at?: string;
-        };
-      };
-      student_photos: {
-        Row: {
-          id: string;
-          organization_id: string;
-          student_id: string;
-          photo_reference: string;
-          category: string;
-          photo_date: string;
-          notes: string | null;
-          created_at: string;
-          updated_at: string;
-        };
-        Insert: {
-          id?: string;
-          organization_id: string;
-          student_id: string;
-          photo_reference: string;
-          category: string;
-          photo_date: string;
-          notes?: string | null;
-          created_at?: string;
-          updated_at?: string;
-        };
-        Update: {
-          id?: string;
-          organization_id?: string;
-          student_id?: string;
-          photo_reference?: string;
-          category?: string;
-          photo_date?: string;
-          notes?: string | null;
-          created_at?: string;
-          updated_at?: string;
-        };
-      };
       app_users: {
         Row: {
           id: string;
