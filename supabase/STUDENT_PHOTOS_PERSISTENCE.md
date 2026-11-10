@@ -7,7 +7,7 @@
 - `refreshData` does not load photos from a repository.
 - Consequently, evolution photos are not durable across sign-outs/devices in the SaaS flow.
 - Student profile photos are currently written into `students.photo_url` as supplied, which can be a large data URL.
-- The Storage service exists but is not yet called by the photo gallery, profile picker, or assessment flow.
+- O Storage service está conectado à galeria de fotos de evolução. O seletor de foto do perfil e o fluxo de fotos de avaliação física ainda usam seus caminhos antigos e exigem integração separada.
 
 ## Proposed persistence contract
 
