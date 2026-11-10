@@ -224,11 +224,12 @@ export class SupabaseStudentRepository implements IStudentRepository {
 
   async delete(id: string): Promise<void> {
     const isU = isUUID(id);
-    
-    // Finally delete the student directly. If it fails due to FK, it throws an error 
-    // and preserves data rather than fragmenting it.
+    const orgId = resolveOrgId();
+
+    // Restrict deletion to the authenticated trainer's organization.
     let query = fromTable('students').delete();
     query = isU ? query.eq('id', id) : query.eq('legacy_id', id);
+    query = query.eq('organization_id', orgId);
     const { error } = await query;
     if (error) {
       if (error.code === '23503') {

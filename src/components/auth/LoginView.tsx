@@ -8,7 +8,7 @@
 
 import React, { useState } from 'react';
 import { authService } from '../../services/authService';
-import { Lock, Mail, User, AlertCircle, ArrowRight, Loader2, CheckCircle2 } from 'lucide-react';
+import { Lock, Mail, User, Building2, AlertCircle, ArrowRight, Loader2, CheckCircle2 } from 'lucide-react';
 import { TFiveLogo } from '../common/TFiveLogo';
 
 interface LoginViewProps {
@@ -17,13 +17,40 @@ interface LoginViewProps {
 
 export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
   const [mode, setMode] = useState<'login' | 'signup'>('login');
-  const [selectedRole, setSelectedRole] = useState<'TRAINER' | 'STUDENT'>('TRAINER');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
+  const [organizationName, setOrganizationName] = useState('');
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
+  const handleGoogleSignIn = async () => {
+    setErrorMessage(null);
+    setSuccessMessage(null);
+
+    if (mode === 'signup') {
+      if (!fullName.trim()) {
+        setErrorMessage('Informe seu nome completo antes de continuar com o Google.');
+        return;
+      }
+      if (!organizationName.trim()) {
+        setErrorMessage('Informe o nome do seu espaço de trabalho antes de continuar com o Google.');
+        return;
+      }
+    }
+
+    setLoading(true);
+    try {
+      await authService.signInWithGoogle(
+        mode === 'signup' ? organizationName.trim() : undefined,
+        mode === 'signup' ? fullName.trim() : undefined
+      );
+    } catch (err: any) {
+      setErrorMessage(err?.message || 'Não foi possível iniciar o acesso com Google.');
+      setLoading(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -40,37 +67,24 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
       return;
     }
 
+    if (mode === 'signup' && !organizationName.trim()) {
+      setErrorMessage('Informe o nome do seu espaço de trabalho.');
+      return;
+    }
+
     setLoading(true);
 
     try {
       if (mode === 'login') {
-        const user = await authService.loginWithSupabase(email, password);
-        
-        if (selectedRole === 'TRAINER' && user.role === 'STUDENT') {
-          await authService.logout();
-          setErrorMessage('Sua conta não possui permissão de Treinador. Selecione "SOU ALUNO" para entrar.');
-          setLoading(false);
-          return;
-        }
-        
-        if (selectedRole === 'STUDENT' && user.role !== 'STUDENT') {
-          // If a trainer tries to login as student via this screen directly, we could handle it, 
-          // but authService will load them as TRAINER and route them to trainer dashboard.
-          // To strictly enforce the student experience, they should use "Acessar como Aluno" from dashboard.
-          // We will just let the normal flow happen, or throw.
-          // For simplicity, let's allow it but they go to trainer dashboard anyway, OR we can throw.
-          // Let's just enforce selectedRole === 'STUDENT' requires user.role === 'STUDENT' for clarity.
-          // Actually, let's not block trainers from logging in just because they misclicked, 
-          // but we will enforce the trainer restriction as requested.
-        }
+        await authService.loginWithSupabase(email, password);
 
         setSuccessMessage('Autenticado com sucesso! Carregando workspace...');
         if (onLoginSuccess) {
           setTimeout(onLoginSuccess, 400);
         }
       } else {
-        await authService.signUpWithSupabase(email, password, fullName);
-        setSuccessMessage('Conta criada com sucesso no Supabase Auth! Se este for o primeiro OWNER, execute o script de bootstrap no SQL Editor para vincular sua organização e faça login.');
+        await authService.signUpWithSupabase(email, password, fullName, organizationName);
+        setSuccessMessage('Cadastro recebido. Seu espaço de trabalho será criado automaticamente. Se a confirmação de e-mail estiver ativa, confirme seu endereço antes de entrar.');
         setMode('login');
       }
     } catch (err: any) {
@@ -140,32 +154,6 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
         )}
 
         
-        {/* Toggle Treinador / Aluno */}
-        <div className="flex bg-[#F3F4F6] p-1 rounded-xl mb-6">
-          <button
-            type="button"
-            onClick={() => setSelectedRole('TRAINER')}
-            className={`flex-1 py-2 text-xs font-bold uppercase tracking-wider rounded-lg transition-all ${
-              selectedRole === 'TRAINER' 
-                ? 'bg-white text-[#111827] shadow-sm' 
-                : 'text-[#6B7280] hover:text-[#374151]'
-            }`}
-          >
-            SOU TREINADOR
-          </button>
-          <button
-            type="button"
-            onClick={() => setSelectedRole('STUDENT')}
-            className={`flex-1 py-2 text-xs font-bold uppercase tracking-wider rounded-lg transition-all ${
-              selectedRole === 'STUDENT' 
-                ? 'bg-white text-[#111827] shadow-sm' 
-                : 'text-[#6B7280] hover:text-[#374151]'
-            }`}
-          >
-            SOU ALUNO
-          </button>
-        </div>
-        
         {/* Formulário de Login / Cadastro */}
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -185,6 +173,29 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
                   className="w-full pl-10 pr-4 py-2.5 bg-white border border-[#D1D5DB] rounded-xl text-[#1F2937] text-xs placeholder-[#6B7280] focus:outline-none focus:border-[#374151] transition-colors"
                 />
               </div>
+            </div>
+          )}
+
+          {mode === 'signup' && (
+            <div>
+              <label className="block text-xs font-semibold text-[#4B5563] uppercase tracking-wider mb-1.5">
+                Nome do espaço de trabalho
+              </label>
+              <div className="relative">
+                <Building2 className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#4B5563]" />
+                <input
+                  type="text"
+                  value={organizationName}
+                  onChange={(e) => setOrganizationName(e.target.value)}
+                  placeholder="Ex: Studio Lucas Treinamento"
+                  required
+                  maxLength={80}
+                  className="w-full pl-10 pr-4 py-2.5 bg-white border border-[#D1D5DB] rounded-xl text-[#1F2937] text-xs placeholder-[#6B7280] focus:outline-none focus:border-[#374151] transition-colors"
+                />
+              </div>
+              <p className="mt-1.5 text-[11px] text-[#6B7280]">
+                Esse será o seu ambiente exclusivo dentro do TFIVE PRO.
+              </p>
             </div>
           )}
 
@@ -246,6 +257,33 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
             )}
           </button>
         </form>
+
+        <div className="my-5 flex items-center gap-3">
+          <div className="h-px flex-1 bg-[#E5E7EB]" />
+          <span className="text-[10px] font-semibold uppercase tracking-wider text-[#9CA3AF]">ou</span>
+          <div className="h-px flex-1 bg-[#E5E7EB]" />
+        </div>
+
+        <button
+          type="button"
+          onClick={handleGoogleSignIn}
+          disabled={loading}
+          className="w-full py-2.5 px-4 bg-white hover:bg-[#F9FAFB] disabled:opacity-60 border border-[#D1D5DB] text-[#1F2937] font-semibold rounded-xl text-xs transition-colors flex items-center justify-center gap-3 cursor-pointer"
+        >
+          <svg aria-hidden="true" viewBox="0 0 48 48" className="w-4 h-4">
+            <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 3.06 13.22l7.98 6.19C12.7 13.72 17.9 9.5 24 9.5z" />
+            <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.76 7.18l7.73 6C44.42 38.04 46.98 31.9 46.98 24.55z" />
+            <path fill="#FBBC05" d="M10.04 28.59A14.4 14.4 0 0 1 9.25 24c0-1.59.27-3.13.76-4.59l-7.98-6.19A23.9 23.9 0 0 0 0 24c0 3.88.93 7.55 2.58 10.78l7.46-6.19z" />
+            <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.91-5.8l-7.73-6c-2.14 1.44-4.88 2.3-8.18 2.3-6.1 0-11.3-4.22-12.96-9.91l-7.98 6.19C6.51 43.62 14.62 48 24 48z" />
+          </svg>
+          <span>{loading ? 'Conectando...' : 'Continuar com Google'}</span>
+        </button>
+
+        {mode === 'signup' && (
+          <p className="mt-2 text-center text-[10px] leading-relaxed text-[#6B7280]">
+            Ao continuar, seu espaço de trabalho será criado automaticamente após a autenticação.
+          </p>
+        )}
 
         <div className="mt-8 pt-6 border-t border-[#ECEEF1] text-center">
           <p className="text-[11px] text-[#4B5563]">

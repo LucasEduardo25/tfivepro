@@ -1,15 +1,5 @@
-import { 
-  AppUser, 
-  UserRole, 
-  AuthContextState, 
-  SecurityViolationError 
-} from '../types/auth';
-import { 
-  getAppUserByAuthUidFromDb, 
-  saveAppUserToDb, 
-  purgeStudentSessionCache,
-  generateId 
-} from '../db/indexedDB';
+import { AppUser, AuthContextState, SecurityViolationError } from '../types/auth';
+import { saveAppUserToDb } from '../db/indexedDB';
 import { recordSanitizedError } from './errorLogService';
 import { supabase, isSupabaseConfigured } from './supabaseClient';
 import { DATA_BACKEND } from '../utils/constants';
@@ -54,7 +44,14 @@ class AuthService {
       try {
         const { data: { session } } = await supabase.auth.getSession();
         if (session?.user) {
-          await this.syncSupabaseUser(session.user);
+          try {
+            await this.syncSupabaseUser(session.user);
+          } catch (err) {
+            if (err instanceof SecurityViolationError) {
+              await supabase.auth.signOut().catch(() => {});
+            }
+            throw err;
+          }
         } else {
           this.currentUser = null;
           this.saveSessionToStorage(null);
@@ -70,8 +67,11 @@ class AuthService {
               if (this.currentUser?.authUid === newSession.user.id) return; // mesmo usuário já carregado
               try {
                 await this.syncSupabaseUser(newSession.user);
-              } catch {
-                /* erro já registrado e estado tratado em syncSupabaseUser */
+              } catch (err) {
+                if (err instanceof SecurityViolationError) {
+                  // Sessões autenticadas sem membership administrativa são encerradas.
+                  await supabase.auth.signOut().catch(() => {});
+                }
               }
             } else if (event === 'SIGNED_OUT') {
               this.currentUser = null;
@@ -96,9 +96,11 @@ class AuthService {
       if (stored) {
         const parsed: AppUser = JSON.parse(stored);
         if (parsed && parsed.authUid && parsed.role && parsed.organizationId) {
-          if (parsed.role === 'STUDENT' && !parsed.studentId) {
+          if ((parsed as any).role === 'STUDENT') {
+            // Remove sessões legadas do portal de aluno; somente contas administrativas são aceitas.
             this.currentUser = null;
             localStorage.removeItem(AUTH_STORAGE_KEY);
+            localStorage.removeItem(SESSION_TOKEN_KEY);
           } else {
             this.currentUser = parsed;
           }
@@ -118,15 +120,43 @@ class AuthService {
   }
 
   /**
-   * Sincroniza usuário do Supabase Auth com profiles, organization_members e student_access
-   * REGRAS FUNDAMENTAIS:
-   * 1. OWNER / TRAINER: continua utilizando exatamente o TFIVE PRO profissional atual.
-   * 2. STUDENT: identificado por student_access (auth.uid() -> student_id + organization_id).
-   * 3. Validação estrita: enabled = true e status = 'ACTIVE'.
-   * 4. NÃO utilizar organization_members como requisito de identidade do aluno.
+   * Sincroniza exclusivamente contas administrativas OWNER/TRAINER.
+   * O workspace é provisionado pelo RPC seguro e a identidade é confirmada
+   * exclusivamente por uma membership administrativa ativa.
    */
-  public async syncSupabaseUser(authUser: { id: string; email?: string }): Promise<AppUser | null> {
+  public async syncSupabaseUser(authUser: { id: string; email?: string; user_metadata?: Record<string, unknown> }): Promise<AppUser | null> {
     try {
+      // Provisiona o workspace somente após autenticação confirmada.
+      // O servidor valida auth.uid(), confirmação do e-mail e vínculos administrativos existentes.
+      if (typeof window !== 'undefined') {
+        const pendingWorkspace = localStorage.getItem('tfive_pending_google_workspace');
+        const metadataWorkspace = authUser.user_metadata?.organization_name;
+        const requestedWorkspace =
+          pendingWorkspace ||
+          (typeof metadataWorkspace === 'string' ? metadataWorkspace.trim() : '');
+
+        if (requestedWorkspace) {
+          const pendingFullName = localStorage.getItem('tfive_pending_google_full_name');
+          const metadataFullName =
+            authUser.user_metadata?.full_name ??
+            authUser.user_metadata?.name;
+          const requestedFullName =
+            pendingFullName ||
+            (typeof metadataFullName === 'string' ? metadataFullName : null);
+
+          const { error: provisionError } = await (supabase as any).rpc(
+            'provision_google_trainer_workspace',
+            {
+              p_organization_name: requestedWorkspace,
+              p_full_name: requestedFullName
+            }
+          );
+          if (provisionError) throw new TransientAuthError(provisionError.message);
+
+          localStorage.removeItem('tfive_pending_google_workspace');
+          localStorage.removeItem('tfive_pending_google_full_name');
+        }
+      }
       // 1. Verifica se o usuário é OWNER ou TRAINER em organization_members
       const { data: member, error: memberErr } = await (supabase as any)
         .from('organization_members')
@@ -166,91 +196,8 @@ class AuthService {
         return appUser;
       }
 
-      // 2. Se NÃO for OWNER/TRAINER, verifica o vínculo em student_access
-      // REGRA: O vínculo do aluno deve ser determinado exclusivamente por student_access
-      let { data: studentAccess, error: accessErr } = await (supabase as any)
-        .from('student_access')
-        .select('*')
-        .eq('user_id', authUser.id)
-        .maybeSingle();
-      if (accessErr) throw new TransientAuthError(accessErr.message);
-
-      // Se não encontrou por user_id, verifica se há convite pendente pelo e-mail do aluno
-      if (!studentAccess && authUser.email) {
-        const normalizedEmail = authUser.email.toLowerCase().trim();
-        const { data: accessByEmail } = await (supabase as any)
-          .from('student_access')
-          .select('*')
-          .ilike('invited_email', normalizedEmail)
-          .maybeSingle();
-
-        if (accessByEmail) {
-          // Atualiza user_id no student_access para vincular ao Supabase Auth
-          await (supabase as any)
-            .from('student_access')
-            .update({ 
-              user_id: authUser.id, 
-              updated_at: new Date().toISOString() 
-            })
-            .eq('id', accessByEmail.id);
-          studentAccess = { ...accessByEmail, user_id: authUser.id };
-        }
-      }
-
-      // Se encontrou o vínculo de aluno em student_access
-      if (studentAccess) {
-        const studentId = studentAccess.student_id;
-        const organizationId = studentAccess.organization_id;
-
-        if (!studentId || !organizationId) {
-          throw new SecurityViolationError('Vínculo de aluno incompleto no registro de acesso.');
-        }
-
-        // Validação obrigatória dos requisitos do Modo Aluno:
-        // enabled = true e status = 'ACTIVE'
-        if (!studentAccess.enabled || studentAccess.status !== 'ACTIVE') {
-          throw new SecurityViolationError(
-            'Seu acesso ao Modo Aluno não está ativo ou foi suspenso. Entre em contato com seu Personal Trainer.',
-            'STUDENT_ACCESS_NOT_ACTIVE'
-          );
-        }
-
-        // Carrega nome do aluno da tabela students
-        const { data: studentRecord } = await (supabase as any)
-          .from('students')
-          .select('id, name, photo_url, email')
-          .eq('id', studentId)
-          .maybeSingle();
-
-        // Atualiza carimbo de último acesso
-        await (supabase as any)
-          .from('student_access')
-          .update({ last_access_at: new Date().toISOString() })
-          .eq('id', studentAccess.id);
-
-        const studentUser: AppUser = {
-          id: authUser.id,
-          authUid: authUser.id,
-          role: 'STUDENT',
-          studentId,
-          organizationId,
-          status: 'active',
-          email: authUser.email || profile?.email || studentRecord?.email || '',
-          displayName: studentRecord?.name || profile?.full_name || authUser.email || 'Aluno',
-          photoUrl: studentRecord?.photo_url || profile?.avatar_url || undefined,
-          createdAt: studentAccess.created_at || new Date().toISOString(),
-          updatedAt: studentAccess.updated_at || new Date().toISOString(),
-        };
-
-        this.currentUser = studentUser;
-        this.saveSessionToStorage(studentUser);
-        this.notify();
-        return studentUser;
-      }
-
-      // Se o usuário não for nem membro administrativo nem possuir student_access
       throw new SecurityViolationError(
-        'Conta não autorizada. Não foi encontrado vínculo como Personal Trainer ou Aluno ativo no TFIVE PRO.'
+        'Conta sem vínculo ativo de Personal Trainer ou OWNER no TFIVE PRO.'
       );
     } catch (err: any) {
       recordSanitizedError('sync_supabase_user_error', err);
@@ -303,24 +250,76 @@ class AuthService {
       throw new Error('Não foi possível autenticar o usuário.');
     }
 
-    const synced = await this.syncSupabaseUser(data.user);
-    if (!synced) {
-      throw new Error('Usuário autenticado, mas nenhum perfil ou organização foi encontrado no Supabase. Execute o script de bootstrap!');
+    try {
+      const synced = await this.syncSupabaseUser(data.user);
+      if (!synced) {
+        throw new SecurityViolationError('Conta sem vínculo ativo de Personal Trainer ou OWNER no TFIVE PRO.');
+      }
+      return synced;
+    } catch (err) {
+      if (err instanceof SecurityViolationError) {
+        await supabase.auth.signOut().catch(() => {});
+      }
+      throw err;
+    }
+  }
+
+  /**
+   * Inicia autenticação Google. No cadastro, guarda o nome do workspace
+   * para provisioná-lo após o retorno do OAuth, com validação server-side.
+   */
+  public async signInWithGoogle(organizationName?: string, fullName?: string): Promise<void> {
+    if (typeof window === 'undefined') {
+      throw new Error('A autenticação com Google só pode ser iniciada no navegador.');
     }
 
-    return synced;
+    const pendingKey = 'tfive_pending_google_workspace';
+    const pendingNameKey = 'tfive_pending_google_full_name';
+    if (organizationName?.trim()) {
+      localStorage.setItem(pendingKey, organizationName.trim());
+      if (fullName?.trim()) localStorage.setItem(pendingNameKey, fullName.trim());
+      else localStorage.removeItem(pendingNameKey);
+    } else {
+      localStorage.removeItem(pendingKey);
+      localStorage.removeItem(pendingNameKey);
+    }
+
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: window.location.origin,
+        queryParams: { prompt: 'select_account' },
+      },
+    });
+
+    if (error) {
+      localStorage.removeItem(pendingKey);
+      localStorage.removeItem(pendingNameKey);
+      throw new Error(this.translateAuthError(error.message));
+    }
   }
 
   /**
    * Cadastro oficial via Supabase Auth
    */
-  public async signUpWithSupabase(email: string, password: string, fullName: string) {
+  public async signUpWithSupabase(
+    email: string,
+    password: string,
+    fullName: string,
+    organizationName: string
+  ) {
+    const normalizedOrganizationName = organizationName.trim();
+    if (!normalizedOrganizationName) {
+      throw new Error('Informe o nome do seu espaço de trabalho.');
+    }
+
     const { data, error } = await supabase.auth.signUp({
       email: email.trim(),
       password,
       options: {
         data: {
           full_name: fullName.trim(),
+          organization_name: normalizedOrganizationName,
         },
       },
     });
@@ -341,7 +340,6 @@ class AuthService {
           uid: user.authUid,
           role: user.role,
           org: user.organizationId,
-          std: user.studentId || '',
           exp: Date.now() + (7 * 24 * 60 * 60 * 1000)
         }));
         localStorage.setItem(SESSION_TOKEN_KEY, token);
@@ -359,7 +357,6 @@ class AuthService {
       user: this.currentUser,
       role: this.currentUser?.role || null,
       organizationId: this.currentUser?.organizationId || '',
-      studentId: this.currentUser?.studentId,
       isAuthenticated: Boolean(this.currentUser && this.currentUser.status === 'active' && Boolean(this.currentUser.organizationId)),
       isLoading: !this.isInitialized
     };
@@ -369,20 +366,12 @@ class AuthService {
     return this.currentUser;
   }
 
-  public getCurrentRole(): UserRole {
-    return this.currentUser?.role || 'TRAINER';
-  }
-
   public getOrganizationId(): string {
     const orgId = this.currentUser?.organizationId;
     if (!orgId) {
       throw new SecurityViolationError('Usuário autenticado não possui organização válida associada.', 'NO_ORGANIZATION_ID');
     }
     return orgId;
-  }
-
-  public getStudentId(): string | undefined {
-    return this.currentUser?.studentId;
   }
 
   public subscribe(callback: (state: AuthContextState) => void): () => void {
@@ -405,7 +394,7 @@ class AuthService {
   }
 
   /**
-   * Realiza login autenticado com validação de perfil e papéis (TRAINER ou STUDENT)
+   * Realiza login local exclusivamente para contas administrativas.
    */
   public async loginAsUser(user: AppUser): Promise<AppUser> {
     if (!user || !user.authUid) {
@@ -420,8 +409,8 @@ class AuthService {
       throw new SecurityViolationError('Esta conta de usuário está desativada ou suspensa');
     }
 
-    if (user.role === 'STUDENT' && !user.studentId) {
-      throw new SecurityViolationError('A conta de aluno requer studentId vinculado obrigatoriamente');
+    if ((user as any).role !== 'OWNER' && (user as any).role !== 'TRAINER') {
+      throw new SecurityViolationError('Somente contas de Personal Trainer ou OWNER podem entrar no TFIVE PRO.');
     }
 
     // Persiste no IndexedDB para histórico local
@@ -434,65 +423,15 @@ class AuthService {
   }
 
   /**
-   * Alterna rapidamente para a visão do Personal Trainer
-   */
-  public async switchToTrainer(trainerProfile?: { name?: string; email?: string }): Promise<AppUser> {
-    const trainerUser: AppUser = {
-      ...DEFAULT_TRAINER_USER,
-      displayName: trainerProfile?.name || DEFAULT_TRAINER_USER.displayName,
-      email: trainerProfile?.email || DEFAULT_TRAINER_USER.email,
-      updatedAt: new Date().toISOString()
-    };
-    return this.loginAsUser(trainerUser);
-  }
-
-  /**
-   * Simula ou realiza login autenticado de um aluno com validação rigorosa de vínculo
-   */
-  public async loginAsStudent(studentId: string, studentName: string, email?: string, organizationId?: string): Promise<AppUser> {
-    if (!studentId) {
-      throw new SecurityViolationError('studentId é obrigatório para autenticar como aluno');
-    }
-
-    const orgId = organizationId || this.currentUser?.organizationId;
-    if (!orgId) {
-      throw new SecurityViolationError('Organização não identificada para o aluno.', 'NO_ORGANIZATION_ID');
-    }
-    const authUid = `auth_std_${studentId}`;
-
-    const studentUser: AppUser = {
-      id: `usr_${studentId}`,
-      authUid,
-      role: 'STUDENT',
-      organizationId: orgId,
-      studentId,
-      status: 'active',
-      email: email || '',
-      displayName: studentName,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    };
-
-    return this.loginAsUser(studentUser);
-  }
-
-  /**
-   * Logout seguro com expurgo de cache de aluno e signOut no Supabase
+   * Encerra a sessão autenticada no Supabase e limpa a sessão local.
    */
   public async logout(): Promise<void> {
-    const previousUser = this.currentUser;
-
     if (DATA_BACKEND === 'supabase') {
       try {
         await supabase.auth.signOut();
       } catch (err) {
         console.warn('Erro durante signOut no Supabase:', err);
       }
-    }
-
-    // Se o usuário anterior era um aluno, expurga imediatamente seu cache residual local
-    if (previousUser?.role === 'STUDENT' && previousUser.studentId) {
-      await purgeStudentSessionCache(previousUser.studentId);
     }
 
     this.currentUser = null;
@@ -510,32 +449,7 @@ class AuthService {
     }
   }
 
-  /**
-   * Verifica se o aluno autenticado tem permissão para acessar os dados deste studentId
-   * REGRA FUNDAMENTAL: Juliana NUNCA pode acessar Carlos.
-   */
-  public assertStudentAccess(targetStudentId: string, operationName: string = 'estes dados'): void {
-    const state = this.getAuthState();
-    if (!state.isAuthenticated) {
-      throw new SecurityViolationError(`Não autenticado para acessar ${operationName}.`);
-    }
 
-    if (state.role === 'TRAINER' || state.role === 'OWNER') {
-      // O Trainer ou Owner pode acessar seus alunos da mesma organização
-      return;
-    }
-
-    if (state.role === 'STUDENT') {
-      if (!state.studentId || state.studentId !== targetStudentId) {
-        throw new SecurityViolationError(
-          `Violação de segurança: Aluno não possui autorização para acessar ${operationName} de outro aluno.`,
-          'CROSS_STUDENT_ACCESS_DENIED'
-        );
-      }
-    } else {
-      throw new SecurityViolationError('Papel de usuário não reconhecido.');
-    }
-  }
 }
 
 export const authService = new AuthService();

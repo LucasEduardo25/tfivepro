@@ -474,12 +474,26 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       if (missingDefaultExercises.length > 0) {
         const exerciseRepository = getExerciseRepository();
         const seededExercises: Exercise[] = [];
-        const batchSize = 15;
 
-        for (let index = 0; index < missingDefaultExercises.length; index += batchSize) {
-          const batch = missingDefaultExercises.slice(index, index + batchSize);
-          const results = await Promise.all(batch.map(exercise => exerciseRepository.create(exercise)));
-          seededExercises.push(...results);
+        // Insert sequentially so a concurrent startup cannot make Promise.all reject
+        // the entire boot when another session inserts the same standard exercise.
+        for (const exercise of missingDefaultExercises) {
+          try {
+            seededExercises.push(await exerciseRepository.create(exercise));
+          } catch (error) {
+            const dbError = error as { code?: string; message?: string; constraint?: string };
+            const isLegacyIdConflict =
+              dbError?.code === '23505' &&
+              (dbError?.constraint === 'exercises_legacy_id_key' ||
+                dbError?.message?.includes('exercises_legacy_id_key'));
+
+            if (!isLegacyIdConflict) throw error;
+
+            // A duplicate is safe only when the canonical exercise can now be read.
+            const existingExercise = await exerciseRepository.getById(exercise.id);
+            if (!existingExercise) throw error;
+            seededExercises.push(existingExercise);
+          }
         }
 
         availableExercises = [...availableExercises, ...seededExercises];
