@@ -24,6 +24,7 @@ import { TrainingCycle, TrainingBlock } from '../../types/trainingCycle';
 import { ActivePlan, PlanSuspension, PlanTransfer, PlanAuditLog, FamilyPlanParticipant } from '../../types/activePlan';
 import { Proposal, ProposalParticipant } from '../../types/proposal';
 import { IStudentRepository } from '../interfaces/IStudentRepository';
+import { IStudentPhotoRepository } from '../interfaces/IStudentPhotoRepository';
 import { ISessionRepository } from '../interfaces/ISessionRepository';
 import { IRoutineRepository } from '../interfaces/IRoutineRepository';
 import { IAssessmentRepository } from '../interfaces/IAssessmentRepository';
@@ -244,7 +245,7 @@ export class SupabaseStudentRepository implements IStudentRepository {
 // ==============================================================================
 // STUDENT EVOLUTION PHOTO REPOSITORY
 // ==============================================================================
-export class SupabaseStudentPhotoRepository {
+export class SupabaseStudentPhotoRepository implements IStudentPhotoRepository {
   async getAll(organizationId?: string): Promise<StudentPhoto[]> {
     const orgId = resolveOrgId(organizationId);
     const { data, error } = await fromTable('student_photos')
