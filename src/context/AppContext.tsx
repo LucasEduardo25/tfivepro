@@ -1555,7 +1555,16 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     fromDate?: string
   ) => {
     if (mode === 'single' && appointmentId) {
-      await deleteAppointment(appointmentId);
+      // Keep a persisted cancellation marker for this occurrence. Deleting the row
+      // would allow the recurrence horizon generator to recreate it on the next refresh.
+      const appointment = schedule.find(item => item.id === appointmentId);
+      if (appointment) {
+        await saveAppointment({
+          ...appointment,
+          status: 'cancelled',
+          isException: true,
+        });
+      }
       return;
     }
 

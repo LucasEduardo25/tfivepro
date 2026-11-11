@@ -132,6 +132,9 @@ export const ScheduleView: React.FC<ScheduleViewProps> = ({
 
   // Helper matching function
   const matchAppointment = (a: ScheduleAppointment) => {
+    // Cancelled occurrences are retained in storage as recurrence exceptions,
+    // but must not appear as active appointments in any calendar view.
+    if (a.status === 'cancelled') return false;
     if (statusFilter !== 'all' && a.status !== statusFilter) return false;
     if (selectedStudentId !== 'all' && a.studentId !== selectedStudentId) return false;
     if (!searchInFields([a.studentName, a.routineTitle, a.notes, a.workoutLetter], searchQuery)) return false;
