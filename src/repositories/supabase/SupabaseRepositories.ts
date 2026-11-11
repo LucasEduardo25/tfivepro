@@ -249,13 +249,13 @@ export class SupabaseStudentPhotoRepository implements IStudentPhotoRepository {
   async getAll(organizationId?: string): Promise<StudentPhoto[]> {
     const orgId = resolveOrgId(organizationId);
     const { data, error } = await fromTable('student_photos')
-      .select('id, student_id, photo_reference, category, photo_date, notes, created_at')
+      .select('id, student_id, photo_reference, category, photo_date, notes, created_at, students(id, legacy_id)')
       .eq('organization_id', orgId)
       .order('photo_date', { ascending: false });
     if (error) throw error;
     return (data || []).map((row: any) => ({
       id: row.id,
-      studentId: row.student_id,
+      studentId: row.students?.legacy_id || row.student_id,
       photoUrl: row.photo_reference,
       category: row.category,
       date: row.photo_date,
@@ -288,7 +288,7 @@ export class SupabaseStudentPhotoRepository implements IStudentPhotoRepository {
     if (error) throw error;
     return {
       id: data.id,
-      studentId: data.student_id,
+      studentId: photo.studentId,
       photoUrl: data.photo_reference,
       category: data.category,
       date: data.photo_date,
