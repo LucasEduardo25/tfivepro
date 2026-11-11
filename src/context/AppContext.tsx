@@ -556,6 +556,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     try {
       const [
         loadedStudents,
+        loadedPhotos,
         loadedExercises,
         loadedRoutines,
         loadedSessions,
@@ -570,6 +571,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         savedTrainerProfile
       ] = await Promise.all([
         getStudentRepository().getAll(),
+        getStudentPhotoRepository().getAll(),
         getExerciseRepository().getAll(),
         getRoutineRepository().getAll(),
         getSessionRepository().getAll(),
@@ -584,6 +586,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         getSettingsRepository().get<TrainerProfile>('trainer_profile')
       ]);
       setStudents(loadedStudents || []);
+      setPhotos(loadedPhotos || []);
       setExercises(loadedExercises || []);
       setRoutines(loadedRoutines || []);
       setSessions(loadedSessions || []);
