@@ -79,6 +79,7 @@ import {
 import { 
   getTrainingMemoriesRepository,
   getStudentRepository,
+  getStudentPhotoRepository,
   getSessionRepository,
   getRoutineRepository,
   getAssessmentRepository,
@@ -425,6 +426,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
       const [
         loadedStudents,
+        loadedPhotos,
         loadedExercises,
         loadedRoutines,
         loadedSessions,
@@ -441,6 +443,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         remoteActiveWorkouts,
       ] = await Promise.all([
         getStudentRepository().getAll(),
+        getStudentPhotoRepository().getAll(),
         getExerciseRepository().getAll(),
         getRoutineRepository().getAll(),
         getSessionRepository().getAll(),
@@ -462,6 +465,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       }
 
       setStudents(loadedStudents || []);
+      setPhotos(loadedPhotos || []);
 
       // Seed the built-in exercise catalog idempotently. Never overwrite user-created
       // exercises: only insert standard entries whose legacy IDs are not present.
@@ -1234,18 +1238,22 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const savePhoto = async (photo: StudentPhoto) => {
+    // Persist first; update React state only after the database confirms the write.
+    const savedPhoto = await getStudentPhotoRepository().save(photo);
     setPhotos(prev => {
-      const idx = prev.findIndex(p => p.id === photo.id);
+      const idx = prev.findIndex(p => p.id === savedPhoto.id);
       if (idx >= 0) {
         const copy = [...prev];
-        copy[idx] = photo;
+        copy[idx] = savedPhoto;
         return copy;
       }
-      return [photo, ...prev];
+      return [savedPhoto, ...prev];
     });
   };
 
   const deletePhoto = async (id: string) => {
+    // Keep the photo visible if the database delete fails.
+    await getStudentPhotoRepository().delete(id);
     setPhotos(prev => prev.filter(p => p.id !== id));
   };
 
