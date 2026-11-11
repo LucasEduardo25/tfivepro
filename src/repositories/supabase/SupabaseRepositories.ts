@@ -1156,13 +1156,22 @@ export class SupabaseSessionRepository implements ISessionRepository {
 export class SupabaseAssessmentRepository implements IAssessmentRepository {
   async getAll(organizationId?: string): Promise<PhysicalAssessment[]> {
     const orgId = resolveOrgId(organizationId);
-    let query = fromTable('assessments').select('*, students(id, legacy_id)').order('date', { ascending: false });
-    query = query.eq('organization_id', orgId);
-    const { data, error } = await query;
-    if (error) throw error;
-    if (!data) return [];
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return data.map((a: any) => this.mapAssessment(a));
+    const pageSize = 1000;
+    let offset = 0;
+    const rows: any[] = [];
+    while (true) {
+      const { data, error } = await fromTable('assessments')
+        .select('*, students(id, legacy_id)')
+        .eq('organization_id', orgId)
+        .order('date', { ascending: false })
+        .range(offset, offset + pageSize - 1);
+      if (error) throw error;
+      if (!data || data.length === 0) break;
+      rows.push(...data);
+      if (data.length < pageSize) break;
+      offset += pageSize;
+    }
+    return rows.map((row: any) => this.mapAssessment(row));
   }
 
   async getByStudentId(studentId: string): Promise<PhysicalAssessment[]> {
@@ -1196,8 +1205,7 @@ export class SupabaseAssessmentRepository implements IAssessmentRepository {
     const { uuid, legacyId } = ensureUUID(assessment.id);
     let stdUuid = await resolveStudentUuid(assessment.studentId);
     if (!stdUuid || !isUUID(stdUuid)) {
-      console.info(`[SupabasePhysicalAssessmentRepository] Aluno '${assessment.studentId}' não possui UUID no Supabase. Avaliação mantida localmente.`);
-      return assessment;
+      throw new Error(`Aluno '${assessment.studentId}' não encontrado no Supabase. A avaliação não foi salva.`);
     }
 
     const orgId = resolveOrgId((assessment as any).organizationId);
@@ -1239,6 +1247,19 @@ export class SupabaseAssessmentRepository implements IAssessmentRepository {
     const updatePayload: Record<string, unknown> = {
       updated_at: new Date().toISOString(),
     };
+    if (patch.date !== undefined) updatePayload.date = patch.date;
+    if (patch.weightKg !== undefined) updatePayload.weight_kg = patch.weightKg;
+    if (patch.heightCm !== undefined) updatePayload.height_cm = patch.heightCm;
+    if (patch.age !== undefined) updatePayload.age = patch.age;
+    if (patch.gender !== undefined) updatePayload.gender = patch.gender;
+    if (patch.protocol !== undefined) updatePayload.protocol = patch.protocol;
+    if (patch.bodyFatPercentage !== undefined) updatePayload.body_fat_percentage = patch.bodyFatPercentage;
+    if (patch.fatMassKg !== undefined) updatePayload.fat_mass_kg = patch.fatMassKg;
+    if (patch.leanMassKg !== undefined) updatePayload.lean_mass_kg = patch.leanMassKg;
+    if (patch.bmi !== undefined) updatePayload.bmi = patch.bmi;
+    if (patch.skinfolds !== undefined) updatePayload.skinfolds = patch.skinfolds;
+    if (patch.circumferences !== undefined) updatePayload.circumferences = patch.circumferences;
+    if (patch.photos !== undefined) updatePayload.photos = patch.photos;
     if (patch.notes !== undefined) updatePayload.notes = patch.notes;
     if (patch.conclusions !== undefined) updatePayload.conclusions = patch.conclusions;
 
