@@ -80,6 +80,18 @@ const fromTable = (table: string): any => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return (supabase as any).from(table);
 };
+const fetchAllPages = async (query: any, pageSize = 1000): Promise<any[]> => {
+  const rows: any[] = [];
+  for (let offset = 0; ; offset += pageSize) {
+    const { data, error } = await query.range(offset, offset + pageSize - 1);
+    if (error) throw error;
+    if (!data || data.length === 0) break;
+    rows.push(...data);
+    if (data.length < pageSize) break;
+  }
+  return rows;
+};
+
 
 // ==============================================================================
 // 1. SUPABASE STUDENT REPOSITORY
@@ -115,10 +127,7 @@ export class SupabaseStudentRepository implements IStudentRepository {
   async getAll(organizationId?: string): Promise<Student[]> {
     const orgId = resolveOrgId(organizationId);
     const query = fromTable('students').select('*').eq('organization_id', orgId).order('name');
-    const { data, error } = await query;
-    if (error) throw error;
-    if (!data) return [];
-
+    const data = await fetchAllPages(query);
     return data.map((row: any) => this.mapStudent(row));
   }
 
@@ -890,13 +899,12 @@ export class SupabaseRoutineRepository implements IRoutineRepository {
 export class SupabaseSessionRepository implements ISessionRepository {
   async getAll(organizationId?: string): Promise<WorkoutSession[]> {
     const orgId = resolveOrgId(organizationId);
-    let query = fromTable('sessions').select('*, students(id, legacy_id), session_sets(*, exercises(id, legacy_id, name, muscle_group))').order('start_time', { ascending: false });
-    query = query.eq('organization_id', orgId);
-    const { data, error } = await query;
-    if (error) throw error;
-    if (!data) return [];
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return data.map((s: any) => this.mapSession(s));
+    const query = fromTable('sessions')
+      .select('*, students(id, legacy_id), session_sets(*, exercises(id, legacy_id, name, muscle_group))')
+      .eq('organization_id', orgId)
+      .order('start_time', { ascending: false });
+    const data = await fetchAllPages(query);
+    return data.map((row: any) => this.mapSession(row));
   }
 
   async getByStudentId(studentId: string): Promise<WorkoutSession[]> {
@@ -1454,13 +1462,12 @@ export class SupabaseScheduleRepository implements IScheduleRepository {
 // ==============================================================================
 export class SupabaseTrainingCycleRepository implements ITrainingCycleRepository {
   async getAll(): Promise<TrainingCycle[]> {
-    const { data, error } = await fromTable('training_cycles').select('*, students(id, legacy_id), training_blocks(*)')
+    const orgId = resolveOrgId();
+    const query = fromTable('training_cycles').select('*, students(id, legacy_id), training_blocks(*)')
+      .eq('organization_id', orgId)
       .order('start_date', { ascending: false });
-
-    if (error) throw error;
-    if (!data) return [];
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return data.map((c: any) => this.mapCycle(c));
+    const data = await fetchAllPages(query);
+    return data.map((row: any) => this.mapCycle(row));
   }
 
   async getByStudentId(studentId: string): Promise<TrainingCycle[]> {
@@ -1599,15 +1606,10 @@ export class SupabaseTrainingCycleRepository implements ITrainingCycleRepository
 export class SupabaseProposalRepository implements IProposalRepository {
   async getAll(organizationId?: string): Promise<Proposal[]> {
     const orgId = resolveOrgId(organizationId);
-    const query = fromTable('proposals')
-      .select('*, students(id, legacy_id)')
-      .eq('organization_id', orgId)
-      .order('created_at', { ascending: false });
-    const { data, error } = await query;
-    if (error) throw error;
-    if (!data) return [];
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return data.map((p: any) => this.mapProposal(p));
+    const query = fromTable('proposals').select('*, students(id, legacy_id)')
+      .eq('organization_id', orgId).order('created_at', { ascending: false });
+    const data = await fetchAllPages(query);
+    return data.map((row: any) => this.mapProposal(row));
   }
 
   async getById(id: string): Promise<Proposal | null> {
@@ -1789,11 +1791,10 @@ export class SupabaseProposalRepository implements IProposalRepository {
 // ==============================================================================
 export class SupabaseActivePlanRepository implements IActivePlanRepository {
   async getAll(): Promise<ActivePlan[]> {
-    const { data, error } = await fromTable('active_plans').select('*');
-    if (error) throw error;
-    if (!data) return [];
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return data.map((p: any) => this.mapPlan(p));
+    const orgId = resolveOrgId();
+    const query = fromTable('active_plans').select('*').eq('organization_id', orgId);
+    const data = await fetchAllPages(query);
+    return data.map((row: any) => this.mapPlan(row));
   }
 
   async getById(id: string): Promise<ActivePlan | null> {
