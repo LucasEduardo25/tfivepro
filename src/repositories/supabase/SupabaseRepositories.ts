@@ -16,7 +16,8 @@ import {
   Exercise,
   RoutineWorkout,
   RoutineExercise,
-  WorkoutSetRecord
+  WorkoutSetRecord,
+  StudentPhoto
 } from '../../types';
 import { FunctionalTest, FunctionalBattery } from '../../types/functionalLongevity';
 import { TrainingCycle, TrainingBlock } from '../../types/trainingCycle';
@@ -237,6 +238,72 @@ export class SupabaseStudentRepository implements IStudentRepository {
       }
       throw error;
     }
+  }
+}
+
+// ==============================================================================
+// STUDENT EVOLUTION PHOTO REPOSITORY
+// ==============================================================================
+export class SupabaseStudentPhotoRepository {
+  async getAll(organizationId?: string): Promise<StudentPhoto[]> {
+    const orgId = resolveOrgId(organizationId);
+    const { data, error } = await fromTable('student_photos')
+      .select('id, student_id, photo_reference, category, photo_date, notes, created_at')
+      .eq('organization_id', orgId)
+      .order('photo_date', { ascending: false });
+    if (error) throw error;
+    return (data || []).map((row: any) => ({
+      id: row.id,
+      studentId: row.student_id,
+      photoUrl: row.photo_reference,
+      category: row.category,
+      date: row.photo_date,
+      notes: row.notes || undefined,
+      createdAt: row.created_at,
+    } as StudentPhoto));
+  }
+
+  async save(photo: StudentPhoto): Promise<StudentPhoto> {
+    const orgId = resolveOrgId();
+    const studentUuid = await resolveStudentUuid(photo.studentId);
+    if (!studentUuid || !isUUID(studentUuid)) {
+      throw new Error('Aluno não encontrado na organização atual. A foto não foi salva.');
+    }
+    const photoId = isUUID(photo.id) ? photo.id : ensureUUID(photo.id).uuid;
+    const payload = {
+      id: photoId,
+      organization_id: orgId,
+      student_id: studentUuid,
+      photo_reference: photo.photoUrl,
+      category: photo.category,
+      photo_date: photo.date,
+      notes: photo.notes || null,
+      updated_at: new Date().toISOString(),
+    };
+    const { data, error } = await fromTable('student_photos')
+      .upsert(payload, { onConflict: 'id' })
+      .select('id, student_id, photo_reference, category, photo_date, notes, created_at')
+      .single();
+    if (error) throw error;
+    return {
+      id: data.id,
+      studentId: data.student_id,
+      photoUrl: data.photo_reference,
+      category: data.category,
+      date: data.photo_date,
+      notes: data.notes || undefined,
+      createdAt: data.created_at,
+    } as StudentPhoto;
+  }
+
+  async delete(id: string): Promise<void> {
+    if (!isUUID(id)) throw new Error('Identificador de foto inválido. Atualize a galeria e tente novamente.');
+    const orgId = resolveOrgId();
+    const { error } = await fromTable('student_photos')
+      .delete()
+      .eq('id', id)
+      .eq('organization_id', orgId);
+    if (error) throw error;
   }
 }
 
