@@ -7,6 +7,7 @@
  */
 
 import { IStudentRepository } from './interfaces/IStudentRepository';
+import { IStudentPhotoRepository } from './interfaces/IStudentPhotoRepository';
 import { ISessionRepository } from './interfaces/ISessionRepository';
 import { IRoutineRepository } from './interfaces/IRoutineRepository';
 import { IAssessmentRepository } from './interfaces/IAssessmentRepository';
@@ -21,6 +22,7 @@ import { IWorkoutTemplateRepository } from './interfaces/IWorkoutTemplateReposit
 import { 
   SupabaseTrainingMemoriesRepository, 
   SupabaseStudentRepository,
+  SupabaseStudentPhotoRepository,
   SupabaseSessionRepository,
   SupabaseRoutineRepository,
   SupabaseAssessmentRepository,
@@ -48,6 +50,7 @@ export const isSupabaseActive = (): boolean => {
 
 // Instâncias únicas (Singletons) dos adaptadores Supabase oficiais
 const supabaseStudentRepo = new SupabaseStudentRepository();
+const supabaseStudentPhotoRepo = new SupabaseStudentPhotoRepository();
 const supabaseSessionRepo = new SupabaseSessionRepository();
 const supabaseRoutineRepo = new SupabaseRoutineRepository();
 const supabaseAssessmentRepo = new SupabaseAssessmentRepository();
@@ -61,6 +64,10 @@ const supabaseWorkoutTemplateRepo = new SupabaseWorkoutTemplateRepository();
 const supabaseTrainingMemoriesRepo = new SupabaseTrainingMemoriesRepository();
 const supabaseFunctionalTestRepo = new SupabaseFunctionalTestRepository();
 const supabaseFunctionalBatteryRepo = new SupabaseFunctionalBatteryRepository();
+
+export function getStudentPhotoRepository(): IStudentPhotoRepository {
+  return supabaseStudentPhotoRepo;
+}
 
 export function getStudentRepository(): IStudentRepository {
   return supabaseStudentRepo;
