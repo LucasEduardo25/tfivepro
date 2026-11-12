@@ -9,6 +9,7 @@ import {
   Timer, 
   Trophy, 
   MessageSquare, 
+  ChevronDown,
   ChevronLeft, 
   ChevronRight, 
   Info, 
