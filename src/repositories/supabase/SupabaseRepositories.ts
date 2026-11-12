@@ -16,13 +16,15 @@ import {
   Exercise,
   RoutineWorkout,
   RoutineExercise,
-  WorkoutSetRecord
+  WorkoutSetRecord,
+  StudentPhoto
 } from '../../types';
 import { FunctionalTest, FunctionalBattery } from '../../types/functionalLongevity';
 import { TrainingCycle, TrainingBlock } from '../../types/trainingCycle';
 import { ActivePlan, PlanSuspension, PlanTransfer, PlanAuditLog, FamilyPlanParticipant } from '../../types/activePlan';
 import { Proposal, ProposalParticipant } from '../../types/proposal';
 import { IStudentRepository } from '../interfaces/IStudentRepository';
+import { IStudentPhotoRepository } from '../interfaces/IStudentPhotoRepository';
 import { ISessionRepository } from '../interfaces/ISessionRepository';
 import { IRoutineRepository } from '../interfaces/IRoutineRepository';
 import { IAssessmentRepository } from '../interfaces/IAssessmentRepository';
@@ -78,6 +80,18 @@ const fromTable = (table: string): any => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return (supabase as any).from(table);
 };
+const fetchAllPages = async (query: any, pageSize = 1000): Promise<any[]> => {
+  const rows: any[] = [];
+  for (let offset = 0; ; offset += pageSize) {
+    const { data, error } = await query.range(offset, offset + pageSize - 1);
+    if (error) throw error;
+    if (!data || data.length === 0) break;
+    rows.push(...data);
+    if (data.length < pageSize) break;
+  }
+  return rows;
+};
+
 
 // ==============================================================================
 // 1. SUPABASE STUDENT REPOSITORY
@@ -113,10 +127,7 @@ export class SupabaseStudentRepository implements IStudentRepository {
   async getAll(organizationId?: string): Promise<Student[]> {
     const orgId = resolveOrgId(organizationId);
     const query = fromTable('students').select('*').eq('organization_id', orgId).order('name');
-    const { data, error } = await query;
-    if (error) throw error;
-    if (!data) return [];
-
+    const data = await fetchAllPages(query);
     return data.map((row: any) => this.mapStudent(row));
   }
 
@@ -237,6 +248,72 @@ export class SupabaseStudentRepository implements IStudentRepository {
       }
       throw error;
     }
+  }
+}
+
+// ==============================================================================
+// STUDENT EVOLUTION PHOTO REPOSITORY
+// ==============================================================================
+export class SupabaseStudentPhotoRepository implements IStudentPhotoRepository {
+  async getAll(organizationId?: string): Promise<StudentPhoto[]> {
+    const orgId = resolveOrgId(organizationId);
+    const { data, error } = await fromTable('student_photos')
+      .select('id, student_id, photo_reference, category, photo_date, notes, created_at, students(id, legacy_id)')
+      .eq('organization_id', orgId)
+      .order('photo_date', { ascending: false });
+    if (error) throw error;
+    return (data || []).map((row: any) => ({
+      id: row.id,
+      studentId: row.students?.legacy_id || row.student_id,
+      photoUrl: row.photo_reference,
+      category: row.category,
+      date: row.photo_date,
+      notes: row.notes || undefined,
+      createdAt: row.created_at,
+    } as StudentPhoto));
+  }
+
+  async save(photo: StudentPhoto): Promise<StudentPhoto> {
+    const orgId = resolveOrgId();
+    const studentUuid = await resolveStudentUuid(photo.studentId);
+    if (!studentUuid || !isUUID(studentUuid)) {
+      throw new Error('Aluno não encontrado na organização atual. A foto não foi salva.');
+    }
+    const photoId = isUUID(photo.id) ? photo.id : ensureUUID(photo.id).uuid;
+    const payload = {
+      id: photoId,
+      organization_id: orgId,
+      student_id: studentUuid,
+      photo_reference: photo.photoUrl,
+      category: photo.category,
+      photo_date: photo.date,
+      notes: photo.notes || null,
+      updated_at: new Date().toISOString(),
+    };
+    const { data, error } = await fromTable('student_photos')
+      .upsert(payload, { onConflict: 'id' })
+      .select('id, student_id, photo_reference, category, photo_date, notes, created_at')
+      .single();
+    if (error) throw error;
+    return {
+      id: data.id,
+      studentId: photo.studentId,
+      photoUrl: data.photo_reference,
+      category: data.category,
+      date: data.photo_date,
+      notes: data.notes || undefined,
+      createdAt: data.created_at,
+    } as StudentPhoto;
+  }
+
+  async delete(id: string): Promise<void> {
+    if (!isUUID(id)) throw new Error('Identificador de foto inválido. Atualize a galeria e tente novamente.');
+    const orgId = resolveOrgId();
+    const { error } = await fromTable('student_photos')
+      .delete()
+      .eq('id', id)
+      .eq('organization_id', orgId);
+    if (error) throw error;
   }
 }
 
@@ -822,13 +899,12 @@ export class SupabaseRoutineRepository implements IRoutineRepository {
 export class SupabaseSessionRepository implements ISessionRepository {
   async getAll(organizationId?: string): Promise<WorkoutSession[]> {
     const orgId = resolveOrgId(organizationId);
-    let query = fromTable('sessions').select('*, students(id, legacy_id), session_sets(*, exercises(id, legacy_id, name, muscle_group))').order('start_time', { ascending: false });
-    query = query.eq('organization_id', orgId);
-    const { data, error } = await query;
-    if (error) throw error;
-    if (!data) return [];
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return data.map((s: any) => this.mapSession(s));
+    const query = fromTable('sessions')
+      .select('*, students(id, legacy_id), session_sets(*, exercises(id, legacy_id, name, muscle_group))')
+      .eq('organization_id', orgId)
+      .order('start_time', { ascending: false });
+    const data = await fetchAllPages(query);
+    return data.map((row: any) => this.mapSession(row));
   }
 
   async getByStudentId(studentId: string): Promise<WorkoutSession[]> {
@@ -1088,13 +1164,22 @@ export class SupabaseSessionRepository implements ISessionRepository {
 export class SupabaseAssessmentRepository implements IAssessmentRepository {
   async getAll(organizationId?: string): Promise<PhysicalAssessment[]> {
     const orgId = resolveOrgId(organizationId);
-    let query = fromTable('assessments').select('*, students(id, legacy_id)').order('date', { ascending: false });
-    query = query.eq('organization_id', orgId);
-    const { data, error } = await query;
-    if (error) throw error;
-    if (!data) return [];
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return data.map((a: any) => this.mapAssessment(a));
+    const pageSize = 1000;
+    let offset = 0;
+    const rows: any[] = [];
+    while (true) {
+      const { data, error } = await fromTable('assessments')
+        .select('*, students(id, legacy_id)')
+        .eq('organization_id', orgId)
+        .order('date', { ascending: false })
+        .range(offset, offset + pageSize - 1);
+      if (error) throw error;
+      if (!data || data.length === 0) break;
+      rows.push(...data);
+      if (data.length < pageSize) break;
+      offset += pageSize;
+    }
+    return rows.map((row: any) => this.mapAssessment(row));
   }
 
   async getByStudentId(studentId: string): Promise<PhysicalAssessment[]> {
@@ -1128,8 +1213,7 @@ export class SupabaseAssessmentRepository implements IAssessmentRepository {
     const { uuid, legacyId } = ensureUUID(assessment.id);
     let stdUuid = await resolveStudentUuid(assessment.studentId);
     if (!stdUuid || !isUUID(stdUuid)) {
-      console.info(`[SupabasePhysicalAssessmentRepository] Aluno '${assessment.studentId}' não possui UUID no Supabase. Avaliação mantida localmente.`);
-      return assessment;
+      throw new Error(`Aluno '${assessment.studentId}' não encontrado no Supabase. A avaliação não foi salva.`);
     }
 
     const orgId = resolveOrgId((assessment as any).organizationId);
@@ -1171,6 +1255,19 @@ export class SupabaseAssessmentRepository implements IAssessmentRepository {
     const updatePayload: Record<string, unknown> = {
       updated_at: new Date().toISOString(),
     };
+    if (patch.date !== undefined) updatePayload.date = patch.date;
+    if (patch.weightKg !== undefined) updatePayload.weight_kg = patch.weightKg;
+    if (patch.heightCm !== undefined) updatePayload.height_cm = patch.heightCm;
+    if (patch.age !== undefined) updatePayload.age = patch.age;
+    if (patch.gender !== undefined) updatePayload.gender = patch.gender;
+    if (patch.protocol !== undefined) updatePayload.protocol = patch.protocol;
+    if (patch.bodyFatPercentage !== undefined) updatePayload.body_fat_percentage = patch.bodyFatPercentage;
+    if (patch.fatMassKg !== undefined) updatePayload.fat_mass_kg = patch.fatMassKg;
+    if (patch.leanMassKg !== undefined) updatePayload.lean_mass_kg = patch.leanMassKg;
+    if (patch.bmi !== undefined) updatePayload.bmi = patch.bmi;
+    if (patch.skinfolds !== undefined) updatePayload.skinfolds = patch.skinfolds;
+    if (patch.circumferences !== undefined) updatePayload.circumferences = patch.circumferences;
+    if (patch.photos !== undefined) updatePayload.photos = patch.photos;
     if (patch.notes !== undefined) updatePayload.notes = patch.notes;
     if (patch.conclusions !== undefined) updatePayload.conclusions = patch.conclusions;
 
@@ -1365,13 +1462,12 @@ export class SupabaseScheduleRepository implements IScheduleRepository {
 // ==============================================================================
 export class SupabaseTrainingCycleRepository implements ITrainingCycleRepository {
   async getAll(): Promise<TrainingCycle[]> {
-    const { data, error } = await fromTable('training_cycles').select('*, students(id, legacy_id), training_blocks(*)')
+    const orgId = resolveOrgId();
+    const query = fromTable('training_cycles').select('*, students(id, legacy_id), training_blocks(*)')
+      .eq('organization_id', orgId)
       .order('start_date', { ascending: false });
-
-    if (error) throw error;
-    if (!data) return [];
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return data.map((c: any) => this.mapCycle(c));
+    const data = await fetchAllPages(query);
+    return data.map((row: any) => this.mapCycle(row));
   }
 
   async getByStudentId(studentId: string): Promise<TrainingCycle[]> {
@@ -1510,15 +1606,10 @@ export class SupabaseTrainingCycleRepository implements ITrainingCycleRepository
 export class SupabaseProposalRepository implements IProposalRepository {
   async getAll(organizationId?: string): Promise<Proposal[]> {
     const orgId = resolveOrgId(organizationId);
-    const query = fromTable('proposals')
-      .select('*, students(id, legacy_id)')
-      .eq('organization_id', orgId)
-      .order('created_at', { ascending: false });
-    const { data, error } = await query;
-    if (error) throw error;
-    if (!data) return [];
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return data.map((p: any) => this.mapProposal(p));
+    const query = fromTable('proposals').select('*, students(id, legacy_id)')
+      .eq('organization_id', orgId).order('created_at', { ascending: false });
+    const data = await fetchAllPages(query);
+    return data.map((row: any) => this.mapProposal(row));
   }
 
   async getById(id: string): Promise<Proposal | null> {
@@ -1700,11 +1791,10 @@ export class SupabaseProposalRepository implements IProposalRepository {
 // ==============================================================================
 export class SupabaseActivePlanRepository implements IActivePlanRepository {
   async getAll(): Promise<ActivePlan[]> {
-    const { data, error } = await fromTable('active_plans').select('*');
-    if (error) throw error;
-    if (!data) return [];
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return data.map((p: any) => this.mapPlan(p));
+    const orgId = resolveOrgId();
+    const query = fromTable('active_plans').select('*').eq('organization_id', orgId);
+    const data = await fetchAllPages(query);
+    return data.map((row: any) => this.mapPlan(row));
   }
 
   async getById(id: string): Promise<ActivePlan | null> {
