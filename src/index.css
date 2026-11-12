@@ -257,7 +257,3 @@ input:focus-visible, textarea:focus-visible, select:focus-visible {
 :root :is(button, [role="button"], a)[class*="bg-slate-900"] * {
   color: #FFFFFF !important;
 }
-:root :is(button, [role="button"], a):disabled,
-:root :is(button, [role="button"], a)[aria-disabled="true"] {
-  color: #737373 !important;
-}
