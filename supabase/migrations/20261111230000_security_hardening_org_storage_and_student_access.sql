@@ -2,6 +2,22 @@
 -- Organization-scoped Storage, trainer-only student access, least privilege,
 -- and non-exposed SECURITY DEFINER helpers. No application data is deleted.
 
+-- Make the policy helper resolvable while rebuilding policies, including
+-- when this migration is re-run after an earlier direct database application.
+CREATE SCHEMA IF NOT EXISTS private;
+DO $block$
+BEGIN
+  IF to_regprocedure('public.is_trainer(uuid)') IS NULL
+     AND to_regprocedure('private.is_trainer(uuid)') IS NOT NULL THEN
+    ALTER FUNCTION private.is_trainer(uuid) SET SCHEMA public;
+  END IF;
+  IF to_regprocedure('public.is_organization_member(uuid)') IS NULL
+     AND to_regprocedure('private.is_organization_member(uuid)') IS NOT NULL THEN
+    ALTER FUNCTION private.is_organization_member(uuid) SET SCHEMA public;
+  END IF;
+END
+$block$;
+
 -- 1) Storage: remove global-trainer and public-listing policies.
 DROP POLICY IF EXISTS "Public read for organization assets" ON storage.objects;
 DROP POLICY IF EXISTS "Public read for student avatars" ON storage.objects;
