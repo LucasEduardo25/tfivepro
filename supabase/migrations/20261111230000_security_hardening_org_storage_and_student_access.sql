@@ -7,9 +7,9 @@
 CREATE SCHEMA IF NOT EXISTS private;
 DO $block$
 BEGIN
-  IF to_regprocedure('public.public.is_trainer(uuid)') IS NULL
-     AND to_regprocedure('private.public.is_trainer(uuid)') IS NOT NULL THEN
-    ALTER FUNCTION private.public.is_trainer(uuid) SET SCHEMA public;
+  IF to_regprocedure('public.is_trainer(uuid)') IS NULL
+     AND to_regprocedure('private.is_trainer(uuid)') IS NOT NULL THEN
+    ALTER FUNCTION private.is_trainer(uuid) SET SCHEMA public;
   END IF;
   IF to_regprocedure('public.is_organization_member(uuid)') IS NULL
      AND to_regprocedure('private.is_organization_member(uuid)') IS NOT NULL THEN
@@ -162,8 +162,8 @@ GRANT USAGE ON SCHEMA private TO anon, authenticated, service_role;
 
 DO $block$
 BEGIN
-  IF to_regprocedure('public.public.is_trainer(uuid)') IS NOT NULL THEN
-    ALTER FUNCTION public.public.is_trainer(uuid) SET SCHEMA private;
+  IF to_regprocedure('public.is_trainer(uuid)') IS NOT NULL THEN
+    ALTER FUNCTION public.is_trainer(uuid) SET SCHEMA private;
   END IF;
   IF to_regprocedure('public.is_organization_member(uuid)') IS NOT NULL THEN
     ALTER FUNCTION public.is_organization_member(uuid) SET SCHEMA private;
@@ -171,7 +171,7 @@ BEGIN
 END
 $block$;
 
-GRANT EXECUTE ON FUNCTION public.is_trainer(uuid) TO anon, authenticated, service_role;
+GRANT EXECUTE ON FUNCTION private.is_trainer(uuid) TO anon, authenticated, service_role;
 GRANT EXECUTE ON FUNCTION private.is_organization_member(uuid) TO anon, authenticated, service_role;
 
 -- Lock down internal seed staging tables if they exist in this environment.
