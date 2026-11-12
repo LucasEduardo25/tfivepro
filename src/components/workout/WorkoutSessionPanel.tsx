@@ -1565,72 +1565,87 @@ export const WorkoutSessionPanel: React.FC<WorkoutSessionPanelProps> = ({
               </div>
             </div>
 
-            {/* ÚLTIMA EXECUÇÃO REAL (studentId + exerciseId) & HISTÓRICO RÁPIDO */}
-            <div className="bg-white border border-[#E5E7EB] rounded-xl p-3 flex flex-wrap items-center justify-between gap-3 shadow-xs">
-              <div className="flex items-center gap-2.5 min-w-0">
-                <History className="w-4 h-4 text-emerald-600 shrink-0" />
-                <div className="min-w-0">
+            {/* HISTÓRICO E PROGRESSÃO — recolhidos para priorizar a execução */}
+            <details className="group rounded-xl border border-[#E5E7EB] bg-white shadow-xs">
+              <summary className="flex min-h-[44px] cursor-pointer list-none items-center justify-between gap-3 px-3.5 py-2.5 text-xs font-bold text-[#374151] [&::-webkit-details-marker]:hidden">
+                <span className="flex items-center gap-2">
+                  <History className="h-4 w-4 text-emerald-600" />
+                  Histórico e progressão
+                  {historicalData.lastSet && <span className="font-normal text-[#6B7280]">· última execução disponível</span>}
+                </span>
+                <ChevronDown className="h-4 w-4 shrink-0 text-[#6B7280] transition-transform group-open:rotate-180" />
+              </summary>
+              <div className="space-y-2 border-t border-[#E5E7EB] p-3">
+              {/* ÚLTIMA EXECUÇÃO REAL (studentId + exerciseId) & HISTÓRICO RÁPIDO */}
+              <div className="bg-white border border-[#E5E7EB] rounded-xl p-3 flex flex-wrap items-center justify-between gap-3 shadow-xs">
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <History className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] uppercase font-bold text-[#4B5563]">
+                        ÚLTIMA EXECUÇÃO {formattedLastDate ? `· ${formattedLastDate}` : ''}
+                      </span>
+                    </div>
+                    {historicalData.lastSet ? (
+                      <div className="text-xs font-mono-nums font-black text-[#111827] truncate">
+                        {historicalData.lastSet.weightKg > 0 ? `${historicalData.lastSet.weightKg} kg · ` : ''}
+                        {historicalData.lastSessionSets.length > 0
+                          ? historicalData.lastSessionSets.map(st => st.actualReps || st.durationSeconds || 0).join(' / ') + ' reps'
+                          : `${historicalData.lastSet.actualReps} reps`}
+                      </div>
+                    ) : (
+                      <div className="text-xs text-[#6B7280] italic font-medium">
+                        SEM HISTÓRICO ANTERIOR
+                      </div>
+                    )}
+                  </div>
+                </div>
+  
+                <button
+                  type="button"
+                  onClick={() => setShowQuickHistoryModal(true)}
+                  className="px-2.5 py-1.5 rounded-lg bg-white hover:bg-[#F3F4F6] text-[#1F2937] hover:text-[#111827] border border-[#D1D5DB] text-[11px] font-black uppercase tracking-wider shrink-0 transition-all shadow-xs"
+                >
+                  VER HISTÓRICO
+                </button>
+              </div>
+  
+              {/* PROGRESSÃO OBJETIVA (Sem IA) */}
+              {progressionDiff !== null && historicalData.lastSet && (
+                <div className="bg-white border border-[#E5E7EB] rounded-xl px-3.5 py-2 flex items-center justify-between text-xs shadow-xs">
                   <div className="flex items-center gap-2">
-                    <span className="text-[10px] uppercase font-bold text-[#4B5563]">
-                      ÚLTIMA EXECUÇÃO {formattedLastDate ? `· ${formattedLastDate}` : ''}
+                    <TrendingUp className="w-3.5 h-3.5 text-[#1F2937]" />
+                    <span className="text-[10px] uppercase font-bold text-[#4B5563]">PROGRESSÃO:</span>
+                    <span className="text-[#4B5563]">
+                      Última: <strong className="text-[#111827] font-mono-nums">{historicalData.lastSet.weightKg} kg</strong>
+                    </span>
+                    <span className="text-[#9CA3AF]">→</span>
+                    <span className="text-[#111827]">
+                      Hoje: <strong className="font-mono-nums font-black text-[#111827]">{currentLoad} kg</strong>
                     </span>
                   </div>
-                  {historicalData.lastSet ? (
-                    <div className="text-xs font-mono-nums font-black text-[#111827] truncate">
-                      {historicalData.lastSet.weightKg > 0 ? `${historicalData.lastSet.weightKg} kg · ` : ''}
-                      {historicalData.lastSessionSets.length > 0
-                        ? historicalData.lastSessionSets.map(st => st.actualReps || st.durationSeconds || 0).join(' / ') + ' reps'
-                        : `${historicalData.lastSet.actualReps} reps`}
-                    </div>
-                  ) : (
-                    <div className="text-xs text-[#6B7280] italic font-medium">
-                      SEM HISTÓRICO ANTERIOR
-                    </div>
-                  )}
+  
+                  <div>
+                    {progressionDiff > 0 ? (
+                      <span className="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 border border-emerald-300 font-mono-nums font-black text-[11px]">
+                        +{progressionDiff} kg
+                      </span>
+                    ) : progressionDiff === 0 ? (
+                      <span className="px-2 py-0.5 rounded bg-[#F3F4F6] text-[#4B5563] font-bold text-[10px] uppercase border border-[#E5E7EB]">
+                        Mesma Carga
+                      </span>
+                    ) : (
+                      <span className="px-2 py-0.5 rounded bg-[#F3F4F6] text-[#1F2937] font-mono-nums font-bold text-[11px] border border-[#E5E7EB]">
+                        {progressionDiff} kg
+                      </span>
+                    )}
+                  </div>
                 </div>
+              )}
+  
+  
               </div>
-
-              <button
-                type="button"
-                onClick={() => setShowQuickHistoryModal(true)}
-                className="px-2.5 py-1.5 rounded-lg bg-white hover:bg-[#F3F4F6] text-[#1F2937] hover:text-[#111827] border border-[#D1D5DB] text-[11px] font-black uppercase tracking-wider shrink-0 transition-all shadow-xs"
-              >
-                VER HISTÓRICO
-              </button>
-            </div>
-
-            {/* PROGRESSÃO OBJETIVA (Sem IA) */}
-            {progressionDiff !== null && historicalData.lastSet && (
-              <div className="bg-white border border-[#E5E7EB] rounded-xl px-3.5 py-2 flex items-center justify-between text-xs shadow-xs">
-                <div className="flex items-center gap-2">
-                  <TrendingUp className="w-3.5 h-3.5 text-[#1F2937]" />
-                  <span className="text-[10px] uppercase font-bold text-[#4B5563]">PROGRESSÃO:</span>
-                  <span className="text-[#4B5563]">
-                    Última: <strong className="text-[#111827] font-mono-nums">{historicalData.lastSet.weightKg} kg</strong>
-                  </span>
-                  <span className="text-[#9CA3AF]">→</span>
-                  <span className="text-[#111827]">
-                    Hoje: <strong className="font-mono-nums font-black text-[#111827]">{currentLoad} kg</strong>
-                  </span>
-                </div>
-
-                <div>
-                  {progressionDiff > 0 ? (
-                    <span className="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 border border-emerald-300 font-mono-nums font-black text-[11px]">
-                      +{progressionDiff} kg
-                    </span>
-                  ) : progressionDiff === 0 ? (
-                    <span className="px-2 py-0.5 rounded bg-[#F3F4F6] text-[#4B5563] font-bold text-[10px] uppercase border border-[#E5E7EB]">
-                      Mesma Carga
-                    </span>
-                  ) : (
-                    <span className="px-2 py-0.5 rounded bg-[#F3F4F6] text-[#1F2937] font-mono-nums font-bold text-[11px] border border-[#E5E7EB]">
-                      {progressionDiff} kg
-                    </span>
-                  )}
-                </div>
-              </div>
-            )}
+            </details>
 
             {/* SÉRIE ATUAL / RODADA STEPPER */}
             <div className="flex items-center justify-between border-t border-[#E5E7EB] pt-2.5">
