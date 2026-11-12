@@ -1,212 +1,91 @@
 @import "tailwindcss";
 
+/* =========================================================
+   TFIVE PRO — sistema único de cores
+   Identidade: branco, grafite e cinzas neutros.
+   Cores semânticas (sucesso, alerta e erro) são preservadas.
+========================================================= */
+
 @theme {
-  --color-bg-main: #F7F7F7;
+  --color-bg-main: #F5F5F4;
   --color-surface-card: #FFFFFF;
-  --color-surface-sec: #F1F1F1;
+  --color-surface-sec: #F1F1F0;
   --color-surface-strong: #E5E5E5;
-  
   --color-border-main: #D4D4D4;
   --color-border-subtle: #E5E5E5;
-
-  --color-text-main: #262626;
-  --color-text-sec: #404040;
-  --color-text-aux: #525252;
-  --color-text-muted: #737373;
-
-  --color-graphite-main: #3F3F46;
-  --color-graphite-dark: #27272A;
+  --color-text-main: #202124;
+  --color-text-sec: #52525B;
+  --color-text-aux: #71717A;
+  --color-text-muted: #A1A1AA;
+  --color-graphite-main: #303036;
+  --color-graphite-dark: #202024;
   --color-black-soft: #18181B;
-
-  --color-btn-pri-bg: #27272A;
+  --color-btn-pri-bg: #303036;
   --color-btn-pri-text: #FFFFFF;
-  
   --color-btn-sec-bg: #FFFFFF;
-  --color-btn-sec-text: #27272A;
+  --color-btn-sec-text: #303036;
   --color-btn-sec-border: #D4D4D4;
-  
   --color-btn-disabled-bg: #E5E5E5;
   --color-btn-disabled-text: #737373;
 }
 
-@layer base {
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-    background-color: var(--color-bg-main);
-    color: var(--color-text-main);
-    -webkit-tap-highlight-color: transparent;
-    user-select: none;
-  }
-  input, textarea, select {
-    user-select: text;
-  }
+:root {
+  color-scheme: light;
+  --app-bg: #F5F5F4;
+  --app-surface: #FFFFFF;
+  --app-surface-raised: #FFFFFF;
+  --app-surface-muted: #F7F7F6;
+  --app-surface-subtle: #F1F1F0;
+  --app-border: #E5E5E5;
+  --app-border-strong: #D4D4D4;
+  --app-text: #202124;
+  --app-text-secondary: #52525B;
+  --app-text-muted: #71717A;
+  --app-accent: #303036;
+  --app-accent-hover: #202024;
+  --app-shadow: 0 1px 2px rgb(0 0 0 / 0.04), 0 8px 24px rgb(0 0 0 / 0.035);
 }
 
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --app-bg: #111113;
+  --app-surface: #1B1B1F;
+  --app-surface-raised: #202024;
+  --app-surface-muted: #242428;
+  --app-surface-subtle: #2B2B30;
+  --app-border: #34343A;
+  --app-border-strong: #45454D;
+  --app-text: #F4F4F5;
+  --app-text-secondary: #C4C4CC;
+  --app-text-muted: #A1A1AA;
+  --app-accent: #E4E4E7;
+  --app-accent-hover: #FFFFFF;
+  --app-shadow: 0 1px 2px rgb(0 0 0 / 0.2), 0 10px 28px rgb(0 0 0 / 0.16);
+}
+
+html, body, #root { min-height: 100%; }
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  background: var(--app-bg);
+  color: var(--app-text);
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color .18s ease, color .18s ease;
+}
+
+input, textarea, select { user-select: text; border-radius: .625rem; }
+body { user-select: none; }
 .font-display {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Arial', sans-serif;
-  letter-spacing: -0.02em;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+  letter-spacing: -.02em;
 }
-
 .font-mono-nums {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
   font-variant-numeric: tabular-nums;
 }
 
-/* Custom Scrollbar */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-::-webkit-scrollbar-track {
-  background: var(--color-surface-sec);
-}
-::-webkit-scrollbar-thumb {
-  background: var(--color-border-main);
-  border-radius: 9999px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: var(--color-text-muted);
-}
-
-/* Print styling for High-Quality PDF Reports & Proposals */
-@media print {
-  @page {
-    size: A4 portrait;
-    margin: 10mm 10mm 12mm 10mm;
-  }
-  body {
-    background-color: #ffffff !important;
-    color: #000000 !important;
-    user-select: text;
-  }
-  .no-print {
-    display: none !important;
-  }
-  .print-only {
-    display: block !important;
-  }
-  .print-page-break {
-    page-break-after: always;
-    break-after: page;
-  }
-  .a4-page {
-    page-break-inside: avoid;
-    break-inside: avoid;
-    min-height: 270mm;
-    box-sizing: border-box;
-  }
-  .avoid-break {
-    page-break-inside: avoid;
-    break-inside: avoid;
-  }
-  .print-card {
-    background: #ffffff !important;
-    border: 1px solid #e4e4e7 !important;
-    color: #09090b !important;
-    box-shadow: none !important;
-  }
-}
-
-
-/* TFIVE PRO — identidade branco e grafite */
-:root {
-  color-scheme: light;
-  --app-bg: #f5f5f4;
-  --app-surface: #ffffff;
-  --app-surface-muted: #f1f1f0;
-  --app-border: #e4e4e7;
-  --app-text: #202124;
-  --app-text-secondary: #52525b;
-}
-html[data-theme="dark"] {
-  color-scheme: dark;
-  --app-bg: #111113;
-  --app-surface: #1b1b1f;
-  --app-surface-muted: #242428;
-  --app-border: #34343a;
-  --app-text: #f4f4f5;
-  --app-text-secondary: #a1a1aa;
-}
-body { background-color: var(--app-bg); color: var(--app-text); transition: background-color .2s ease, color .2s ease; }
-html[data-theme="dark"] body { background-color: var(--app-bg); color: var(--app-text); }
-html[data-theme="dark"] [class*="bg-white"],
-html[data-theme="dark"] [class*="bg-[#F"],
-html[data-theme="dark"] [class*="bg-[#E"],
-html[data-theme="dark"] [class*="bg-neutral-50"],
-html[data-theme="dark"] [class*="bg-gray-50"] { background-color: var(--app-surface) !important; }
-html[data-theme="dark"] [class*="border-[#E"],
-html[data-theme="dark"] [class*="border-[#D"],
-html[data-theme="dark"] [class*="border-gray-"],
-html[data-theme="dark"] [class*="border-neutral-"] { border-color: var(--app-border) !important; }
-html[data-theme="dark"] [class*="text-[#1F2937"],
-html[data-theme="dark"] [class*="text-[#262626"],
-html[data-theme="dark"] [class*="text-[#374151"],
-html[data-theme="dark"] [class*="text-[#404040"],
-html[data-theme="dark"] [class*="text-[#4B5563"],
-html[data-theme="dark"] [class*="text-gray-700"],
-html[data-theme="dark"] [class*="text-gray-800"],
-html[data-theme="dark"] [class*="text-neutral-800"] { color: #e4e4e7 !important; }
-html[data-theme="dark"] input,
-html[data-theme="dark"] textarea,
-html[data-theme="dark"] select { background-color: #242428; color: #f4f4f5; border-color: #44444b; }
-html[data-theme="dark"] [class*="hover\\:bg-[#F"]:hover { background-color: #303036 !important; }
-@media (prefers-reduced-motion: reduce) {
-  body { transition: none; }
-}
-
-
-/* -------------------------------------------------------
-   TFIVE PRO — sistema visual unificado
-   Superfícies, componentes e contraste em todas as telas
--------------------------------------------------------- */
-:root {
-  --app-bg: #f5f5f4;
-  --app-surface: #ffffff;
-  --app-surface-raised: #ffffff;
-  --app-surface-muted: #f7f7f6;
-  --app-surface-subtle: #f1f1f0;
-  --app-border: #e5e5e5;
-  --app-border-strong: #d4d4d4;
-  --app-text: #202124;
-  --app-text-secondary: #52525b;
-  --app-text-muted: #71717a;
-  --app-accent: #27272a;
-  --app-accent-hover: #18181b;
-  --app-shadow: 0 1px 2px rgb(0 0 0 / 0.04), 0 8px 24px rgb(0 0 0 / 0.035);
-  color-scheme: light;
-}
-
-html[data-theme="dark"] {
-  --app-bg: #111113;
-  --app-surface: #1b1b1f;
-  --app-surface-raised: #202024;
-  --app-surface-muted: #242428;
-  --app-surface-subtle: #2b2b30;
-  --app-border: #34343a;
-  --app-border-strong: #45454d;
-  --app-text: #f4f4f5;
-  --app-text-secondary: #c4c4cc;
-  --app-text-muted: #a1a1aa;
-  --app-accent: #e4e4e7;
-  --app-accent-hover: #ffffff;
-  --app-shadow: 0 1px 2px rgb(0 0 0 / 0.2), 0 10px 28px rgb(0 0 0 / 0.16);
-  color-scheme: dark;
-}
-
-html, body, #root {
-  min-height: 100%;
-}
-body {
-  background: var(--app-bg);
-  color: var(--app-text);
-  transition: background-color .18s ease, color .18s ease;
-}
-::selection {
-  background: #d4d4d8;
-  color: #18181b;
-}
-
-/* Painéis escuros antigos passam a usar a mesma superfície clara/grafite. */
+/* Harmonização dos componentes antigos no tema claro. */
 :root:not([data-theme="dark"]) :is(
   [class*="bg-[#050505]"],
   [class*="bg-[#0E0E11]"],
@@ -231,59 +110,17 @@ body {
 ) [class~="text-white"] {
   color: var(--app-text) !important;
 }
-:root:not([data-theme="dark"]) :is(
-  [class*="bg-[#050505]"],
-  [class*="bg-[#0E0E11]"],
-  [class*="bg-[#0e0e11]"],
-  [class*="bg-[#121212]"],
-  [class*="bg-[#121214]"],
-  [class*="bg-[#18181B]"]
-) button[class*="bg-[#374151]"],
-:root:not([data-theme="dark"]) :is(
-  [class*="bg-[#050505]"],
-  [class*="bg-[#0E0E11]"],
-  [class*="bg-[#0e0e11]"],
-  [class*="bg-[#121212]"],
-  [class*="bg-[#121214]"],
-  [class*="bg-[#18181B]"]
-) button[class*="bg-[#1F2937]"] {
-  color: #ffffff !important;
-}
-:root:not([data-theme="dark"]) :is(
-  [class*="bg-[#050505]"],
-  [class*="bg-[#0E0E11]"],
-  [class*="bg-[#0e0e11]"],
-  [class*="bg-[#121212]"],
-  [class*="bg-[#121214]"],
-  [class*="bg-[#18181B]"]
-) button[class*="bg-[#374151]"] *,
-:root:not([data-theme="dark"]) :is(
-  [class*="bg-[#050505]"],
-  [class*="bg-[#0E0E11]"],
-  [class*="bg-[#0e0e11]"],
-  [class*="bg-[#121212]"],
-  [class*="bg-[#121214]"],
-  [class*="bg-[#18181B]"]
-) button[class*="bg-[#1F2937]"] * {
-  color: #ffffff !important;
-}
 
-/* Grafite consistente para ações primárias, sem introduzir vermelho/azul. */
+/* Ações primárias antigas usam o mesmo grafite do sistema. */
 [class*="bg-[#374151]"] {
   background-color: #303036 !important;
 }
 [class*="bg-[#374151]"]:hover,
-[class*="hover\:bg-[#1F2937]"]:hover {
+[class*="hover\\:bg-[#1F2937]"]:hover {
   background-color: #202024 !important;
 }
-html[data-theme="dark"] [class*="bg-[#374151]"] {
-  background-color: #3f3f46 !important;
-}
-html[data-theme="dark"] [class*="bg-[#374151]"]:hover {
-  background-color: #52525b !important;
-}
 
-/* Tema escuro: converter superfícies claras e textos escuros existentes. */
+/* Compatibilidade do tema escuro com classes Tailwind já existentes. */
 html[data-theme="dark"] :is(
   [class*="bg-white"],
   [class*="bg-[#F"],
@@ -325,6 +162,7 @@ html[data-theme="dark"] :is(
 }
 html[data-theme="dark"] :is(
   [class*="text-[#1F2937"],
+  [class*="text-[#202124"],
   [class*="text-[#262626"],
   [class*="text-[#374151"],
   [class*="text-[#404040"],
@@ -343,33 +181,56 @@ html[data-theme="dark"] :is(input, textarea, select) {
   color: var(--app-text);
   border-color: var(--app-border-strong);
 }
-html[data-theme="dark"] input::placeholder,
-html[data-theme="dark"] textarea::placeholder {
+html[data-theme="dark"] :is(input, textarea)::placeholder {
   color: var(--app-text-muted);
 }
-
-/* Elementos de navegação, cartões e controles com acabamento consistente. */
-button, [role="button"] {
-  -webkit-tap-highlight-color: transparent;
+html[data-theme="dark"] [class*="bg-[#374151]"] {
+  background-color: #3F3F46 !important;
 }
-button:focus-visible, [role="button"]:focus-visible, input:focus-visible,
-textarea:focus-visible, select:focus-visible {
-  outline: 2px solid #a1a1aa;
+html[data-theme="dark"] [class*="bg-[#374151]"]:hover {
+  background-color: #52525B !important;
+}
+
+/* Estados de foco e interação. */
+button, [role="button"] { -webkit-tap-highlight-color: transparent; }
+button:focus-visible, [role="button"]:focus-visible,
+input:focus-visible, textarea:focus-visible, select:focus-visible {
+  outline: 2px solid #A1A1AA;
   outline-offset: 2px;
 }
-input, textarea, select {
-  border-radius: 0.625rem;
-}
-@media (max-width: 767px) {
-  body {
-    overscroll-behavior-y: contain;
+::selection { background: #D4D4D8; color: #18181B; }
+
+/* Barras de rolagem. */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--app-surface-muted); }
+::-webkit-scrollbar-thumb { background: var(--app-border-strong); border-radius: 9999px; }
+::-webkit-scrollbar-thumb:hover { background: var(--app-text-muted); }
+
+/* Relatórios e documentos em PDF. */
+@media print {
+  @page { size: A4 portrait; margin: 10mm 10mm 12mm 10mm; }
+  body { background: #FFFFFF !important; color: #000000 !important; user-select: text; }
+  .no-print { display: none !important; }
+  .print-only { display: block !important; }
+  .print-page-break { page-break-after: always; break-after: page; }
+  .a4-page { page-break-inside: avoid; break-inside: avoid; min-height: 270mm; box-sizing: border-box; }
+  .avoid-break { page-break-inside: avoid; break-inside: avoid; }
+  .print-card {
+    background: #FFFFFF !important;
+    border: 1px solid #E4E4E7 !important;
+    color: #09090B !important;
+    box-shadow: none !important;
   }
+}
+
+@media (max-width: 767px) {
+  body { overscroll-behavior-y: contain; }
 }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     scroll-behavior: auto !important;
-    transition-duration: 0.01ms !important;
-    animation-duration: 0.01ms !important;
+    transition-duration: .01ms !important;
+    animation-duration: .01ms !important;
     animation-iteration-count: 1 !important;
   }
 }
