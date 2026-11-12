@@ -29,82 +29,82 @@ CREATE POLICY "TFIVE read organization assessment photos" ON storage.objects
 FOR SELECT TO authenticated
 USING (bucket_id='assessment-photos' AND CASE
   WHEN (storage.foldername(name))[1] ~* '^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$'
-  THEN private.is_trainer(((storage.foldername(name))[1])::uuid) ELSE false END);
+  THEN is_trainer(((storage.foldername(name))[1])::uuid) ELSE false END);
 
 CREATE POLICY "TFIVE read organization student avatars" ON storage.objects
 FOR SELECT TO authenticated
 USING (bucket_id='student-avatars' AND CASE
   WHEN (storage.foldername(name))[1] ~* '^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$'
-  THEN private.is_trainer(((storage.foldername(name))[1])::uuid) ELSE false END);
+  THEN is_trainer(((storage.foldername(name))[1])::uuid) ELSE false END);
 
 CREATE POLICY "TFIVE trainers read own organization assets" ON storage.objects
 FOR SELECT TO authenticated
 USING (bucket_id='organization-assets' AND CASE
   WHEN (storage.foldername(name))[1] ~* '^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$'
-  THEN private.is_trainer(((storage.foldername(name))[1])::uuid) ELSE false END);
+  THEN is_trainer(((storage.foldername(name))[1])::uuid) ELSE false END);
 
 CREATE POLICY "TFIVE trainers insert organization assessment photos" ON storage.objects
 FOR INSERT TO authenticated
 WITH CHECK (bucket_id='assessment-photos' AND CASE
   WHEN (storage.foldername(name))[1] ~* '^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$'
-  THEN private.is_trainer(((storage.foldername(name))[1])::uuid) ELSE false END);
+  THEN is_trainer(((storage.foldername(name))[1])::uuid) ELSE false END);
 
 CREATE POLICY "TFIVE trainers update organization assessment photos" ON storage.objects
 FOR UPDATE TO authenticated
 USING (bucket_id='assessment-photos' AND CASE
   WHEN (storage.foldername(name))[1] ~* '^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$'
-  THEN private.is_trainer(((storage.foldername(name))[1])::uuid) ELSE false END)
+  THEN is_trainer(((storage.foldername(name))[1])::uuid) ELSE false END)
 WITH CHECK (bucket_id='assessment-photos' AND CASE
   WHEN (storage.foldername(name))[1] ~* '^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$'
-  THEN private.is_trainer(((storage.foldername(name))[1])::uuid) ELSE false END);
+  THEN is_trainer(((storage.foldername(name))[1])::uuid) ELSE false END);
 
 CREATE POLICY "TFIVE trainers delete organization assessment photos" ON storage.objects
 FOR DELETE TO authenticated
 USING (bucket_id='assessment-photos' AND CASE
   WHEN (storage.foldername(name))[1] ~* '^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$'
-  THEN private.is_trainer(((storage.foldername(name))[1])::uuid) ELSE false END);
+  THEN is_trainer(((storage.foldername(name))[1])::uuid) ELSE false END);
 
 CREATE POLICY "TFIVE trainers insert organization student avatars" ON storage.objects
 FOR INSERT TO authenticated
 WITH CHECK (bucket_id='student-avatars' AND CASE
   WHEN (storage.foldername(name))[1] ~* '^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$'
-  THEN private.is_trainer(((storage.foldername(name))[1])::uuid) ELSE false END);
+  THEN is_trainer(((storage.foldername(name))[1])::uuid) ELSE false END);
 
 CREATE POLICY "TFIVE trainers update organization student avatars" ON storage.objects
 FOR UPDATE TO authenticated
 USING (bucket_id='student-avatars' AND CASE
   WHEN (storage.foldername(name))[1] ~* '^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$'
-  THEN private.is_trainer(((storage.foldername(name))[1])::uuid) ELSE false END)
+  THEN is_trainer(((storage.foldername(name))[1])::uuid) ELSE false END)
 WITH CHECK (bucket_id='student-avatars' AND CASE
   WHEN (storage.foldername(name))[1] ~* '^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$'
-  THEN private.is_trainer(((storage.foldername(name))[1])::uuid) ELSE false END);
+  THEN is_trainer(((storage.foldername(name))[1])::uuid) ELSE false END);
 
 CREATE POLICY "TFIVE trainers delete organization student avatars" ON storage.objects
 FOR DELETE TO authenticated
 USING (bucket_id='student-avatars' AND CASE
   WHEN (storage.foldername(name))[1] ~* '^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$'
-  THEN private.is_trainer(((storage.foldername(name))[1])::uuid) ELSE false END);
+  THEN is_trainer(((storage.foldername(name))[1])::uuid) ELSE false END);
 
 CREATE POLICY "TFIVE trainers insert own organization assets" ON storage.objects
 FOR INSERT TO authenticated
 WITH CHECK (bucket_id='organization-assets' AND CASE
   WHEN (storage.foldername(name))[1] ~* '^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$'
-  THEN private.is_trainer(((storage.foldername(name))[1])::uuid) ELSE false END);
+  THEN is_trainer(((storage.foldername(name))[1])::uuid) ELSE false END);
 
 CREATE POLICY "TFIVE trainers update own organization assets" ON storage.objects
 FOR UPDATE TO authenticated
 USING (bucket_id='organization-assets' AND CASE
   WHEN (storage.foldername(name))[1] ~* '^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$'
-  THEN private.is_trainer(((storage.foldername(name))[1])::uuid) ELSE false END)
+  THEN is_trainer(((storage.foldername(name))[1])::uuid) ELSE false END)
 WITH CHECK (bucket_id='organization-assets' AND CASE
   WHEN (storage.foldername(name))[1] ~* '^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$'
-  THEN private.is_trainer(((storage.foldername(name))[1])::uuid) ELSE false END);
+  THEN is_trainer(((storage.foldername(name))[1])::uuid) ELSE false END);
 
 CREATE POLICY "TFIVE trainers delete own organization assets" ON storage.objects
 FOR DELETE TO authenticated
 USING (bucket_id='organization-assets' AND CASE
   WHEN (storage.foldername(name))[1] ~* '^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$'
-  THEN private.is_trainer(((storage.foldername(name))[1])::uuid) ELSE false END);
+  THEN is_trainer(((storage.foldername(name))[1])::uuid) ELSE false END);
 
 -- Disable every Data API path to the student portal table. The existing deny
 -- policy remains; permissive student/trainer policies and grants are removed.
@@ -155,7 +155,7 @@ BEGIN
 END
 $block$;
 
-GRANT EXECUTE ON FUNCTION private.is_trainer(uuid) TO anon, authenticated, service_role;
+GRANT EXECUTE ON FUNCTION is_trainer(uuid) TO anon, authenticated, service_role;
 GRANT EXECUTE ON FUNCTION private.is_organization_member(uuid) TO anon, authenticated, service_role;
 
 -- Lock down internal seed staging tables if they exist in this environment.
