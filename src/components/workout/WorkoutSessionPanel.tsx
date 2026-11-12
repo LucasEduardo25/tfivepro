@@ -1241,12 +1241,12 @@ export const WorkoutSessionPanel: React.FC<WorkoutSessionPanelProps> = ({
       {/* ========================================================================= */}
       {/* CONSOLE PRINCIPAL — GRID 2 COLUNAS NO TABLET LANDSCAPE / DESKTOP */}
       {/* ========================================================================= */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
+      <div className="grid grid-cols-1 gap-3 items-start">
         
         {/* ======================================================================= */}
         {/* COLUNA ESQUERDA: LISTA COMPLETA DE EXERCÍCIOS DA SESSÃO */}
         {/* ======================================================================= */}
-        <div className="hidden lg:flex lg:col-span-4 flex-col bg-[#F9FAFB] border border-[#E5E7EB] rounded-2xl p-3.5 space-y-3 sticky top-4">
+        <div className="hidden">
           <div className="flex items-center justify-between border-b border-[#E5E7EB] pb-2.5">
             <div className="flex items-center gap-2">
               <ListOrdered className="w-4 h-4 text-[#1F2937]" />
@@ -1349,7 +1349,7 @@ export const WorkoutSessionPanel: React.FC<WorkoutSessionPanelProps> = ({
         {/* ======================================================================= */}
         {/* COLUNA DIREITA: CONSOLE DO EXERCÍCIO ATUAL */}
         {/* ======================================================================= */}
-        <div className="lg:col-span-8 flex flex-col space-y-3 min-w-0">
+        <div className="flex flex-col space-y-3 min-w-0">
           
           {/* Bi-Set / Tri-Set / Circuit Interactive Queue */}
           {isGrouped && (
@@ -1475,7 +1475,7 @@ export const WorkoutSessionPanel: React.FC<WorkoutSessionPanelProps> = ({
                 {/* Mobile & Tablet Portrait: Exercise List Button */}
                 <button
                   onClick={() => setShowExerciseListDrawer(true)}
-                  className="lg:hidden px-3 py-1.5 rounded-xl bg-white hover:bg-[#F3F4F6] text-[#1F2937] border border-[#D1D5DB] text-xs font-bold flex items-center gap-1.5 transition-all min-h-[38px] shadow-xs"
+                  className="px-3 py-1.5 rounded-xl bg-white hover:bg-[#F3F4F6] text-[#1F2937] border border-[#D1D5DB] text-xs font-bold flex items-center gap-1.5 transition-all min-h-[38px] shadow-xs"
                 >
                   <ListOrdered className="w-4 h-4 text-[#1F2937]" />
                   <span className="font-mono-nums font-black">{safeExerciseIndex + 1}/{routineExercises.length}</span>
@@ -2159,7 +2159,12 @@ export const WorkoutSessionPanel: React.FC<WorkoutSessionPanelProps> = ({
           {/* ===================================================================== */}
           {/* SÉRIES CONCLUÍDAS DO EXERCÍCIO ATUAL */}
           {/* ===================================================================== */}
-          <div className="bg-[#F9FAFB] border border-[#E5E7EB] rounded-2xl p-3.5 space-y-2">
+          <details className="group bg-white border border-[#E5E7EB] rounded-2xl shadow-xs">
+            <summary className="flex min-h-[46px] cursor-pointer list-none items-center justify-between px-3.5 py-3 text-xs font-bold text-[#374151] [&::-webkit-details-marker]:hidden">
+              <span>Séries concluídas ({completedSetsForCurrentEx.length}/{currentExercise?.targetSets || (isGrouped ? 3 : 4)})</span>
+              <ChevronDown className="h-4 w-4 text-[#6B7280] transition-transform group-open:rotate-180" />
+            </summary>
+            <div className="bg-[#F9FAFB] border-t border-[#E5E7EB] rounded-b-2xl p-3.5 space-y-2">
             <div className="flex items-center justify-between border-b border-[#E5E7EB] pb-2">
               <span className="text-[11px] uppercase font-black text-[#111827] tracking-wider">
                 SÉRIES CONCLUÍDAS ({completedSetsForCurrentEx.length}/{currentExercise?.targetSets || (isGrouped ? 3 : 4)})
@@ -2226,7 +2231,8 @@ export const WorkoutSessionPanel: React.FC<WorkoutSessionPanelProps> = ({
                 ))}
               </div>
             )}
-          </div>
+            </div>
+          </details>
 
         </div>
 
