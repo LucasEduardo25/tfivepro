@@ -234,3 +234,26 @@ input:focus-visible, textarea:focus-visible, select:focus-visible {
     animation-iteration-count: 1 !important;
   }
 }
+
+
+/* Contraste consistente para botões com fundos escuros.
+   Alguns componentes legados combinam fundo grafite com classes de texto escuro.
+   A regra fica limitada a controles interativos para não alterar cards e painéis. */
+:root :is(button, [role="button"], a)[class*="bg-[#374151]"],
+:root :is(button, [role="button"], a)[class*="bg-[#303036]"],
+:root :is(button, [role="button"], a)[class*="bg-black"],
+:root :is(button, [role="button"], a)[class*="bg-gray-900"],
+:root :is(button, [role="button"], a)[class*="bg-zinc-900"],
+:root :is(button, [role="button"], a)[class*="bg-neutral-900"],
+:root :is(button, [role="button"], a)[class*="bg-slate-900"] {
+  color: #FFFFFF !important;
+}
+:root :is(button, [role="button"], a)[class*="bg-[#374151]"] *,
+:root :is(button, [role="button"], a)[class*="bg-[#303036]"] *,
+:root :is(button, [role="button"], a)[class*="bg-black"] *,
+:root :is(button, [role="button"], a)[class*="bg-gray-900"] *,
+:root :is(button, [role="button"], a)[class*="bg-zinc-900"] *,
+:root :is(button, [role="button"], a)[class*="bg-neutral-900"] *,
+:root :is(button, [role="button"], a)[class*="bg-slate-900"] * {
+  color: #FFFFFF !important;
+}
